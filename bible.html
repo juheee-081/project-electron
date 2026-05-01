@@ -119,10 +119,20 @@
     ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
 
     /* ── 구절 댓글 ── */
-    .comment-box{margin-left:32px;border-left:2px solid var(--border2);border-bottom:2px solid var(--border2);border-radius:0 0 0 8px;padding:8px 12px 10px;background:rgba(196,124,42,.03);display:none;}
-    .comment-box.open{display:block;}
+    /* 항상 보이는 ㄴ자 박스 — 닫힌 상태는 연하게 */
+    .comment-box{margin-left:32px;border-left:2px solid rgba(212,196,160,.4);border-bottom:2px solid rgba(212,196,160,.4);border-radius:0 0 0 8px;padding:4px 10px 5px;background:transparent;transition:border-color .25s,background .25s,padding .25s;}
+    .comment-box.open{border-left-color:var(--border2);border-bottom-color:var(--border2);background:rgba(196,124,42,.03);padding:8px 12px 10px;}
+    /* 닫힌 상태 — 입력창 숨김 */
+    .comment-box:not(.open) .comment-input-row{display:none;}
+    /* 닫힌 상태 — 댓글 없을 때 희미한 힌트 */
+    .comment-box:not(.open) .comment-list:empty::after{content:'+ 감상을 남겨보세요...';display:block;font-size:.68rem;color:rgba(196,124,42,.32);font-style:italic;}
+    /* 닫힌 상태 — 기존 댓글은 작고 연하게 */
+    .comment-box:not(.open) .comment-item{background:transparent;border:none;padding:1px 0;gap:4px;}
+    .comment-box:not(.open) .comment-item-text{font-size:.71rem;color:rgba(138,114,88,.6);}
+    .comment-box:not(.open) .comment-item-date,.comment-box:not(.open) .btn-comment-del{display:none;}
+    /* 열린 상태 — 풀 스타일 */
     .comment-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
-    .comment-item{display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,.75);border:1px solid var(--border);border-radius:7px;padding:6px 10px;}
+    .comment-box.open .comment-item{display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,.75);border:1px solid var(--border);border-radius:7px;padding:6px 10px;}
     .comment-item-text{flex:1;font-size:.78rem;color:var(--text);line-height:1.55;}
     .comment-item-date{font-size:.66rem;color:var(--muted);white-space:nowrap;flex-shrink:0;padding-top:2px;}
     .btn-comment-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.72rem;padding:0 2px;flex-shrink:0;transition:color .15s;line-height:1.2;}
@@ -597,6 +607,8 @@ function loadPassage(){
   document.getElementById('memoArea').value = localStorage.getItem(`memo_${sel}`) || '';
   document.getElementById('memoSub').textContent = `${data.title} 묵상 메모`;
   document.getElementById('memoSaveMsg').textContent = '';
+  // 모든 구절 댓글 초기 렌더링 (닫힌 상태에서도 연하게 보이게)
+  data.verses.forEach(v => renderComments(v.v));
 }
 
 function toggleHighlight(vNum){
@@ -613,7 +625,6 @@ function toggleCommentBox(vNum){
   if(!cb) return;
   const isOpen = cb.classList.toggle('open');
   if(isOpen){
-    renderComments(vNum);
     setTimeout(()=>{ const inp=document.getElementById(`ci-${vNum}`); if(inp) inp.focus(); }, 60);
   }
 }
