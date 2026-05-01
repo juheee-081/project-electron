@@ -171,8 +171,12 @@
     .diary-empty{text-align:center;color:var(--muted);padding:40px 20px;}
     .diary-empty-icon{font-size:3.5rem;margin-bottom:16px;}
     .diary-empty p{font-size:.95rem;margin-bottom:24px;line-height:1.75;}
-    .diary-card{position:absolute;width:460px;max-width:calc(100vw - 160px);background:#fff;border:1px solid var(--border);border-radius:20px;padding:26px 28px 20px;box-shadow:0 8px 36px rgba(0,0,0,.1);transition:transform .5s cubic-bezier(.34,1.05,.64,1),opacity .4s;will-change:transform;user-select:none;}
+    .diary-card{position:absolute;left:50%;top:50%;width:460px;max-width:calc(100vw - 160px);background:#fff;border:1px solid var(--border);border-radius:20px;padding:26px 28px 20px;box-shadow:0 8px 36px rgba(0,0,0,.1);transition:transform .5s cubic-bezier(.34,1.05,.64,1),opacity .4s;will-change:transform;user-select:none;}
     .diary-card.active{user-select:auto;box-shadow:0 12px 48px rgba(196,124,42,.15);}
+    .diary-add-card{display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.75);border:2px dashed var(--border2);color:var(--muted);min-height:320px;cursor:pointer;transition:border-color .2s,color .2s;}
+    .diary-add-card:hover{border-color:var(--green);color:var(--green);}
+    .diary-add-icon{font-size:2.8rem;margin-bottom:12px;line-height:1;}
+    .diary-add-text{font-size:.88rem;font-weight:700;}
     .diary-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
     .diary-card-num{font-size:.76rem;font-weight:800;color:var(--accent);background:rgba(196,124,42,.1);border:1px solid rgba(196,124,42,.2);border-radius:20px;padding:3px 12px;}
     .btn-diary-del{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:.75rem;padding:4px 10px;transition:all .2s;font-family:inherit;}
@@ -808,18 +812,23 @@ function renderDiary(){
   if(rArr) rArr.style.visibility='visible';
 
   const SPREAD=360, DEPTH=175, ROT=38;
-  scene.innerHTML = diaryCards.map((card, i)=>{
-    const off = i - currentDiaryIdx;
-    const tx = off * SPREAD;
+
+  function cardTransform(off, tx){
     const tz = off===0 ? 0 : -DEPTH;
     const ry = Math.max(-ROT, Math.min(ROT, off*ROT));
     const sc = off===0 ? 1 : Math.max(0.78, 1-Math.abs(off)*0.11);
     const op = Math.abs(off)>2 ? 0 : Math.max(0, 1-Math.abs(off)*0.32);
-    const zIdx = diaryCards.length - Math.abs(off);
+    const zIdx = diaryCards.length + 5 - Math.abs(off);
+    return {tz,ry,sc,op,zIdx, style:`transform:translateX(calc(-50% + ${tx}px)) translateY(-50%) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc});opacity:${op};z-index:${zIdx};`};
+  }
+
+  const realCards = diaryCards.map((card, i)=>{
+    const off = i - currentDiaryIdx;
+    const tx = off * SPREAD;
+    const t = cardTransform(off, tx);
     const isActive = off===0;
-    const navAttr = !isActive ? `onclick="moveDiary(${off>0?1:-1})" style="cursor:pointer;"` : '';
-    return `<div class="diary-card${isActive?' active':''}" data-diary-id="${card.id}"
-        style="transform:translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc});opacity:${op};z-index:${zIdx};" ${navAttr}>
+    const navAttr = !isActive ? `onclick="moveDiary(${off>0?1:-1})" style="${t.style}cursor:pointer;"` : `style="${t.style}"`;
+    return `<div class="diary-card${isActive?' active':''}" data-diary-id="${card.id}" ${navAttr}>
       <div class="diary-card-top">
         <span class="diary-card-num">묵상 ${i+1}</span>
         <button class="btn-diary-del" onclick="event.stopPropagation();deleteDiaryCard(${card.id})">삭제</button>
@@ -841,7 +850,18 @@ function renderDiary(){
         <button class="btn-diary-save" onclick="event.stopPropagation();saveDiaryCard(${card.id})">저장</button>
       </div>
     </div>`;
-  }).join('');
+  });
+
+  // "+" 추가 카드 — 마지막 카드 오른쪽에 항상 표시
+  const addOff = diaryCards.length - currentDiaryIdx;
+  const addTx = addOff * SPREAD;
+  const addT = cardTransform(addOff, addTx);
+  const addCard = addT.op > 0 ? `<div class="diary-card diary-add-card" onclick="addDiaryCard()" style="${addT.style}cursor:pointer;">
+    <div class="diary-add-icon">＋</div>
+    <div class="diary-add-text">새 묵상 카드</div>
+  </div>` : '';
+
+  scene.innerHTML = realCards.join('') + addCard;
 }
 
 function moveDiary(dir){
@@ -883,6 +903,17 @@ function initLanding(){
   document.getElementById('landVerseText').textContent = `"${v.text}"`;
   document.getElementById('landVerseRef').textContent = `— ${v.ref}`;
 }
+
+// ── 묵상 일기 마우스 휠 ──────────────────
+let diaryWheelLock = false;
+document.getElementById('diaryView').addEventListener('wheel', e=>{
+  if(e.target.closest('textarea,input')) return;
+  e.preventDefault();
+  if(diaryWheelLock) return;
+  diaryWheelLock = true;
+  moveDiary(e.deltaY > 0 ? 1 : -1);
+  setTimeout(()=> diaryWheelLock=false, 420);
+}, {passive:false});
 
 // ── 초기화 ────────────────────────────────
 initLanding();
