@@ -117,6 +117,34 @@
     .memo-highlight-hint{font-size:.74rem;color:var(--muted);margin-top:12px;padding:10px;background:rgba(196,124,42,.06);border-radius:8px;line-height:1.5;}
 
     ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+    /* ── 구절 댓글 ── */
+    .comment-box{margin-left:32px;border-left:2px solid var(--border2);border-bottom:2px solid var(--border2);border-radius:0 0 0 8px;padding:8px 12px 10px;background:rgba(196,124,42,.03);display:none;}
+    .comment-box.open{display:block;}
+    .comment-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
+    .comment-item{display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,.75);border:1px solid var(--border);border-radius:7px;padding:6px 10px;}
+    .comment-item-text{flex:1;font-size:.78rem;color:var(--text);line-height:1.55;}
+    .comment-item-date{font-size:.66rem;color:var(--muted);white-space:nowrap;flex-shrink:0;padding-top:2px;}
+    .btn-comment-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.72rem;padding:0 2px;flex-shrink:0;transition:color .15s;line-height:1.2;}
+    .btn-comment-del:hover{color:#e53e3e;}
+    .comment-input-row{display:flex;gap:6px;}
+    .comment-input{flex:1;background:#fff;border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:.78rem;font-family:inherit;color:var(--text);outline:none;transition:border-color .2s;}
+    .comment-input:focus{border-color:var(--accent);}
+    .comment-input::placeholder{color:var(--muted);}
+    .btn-comment-submit{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s;font-family:inherit;}
+    .btn-comment-submit:hover{opacity:.85;}
+    .cmt-dot{display:inline-block;width:5px;height:5px;background:var(--green);border-radius:50%;margin-left:2px;vertical-align:super;flex-shrink:0;}
+
+    /* ── 상황별 말씀 추천 ── */
+    .situation-section{margin-top:26px;padding-top:22px;border-top:1px solid var(--border);}
+    .situation-title{font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:.03em;}
+    .situation-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;}
+    .btn-situation{padding:8px 14px;border-radius:20px;font-size:.76rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-family:inherit;transition:all .2s;line-height:1.4;}
+    .btn-situation:hover,.btn-situation.active{border-color:var(--accent);color:var(--accent);background:rgba(196,124,42,.08);}
+    .situation-result{background:linear-gradient(135deg,rgba(196,124,42,.07),rgba(74,122,90,.06));border:1px solid var(--border);border-radius:14px;padding:20px 24px;text-align:center;animation:sitFadeIn .35s ease;}
+    @keyframes sitFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .situation-verse-text{font-size:.97rem;line-height:1.85;color:var(--text);font-style:italic;margin-bottom:10px;}
+    .situation-verse-ref{font-size:.8rem;color:var(--accent);font-weight:800;}
   </style>
 </head>
 <body>
@@ -181,6 +209,21 @@
             <button class="btn-verse btn-verse-outline" onclick="copyVerse()">📋 복사하기</button>
           </div>
           <div class="verse-copy-msg" id="verseCopyMsg"></div>
+
+          <!-- 상황별 말씀 추천 -->
+          <div class="situation-section">
+            <div class="situation-title">🙏 나의 상황에 맞는 말씀 찾기</div>
+            <div class="situation-btns">
+              <button class="btn-situation" onclick="showSituationVerse('alert',this)">⚡ 정신바짝차리게 해주는 말씀추천!</button>
+              <button class="btn-situation" onclick="showSituationVerse('sad',this)">🌧️ 기분이 울적할때,, 말씀추천</button>
+              <button class="btn-situation" onclick="showSituationVerse('fullness',this)">🌟 삶을 충만하게 느끼고싶을때 말씀추천</button>
+              <button class="btn-situation" onclick="showSituationVerse('love',this)">💗 주님의 사랑을 듬뿍 느끼고싶을때 말씀</button>
+            </div>
+            <div class="situation-result" id="situationResult" style="display:none">
+              <div class="situation-verse-text" id="situationText"></div>
+              <div class="situation-verse-ref" id="situationRef"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -202,7 +245,7 @@
           <option value="고린도전서 13장">고린도전서 13장 — 사랑장</option>
           <option value="빌립보서 4장">빌립보서 4장 — 평강</option>
         </select>
-        <span style="font-size:.78rem;color:var(--muted);">구절을 클릭하면 하이라이트돼요</span>
+        <span style="font-size:.78rem;color:var(--muted);">번호 클릭 → 하이라이트 &nbsp;·&nbsp; 말씀 클릭 → 감상 남기기</span>
       </div>
       <div class="bible-body">
         <div class="bible-text-area" id="bibleTextArea"></div>
@@ -214,7 +257,7 @@
             <span class="memo-save-msg" id="memoSaveMsg"></span>
             <button class="btn-memo-save" onclick="saveMemo()">저장</button>
           </div>
-          <div class="memo-highlight-hint">💡 구절을 클릭하면 중요한 부분을 하이라이트할 수 있어요.</div>
+          <div class="memo-highlight-hint">💡 구절 번호를 클릭하면 하이라이트, 말씀 본문을 클릭하면 감상 댓글을 남길 수 있어요.</div>
         </div>
       </div>
     </div>
@@ -403,6 +446,60 @@ const BIBLE_DATA = {
   ]},
 };
 
+// ── 상황별 말씀 데이터 ────────────────────
+const SITUATION_VERSES = {
+  alert:[
+    {ref:'여호수아 1:9',text:'내가 네게 명령한 것이 아니냐 강하고 담대하라 두려워하지 말며 놀라지 말라 네가 어디로 가든지 네 하나님 여호와가 너와 함께 하느니라'},
+    {ref:'빌립보서 4:13',text:'내게 능력 주시는 자 안에서 내가 모든 것을 할 수 있느니라'},
+    {ref:'이사야 40:31',text:'오직 여호와를 앙망하는 자는 새 힘을 얻으리니 독수리가 날개치며 올라감 같을 것이요 달음박질하여도 곤비하지 아니하겠고 걸어가도 피곤하지 아니하리로다'},
+    {ref:'이사야 41:10',text:'두려워하지 말라 내가 너와 함께 함이라 놀라지 말라 나는 네 하나님이 됨이라 내가 너를 굳세게 하리라 참으로 너를 도와 주리라'},
+    {ref:'신명기 31:6',text:'강하고 담대하라 두려워하지 말라 그들 앞에서 떨지 말라 이는 네 하나님 여호와 그가 너와 함께 가시며 결코 너를 떠나지 아니하시며 버리지 아니하실 것임이니라'},
+    {ref:'고린도전서 10:13',text:'사람이 감당할 시험 밖에는 너희가 당한 것이 없나니 오직 하나님은 미쁘사 너희가 감당하지 못할 시험 당함을 허락하지 아니하시고 시험 당할 즈음에 또한 피할 길을 내사 너희로 능히 감당하게 하시느니라'},
+    {ref:'로마서 8:31',text:'그런즉 이 일에 대하여 우리가 무슨 말 하리요 만일 하나님이 우리를 위하시면 누가 우리를 대적하리요'},
+  ],
+  sad:[
+    {ref:'마태복음 11:28',text:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라'},
+    {ref:'시편 46:1',text:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라'},
+    {ref:'예레미야 29:11',text:'여호와의 말씀이니라 너희를 향한 나의 생각을 내가 아나니 평안이요 재앙이 아니니라 너희에게 미래와 희망을 주는 것이니라'},
+    {ref:'로마서 8:28',text:'우리가 알거니와 하나님을 사랑하는 자 곧 그의 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라'},
+    {ref:'시편 23:4',text:'내가 사망의 음침한 골짜기로 다닐지라도 해를 두려워하지 않을 것은 주께서 나와 함께 하심이라 주의 지팡이와 막대기가 나를 안위하시나이다'},
+    {ref:'빌립보서 4:6-7',text:'아무 것도 염려하지 말고 다만 모든 일에 기도와 간구로 너희 구할 것을 감사함으로 하나님께 아뢰라 그리하면 모든 지각에 뛰어난 하나님의 평강이 그리스도 예수 안에서 너희 마음과 생각을 지키시리라'},
+    {ref:'시편 34:18',text:'여호와는 마음이 상한 자에게 가까이 하시고 중심에 통회하는 자를 구원하시는도다'},
+  ],
+  fullness:[
+    {ref:'요한복음 10:10',text:'내가 온 것은 양으로 생명을 얻게 하고 더 풍성히 얻게 하려는 것이라'},
+    {ref:'시편 37:4',text:'또 여호와를 기뻐하라 그가 네 마음의 소원을 네게 이루어 주시리로다'},
+    {ref:'마태복음 6:33',text:'그런즉 너희는 먼저 그의 나라와 그의 의를 구하라 그리하면 이 모든 것을 너희에게 더하시리라'},
+    {ref:'잠언 3:5-6',text:'너는 마음을 다하여 여호와를 신뢰하고 네 명철을 의지하지 말라 너는 범사에 그를 인정하라 그리하면 네 길을 지도하시리라'},
+    {ref:'요한복음 15:11',text:'내가 이것을 너희에게 이름은 내 기쁨이 너희 안에 있어 너희 기쁨을 충만하게 하려 함이라'},
+    {ref:'빌립보서 4:11',text:'내가 어떠한 형편에 있든지 자족하기를 배웠노라'},
+    {ref:'시편 119:105',text:'주의 말씀은 내 발에 등이요 내 길에 빛이니이다'},
+  ],
+  love:[
+    {ref:'요한복음 3:16',text:'하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라'},
+    {ref:'로마서 8:38-39',text:'내가 확신하노니 사망이나 생명이나 천사들이나 권세자들이나 현재 일이나 장래 일이나 능력이나 높음이나 깊음이나 다른 어떤 피조물이라도 우리를 우리 주 그리스도 예수 안에 있는 하나님의 사랑에서 끊을 수 없으리라'},
+    {ref:'요한1서 4:8',text:'사랑하지 아니하는 자는 하나님을 알지 못하나니 이는 하나님은 사랑이심이라'},
+    {ref:'마태복음 28:20',text:'볼지어다 내가 세상 끝날까지 너희와 항상 함께 있으리라 하시니라'},
+    {ref:'요한복음 15:9',text:'아버지께서 나를 사랑하신 것 같이 나도 너희를 사랑하였으니 나의 사랑 안에 거하라'},
+    {ref:'갈라디아서 2:20',text:'내가 그리스도와 함께 십자가에 못 박혔나니 그런즉 이제는 내가 사는 것이 아니요 오직 내 안에 그리스도께서 사시는 것이라'},
+    {ref:'요한1서 4:19',text:'우리가 사랑함은 그가 먼저 우리를 사랑하셨음이라'},
+  ],
+};
+
+function showSituationVerse(category, btn){
+  document.querySelectorAll('.btn-situation').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const verses = SITUATION_VERSES[category];
+  const v = verses[Math.floor(Math.random()*verses.length)];
+  const result = document.getElementById('situationResult');
+  result.style.display = 'none';
+  requestAnimationFrame(()=>{
+    document.getElementById('situationText').textContent = `"${v.text}"`;
+    document.getElementById('situationRef').textContent = `— ${v.ref}`;
+    result.style.display = 'block';
+  });
+}
+
 // ── 상태 ──────────────────────────────────
 let currentVerse = null;
 let currentPassage = '창세기 1장';
@@ -480,13 +577,23 @@ function loadPassage(){
   area.innerHTML = `
     <div class="bible-book-title">${data.title}</div>
     <div class="bible-chapter-sub">${data.sub}</div>
-    ${data.verses.map(v=>`
-      <div class="bible-verse${highlighted.has(v.v)?' highlighted':''}" onclick="toggleHighlight(${v.v})" id="bv-${v.v}">
-        <span class="verse-num">${v.v}</span>
-        <span class="verse-body">${v.t}</span>
-      </div>`).join('')}`;
+    ${data.verses.map(v=>{
+      const hlClass = highlighted.has(v.v) ? ' highlighted' : '';
+      const hasCmt = JSON.parse(localStorage.getItem(`comments_${sel}_${v.v}`) || '[]').length > 0;
+      return `
+        <div class="bible-verse${hlClass}" id="bv-${v.v}">
+          <span class="verse-num" onclick="toggleHighlight(${v.v})" title="클릭: 하이라이트">${v.v}${hasCmt ? '<span class="cmt-dot"></span>' : ''}</span>
+          <span class="verse-body" onclick="toggleCommentBox(${v.v})" title="클릭: 감상 남기기">${v.t}</span>
+        </div>
+        <div class="comment-box" id="cb-${v.v}">
+          <div class="comment-list" id="cl-${v.v}"></div>
+          <div class="comment-input-row">
+            <input class="comment-input" id="ci-${v.v}" placeholder="이 말씀에서 느낀 점을 남겨보세요..." onkeydown="if(event.key==='Enter')addComment(${v.v})"/>
+            <button class="btn-comment-submit" onclick="addComment(${v.v})">저장</button>
+          </div>
+        </div>`;
+    }).join('')}`;
 
-  // 메모 불러오기
   document.getElementById('memoArea').value = localStorage.getItem(`memo_${sel}`) || '';
   document.getElementById('memoSub').textContent = `${data.title} 묵상 메모`;
   document.getElementById('memoSaveMsg').textContent = '';
@@ -498,6 +605,72 @@ function toggleHighlight(vNum){
   const el = document.getElementById(`bv-${vNum}`);
   if(el) el.classList.toggle('highlighted', highlighted.has(vNum));
   localStorage.setItem(`hl_${currentPassage}`, JSON.stringify([...highlighted]));
+}
+
+// ── 구절 댓글 ─────────────────────────────
+function toggleCommentBox(vNum){
+  const cb = document.getElementById(`cb-${vNum}`);
+  if(!cb) return;
+  const isOpen = cb.classList.toggle('open');
+  if(isOpen){
+    renderComments(vNum);
+    setTimeout(()=>{ const inp=document.getElementById(`ci-${vNum}`); if(inp) inp.focus(); }, 60);
+  }
+}
+
+function renderComments(vNum){
+  const key = `comments_${currentPassage}_${vNum}`;
+  const comments = JSON.parse(localStorage.getItem(key) || '[]');
+  const cl = document.getElementById(`cl-${vNum}`);
+  if(!cl) return;
+  cl.innerHTML = comments.map((c,i)=>`
+    <div class="comment-item">
+      <div class="comment-item-text">${escHtml(c.text)}</div>
+      <span class="comment-item-date">${c.date}</span>
+      <button class="btn-comment-del" onclick="deleteComment(${vNum},${i})" title="삭제">✕</button>
+    </div>`).join('');
+}
+
+function addComment(vNum){
+  const input = document.getElementById(`ci-${vNum}`);
+  if(!input) return;
+  const text = input.value.trim();
+  if(!text) return;
+  const key = `comments_${currentPassage}_${vNum}`;
+  const comments = JSON.parse(localStorage.getItem(key) || '[]');
+  const now = new Date();
+  const date = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  comments.push({text, date});
+  localStorage.setItem(key, JSON.stringify(comments));
+  input.value = '';
+  renderComments(vNum);
+  updateCmtDot(vNum, comments.length);
+}
+
+function deleteComment(vNum, idx){
+  const key = `comments_${currentPassage}_${vNum}`;
+  const comments = JSON.parse(localStorage.getItem(key) || '[]');
+  comments.splice(idx, 1);
+  localStorage.setItem(key, JSON.stringify(comments));
+  renderComments(vNum);
+  updateCmtDot(vNum, comments.length);
+}
+
+function updateCmtDot(vNum, count){
+  const numEl = document.querySelector(`#bv-${vNum} .verse-num`);
+  if(!numEl) return;
+  const existing = numEl.querySelector('.cmt-dot');
+  if(count > 0 && !existing){
+    const dot = document.createElement('span');
+    dot.className = 'cmt-dot';
+    numEl.appendChild(dot);
+  } else if(count === 0 && existing){
+    existing.remove();
+  }
+}
+
+function escHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function saveMemo(){
