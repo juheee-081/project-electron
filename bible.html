@@ -766,71 +766,90 @@ document.getElementById('memoArea').addEventListener('input', ()=>{
 let diaryCards = [];
 let currentDiaryIdx = 0;
 const DIARY_KEY = 'meditation_diary';
+const SD = 420, DD = 240, RD = 42; // spread, depth, rot
 
 function loadDiary(){
   diaryCards = JSON.parse(localStorage.getItem(DIARY_KEY) || '[]');
 }
-
 function persistDiary(){
   localStorage.setItem(DIARY_KEY, JSON.stringify(diaryCards));
 }
-
 function syncActiveCardFromDOM(){
   if(!diaryCards.length) return;
   const card = diaryCards[currentDiaryIdx];
   if(!card) return;
   const root = document.querySelector(`[data-diary-id="${card.id}"]`);
   if(!root) return;
-  const dateEl = root.querySelector('input[type="date"]');
-  const passEl = root.querySelector('input[type="text"]');
-  const contEl = root.querySelector('.diary-textarea');
-  if(dateEl) card.date = dateEl.value;
-  if(passEl) card.passage = passEl.value;
-  if(contEl) card.content = contEl.value;
+  const d=root.querySelector('input[type="date"]');
+  const p=root.querySelector('input[type="text"]');
+  const c=root.querySelector('.diary-textarea');
+  if(d) card.date=d.value; if(p) card.passage=p.value; if(c) card.content=c.value;
 }
 
+// 카드 하나의 위치를 style로 계산 (포트폴리오 동일 공식)
+function diaryCardPos(off){
+  const abs=Math.abs(off);
+  return {
+    transform:`translateX(${off*SD}px) translateZ(${-abs*DD}px) rotateY(${off===0?0:off>0?RD:-RD}deg) scale(${abs===0?1:Math.max(0.76,1-abs*0.1)})`,
+    opacity: abs>3?0 : abs===0?1 : Math.max(0,1-abs*0.28),
+    zIndex: 50-abs
+  };
+}
+
+// ★ 핵심: style만 업데이트 — DOM 유지 → transition 발동
+function updateDiaryPositions(){
+  const counter=document.getElementById('diaryCounter');
+  if(counter) counter.textContent = diaryCards.length>0 ? `${currentDiaryIdx+1} / ${diaryCards.length}` : '';
+
+  diaryCards.forEach((card,i)=>{
+    const el=document.querySelector(`[data-diary-id="${card.id}"]`);
+    if(!el) return;
+    const off=i-currentDiaryIdx;
+    const pos=diaryCardPos(off);
+    el.style.transform=pos.transform;
+    el.style.opacity=pos.opacity;
+    el.style.zIndex=pos.zIndex;
+    el.classList.toggle('active',off===0);
+    el.style.userSelect=off===0?'auto':'none';
+    el.style.cursor=off===0?'':'pointer';
+    el.onclick=off===0?null:(e)=>{ if(!e.target.closest('button')) moveDiary(off>0?1:-1); };
+  });
+
+  // + 카드도 style만 업데이트
+  const addEl=document.getElementById('diaryAddCard');
+  if(addEl){
+    const addOff=diaryCards.length-currentDiaryIdx;
+    const pos=diaryCardPos(addOff);
+    addEl.style.transform=pos.transform;
+    addEl.style.opacity=pos.opacity;
+    addEl.style.zIndex=pos.zIndex;
+  }
+}
+
+// 카드 배열이 바뀔 때만 HTML 재구성
 function renderDiary(){
-  const scene = document.getElementById('diaryScene');
-  const counter = document.getElementById('diaryCounter');
-  const lArr = document.querySelector('.diary-nav-arrow.left');
-  const rArr = document.querySelector('.diary-nav-arrow.right');
+  const scene=document.getElementById('diaryScene');
+  const lArr=document.querySelector('.diary-nav-arrow.left');
+  const rArr=document.querySelector('.diary-nav-arrow.right');
   if(!scene) return;
 
-  if(diaryCards.length === 0){
-    scene.innerHTML = `
-      <div class="diary-empty">
-        <div class="diary-empty-icon">📓</div>
-        <p>아직 묵상 기록이 없어요.<br/>첫 번째 말씀 묵상을 시작해보세요!</p>
-        <button class="btn-diary-add" style="font-size:.9rem;padding:10px 24px;" onclick="addDiaryCard()">✦ 첫 묵상 카드 만들기</button>
-      </div>`;
-    if(counter) counter.textContent = '';
+  if(diaryCards.length===0){
+    scene.innerHTML=`<div class="diary-empty">
+      <div class="diary-empty-icon">📓</div>
+      <p>아직 묵상 기록이 없어요.<br/>첫 번째 말씀 묵상을 시작해보세요!</p>
+      <button class="btn-diary-add" style="font-size:.9rem;padding:10px 24px;" onclick="addDiaryCard()">✦ 첫 묵상 카드 만들기</button>
+    </div>`;
+    const counter=document.getElementById('diaryCounter');
+    if(counter) counter.textContent='';
     if(lArr) lArr.style.visibility='hidden';
     if(rArr) rArr.style.visibility='hidden';
     return;
   }
-
-  if(counter) counter.textContent = `${currentDiaryIdx+1} / ${diaryCards.length}`;
   if(lArr) lArr.style.visibility='visible';
   if(rArr) rArr.style.visibility='visible';
 
-  const SPREAD=420, DEPTH=240, ROT=42;
-
-  function cardStyle(off){
-    const abs = Math.abs(off);
-    const tz = -abs * DEPTH;
-    const ry = off===0 ? 0 : (off>0 ? ROT : -ROT);
-    const sc = abs===0 ? 1 : Math.max(0.76, 1-abs*0.1);
-    const op = abs>3 ? 0 : (abs===0 ? 1 : Math.max(0, 1-abs*0.28));
-    const zIdx = 50 - abs;
-    return {op, style:`transform:translateX(${off*SPREAD}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc});opacity:${op};z-index:${zIdx};`};
-  }
-
-  const realCards = diaryCards.map((card, i)=>{
-    const off = i - currentDiaryIdx;
-    const isActive = off===0;
-    const {style} = cardStyle(off);
-    const clickAttr = !isActive ? `onclick="moveDiary(${off>0?1:-1})"` : '';
-    return `<div class="diary-card${isActive?' active':''}" data-diary-id="${card.id}" ${clickAttr} style="${style}${!isActive?'cursor:pointer;':''}">
+  const cardsHTML=diaryCards.map((card,i)=>`
+    <div class="diary-card" data-diary-id="${card.id}">
       <div class="diary-card-top">
         <span class="diary-card-num">묵상 ${i+1}</span>
         <button class="btn-diary-del" onclick="event.stopPropagation();deleteDiaryCard(${card.id})">삭제</button>
@@ -851,42 +870,42 @@ function renderDiary(){
         <span class="diary-autosave-msg" id="dsm-${card.id}"></span>
         <button class="btn-diary-save" onclick="event.stopPropagation();saveDiaryCard(${card.id})">저장</button>
       </div>
-    </div>`;
-  });
+    </div>`).join('');
 
-  // "+" 추가 카드 — 마지막 카드 바로 오른쪽
-  const addOff = diaryCards.length - currentDiaryIdx;
-  const {op:addOp, style:addStyle} = cardStyle(addOff);
-  const addCard = addOp > 0 ? `<div class="diary-card diary-add-card" onclick="addDiaryCard()" style="${addStyle}cursor:pointer;">
-    <div class="diary-add-icon">＋</div>
-    <div class="diary-add-text">새 묵상 카드</div>
-  </div>` : '';
+  scene.innerHTML=`<div class="diary-track" id="diaryTrack">${cardsHTML}
+    <div class="diary-card diary-add-card" id="diaryAddCard" onclick="addDiaryCard()">
+      <div class="diary-add-icon">＋</div>
+      <div class="diary-add-text">새 묵상 카드</div>
+    </div>
+  </div>`;
 
-  scene.innerHTML = `<div class="diary-track">${realCards.join('')}${addCard}</div>`;
+  // HTML 재구성 후 즉시 위치 설정 (애니메이션 없이)
+  updateDiaryPositions();
 }
 
+// 이동: HTML 건드리지 않고 style만 변경 → transition 발동!
 function moveDiary(dir){
   syncActiveCardFromDOM();
   persistDiary();
-  const newIdx = currentDiaryIdx + dir;
-  if(newIdx < 0 || newIdx >= diaryCards.length) return;
-  currentDiaryIdx = newIdx;
-  renderDiary();
+  const newIdx=currentDiaryIdx+dir;
+  if(newIdx<0 || newIdx>=diaryCards.length) return;
+  currentDiaryIdx=newIdx;
+  updateDiaryPositions(); // ← innerHTML 재작성 없음
 }
 
 function addDiaryCard(){
   syncActiveCardFromDOM();
-  const today = new Date().toISOString().split('T')[0];
-  diaryCards.push({id:Date.now(), date:today, passage:'', content:''});
-  currentDiaryIdx = diaryCards.length - 1;
+  const today=new Date().toISOString().split('T')[0];
+  diaryCards.push({id:Date.now(),date:today,passage:'',content:''});
+  currentDiaryIdx=diaryCards.length-1;
   persistDiary();
-  renderDiary();
+  renderDiary(); // 카드 수 변경 시만 재구성
 }
 
 function deleteDiaryCard(id){
   if(!confirm('이 묵상 카드를 삭제할까요?')) return;
-  diaryCards = diaryCards.filter(c=>c.id!==id);
-  if(currentDiaryIdx >= diaryCards.length) currentDiaryIdx = Math.max(0, diaryCards.length-1);
+  diaryCards=diaryCards.filter(c=>c.id!==id);
+  if(currentDiaryIdx>=diaryCards.length) currentDiaryIdx=Math.max(0,diaryCards.length-1);
   persistDiary();
   renderDiary();
 }
@@ -894,8 +913,8 @@ function deleteDiaryCard(id){
 function saveDiaryCard(id){
   syncActiveCardFromDOM();
   persistDiary();
-  const msg = document.getElementById(`dsm-${id}`);
-  if(msg){ msg.textContent='✓ 저장됨'; setTimeout(()=>{ if(msg) msg.textContent=''; }, 2000); }
+  const msg=document.getElementById(`dsm-${id}`);
+  if(msg){ msg.textContent='✓ 저장됨'; setTimeout(()=>{ if(msg) msg.textContent=''; },2000); }
 }
 
 // ── 랜딩 말씀 세팅 ───────────────────────
