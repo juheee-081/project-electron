@@ -173,7 +173,7 @@
     .diary-card{position:absolute;left:50%;top:50%;width:460px;max-width:calc(100vw - 180px);margin-left:-230px;margin-top:-210px;background:#fff;border:1px solid var(--border);border-radius:20px;padding:26px 28px 20px;box-shadow:0 8px 36px rgba(0,0,0,.1);transition:transform .45s cubic-bezier(.25,.46,.45,.94),opacity .45s,box-shadow .45s;will-change:transform,opacity;user-select:none;}
     .diary-card.active{user-select:auto;box-shadow:0 14px 52px rgba(196,124,42,.18);}
     .diary-add-card{display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.78);border:2px dashed var(--border2);color:var(--muted);height:420px;cursor:pointer;transition:border-color .2s,color .2s;}
-    .diary-add-card:hover{border-color:var(--green);color:var(--green);}
+    .diary-add-card:hover,.diary-add-card.active{border-color:var(--green);color:var(--green);}
     .diary-add-icon{font-size:2.8rem;margin-bottom:12px;line-height:1;}
     .diary-add-text{font-size:.88rem;font-weight:700;}
     .diary-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
@@ -798,8 +798,11 @@ function diaryCardPos(off){
 
 // ★ 핵심: style만 업데이트 — DOM 유지 → transition 발동
 function updateDiaryPositions(){
+  const isAddActive=currentDiaryIdx===diaryCards.length; // + 카드가 중앙인지
   const counter=document.getElementById('diaryCounter');
-  if(counter) counter.textContent = diaryCards.length>0 ? `${currentDiaryIdx+1} / ${diaryCards.length}` : '';
+  if(counter) counter.textContent=diaryCards.length>0
+    ? (isAddActive ? '새 묵상 카드 +' : `${currentDiaryIdx+1} / ${diaryCards.length}`)
+    : '';
 
   diaryCards.forEach((card,i)=>{
     const el=document.querySelector(`[data-diary-id="${card.id}"]`);
@@ -815,14 +818,17 @@ function updateDiaryPositions(){
     el.onclick=off===0?null:(e)=>{ if(!e.target.closest('button')) moveDiary(off>0?1:-1); };
   });
 
-  // + 카드도 style만 업데이트
+  // + 카드: 실제 카드처럼 carousel에 포함
   const addEl=document.getElementById('diaryAddCard');
   if(addEl){
-    const addOff=diaryCards.length-currentDiaryIdx;
+    const addOff=diaryCards.length-currentDiaryIdx; // 0이면 중앙(active)
     const pos=diaryCardPos(addOff);
     addEl.style.transform=pos.transform;
     addEl.style.opacity=pos.opacity;
     addEl.style.zIndex=pos.zIndex;
+    addEl.classList.toggle('active',addOff===0);
+    // 중앙이면 클릭 → 새 카드 생성, 옆에 있으면 클릭 → 중앙으로 이동
+    addEl.onclick=addOff===0 ? ()=>addDiaryCard() : ()=>moveDiary(addOff>0?1:-1);
   }
 }
 
@@ -885,21 +891,21 @@ function renderDiary(){
 
 // 이동: HTML 건드리지 않고 style만 변경 → transition 발동!
 function moveDiary(dir){
-  syncActiveCardFromDOM();
-  persistDiary();
+  // 실제 카드 보고 있을 때만 sync (+ 카드 위치엔 동기화할 DOM 없음)
+  if(currentDiaryIdx<diaryCards.length){ syncActiveCardFromDOM(); persistDiary(); }
   const newIdx=currentDiaryIdx+dir;
-  if(newIdx<0 || newIdx>=diaryCards.length) return;
+  if(newIdx<0 || newIdx>diaryCards.length) return; // diaryCards.length = + 카드 위치
   currentDiaryIdx=newIdx;
-  updateDiaryPositions(); // ← innerHTML 재작성 없음
+  updateDiaryPositions();
 }
 
 function addDiaryCard(){
-  syncActiveCardFromDOM();
+  if(currentDiaryIdx<diaryCards.length) syncActiveCardFromDOM(); // + 위치면 sync 불필요
   const today=new Date().toISOString().split('T')[0];
   diaryCards.push({id:Date.now(),date:today,passage:'',content:''});
-  currentDiaryIdx=diaryCards.length-1;
+  currentDiaryIdx=diaryCards.length-1; // 새 카드가 active, + 카드는 자연스럽게 오른쪽으로
   persistDiary();
-  renderDiary(); // 카드 수 변경 시만 재구성
+  renderDiary();
 }
 
 function deleteDiaryCard(id){
