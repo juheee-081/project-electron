@@ -20,455 +20,243 @@
       --radius: 12px;
       --nav-h: 64px;
     }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     body {
-      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      max-width: 480px;
-      margin: 0 auto;
-      overflow-x: hidden;
+      font-family: -apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100vh; max-width:480px; margin:0 auto; overflow-x:hidden;
     }
 
     /* ══ Landing ══ */
     .landing {
-      position: fixed; inset: 0; z-index: 900;
-      background: radial-gradient(ellipse at 50% 40%, #0d1f3a 0%, #080d18 100%);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      cursor: pointer;
-      transition: opacity .7s ease;
+      position:fixed; inset:0; z-index:900;
+      background:radial-gradient(ellipse at 50% 40%,#0d1f3a 0%,#080d18 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      cursor:pointer; transition:opacity .7s ease;
     }
-    .landing.hide { opacity: 0; pointer-events: none; }
-
-    .land-fridge {
-      font-size: 5.5rem; margin-bottom: 28px;
-      animation: floatY 3s ease-in-out infinite;
-      filter: drop-shadow(0 0 30px rgba(88,166,255,0.35));
-    }
-    @keyframes floatY {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-12px); }
-    }
-
+    .landing.hide { opacity:0; pointer-events:none; }
+    .land-fridge { font-size:5.5rem; margin-bottom:28px; animation:floatY 3s ease-in-out infinite; filter:drop-shadow(0 0 30px rgba(88,166,255,.35)); }
+    @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
     .land-title {
-      font-size: 2.1rem; font-weight: 900;
-      background: linear-gradient(135deg, #58a6ff 0%, #3fb950 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 8px; text-align: center; letter-spacing: -.02em;
+      font-size:2.1rem; font-weight:900; text-align:center; letter-spacing:-.02em;
+      background:linear-gradient(135deg,#58a6ff,#3fb950);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px;
     }
-    .land-sub {
-      font-size: .95rem; color: var(--muted);
-      margin-bottom: 64px; letter-spacing: .06em; text-align: center;
-    }
-    .land-hint {
-      font-size: .8rem; color: rgba(255,255,255,.22);
-      animation: blink 2.2s ease-in-out infinite; letter-spacing: .04em;
-    }
+    .land-sub   { font-size:.95rem; color:var(--muted); margin-bottom:64px; letter-spacing:.06em; }
+    .land-hint  { font-size:.8rem; color:rgba(255,255,255,.22); animation:blink 2.2s ease-in-out infinite; letter-spacing:.04em; }
     @keyframes blink { 0%,100%{opacity:.25} 50%{opacity:.8} }
 
     /* ══ Header ══ */
     .header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(13,17,23,.92); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
-      display: flex; align-items: center; justify-content: space-between;
+      position:sticky; top:0; z-index:100;
+      background:rgba(13,17,23,.92); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border); padding:14px 20px;
+      display:flex; align-items:center; justify-content:space-between;
     }
     .header-logo {
-      font-size: 1.15rem; font-weight: 900;
-      background: linear-gradient(135deg, #58a6ff, #3fb950);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-size:1.15rem; font-weight:900;
+      background:linear-gradient(135deg,#58a6ff,#3fb950);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
     }
     .icon-btn {
-      width: 36px; height: 36px; border: none;
-      background: var(--surface2); border-radius: 9px;
-      color: var(--muted); cursor: pointer; font-size: 1rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .15s; position: relative;
+      width:36px; height:36px; border:none; background:var(--surface2);
+      border-radius:9px; color:var(--muted); cursor:pointer; font-size:1rem;
+      display:flex; align-items:center; justify-content:center; transition:all .15s; position:relative;
     }
-    .icon-btn:hover { background: var(--border); color: var(--text); }
-    .icon-btn .badge {
-      position: absolute; top: -3px; right: -3px;
-      width: 9px; height: 9px;
-      background: var(--red); border-radius: 50%;
-      border: 2px solid var(--bg);
-    }
+    .icon-btn:hover { background:var(--border); color:var(--text); }
+    .icon-btn .badge { position:absolute; top:-3px; right:-3px; width:9px; height:9px; background:var(--red); border-radius:50%; border:2px solid var(--bg); }
 
     /* ══ Main ══ */
-    main { padding: 18px 18px calc(var(--nav-h) + 20px); }
+    main { padding:18px 18px calc(var(--nav-h)+20px); }
 
-    /* ══ Fridge scene ══ */
-    .fridge-scene {
-      perspective: 1300px;
-      position: relative;
-      max-width: 340px;
-      margin: 0 auto 22px;
-    }
-
+    /* ══ Fridge ══ */
+    .fridge-scene { perspective:1300px; position:relative; max-width:340px; margin:0 auto 22px; }
     .fridge-frame {
-      background: linear-gradient(170deg, #18203a 0%, #111827 100%);
-      border-radius: 22px;
-      border: 1.5px solid #252f4a;
-      box-shadow:
-        0 30px 70px rgba(0,0,0,.55),
-        inset 0 1px 0 rgba(255,255,255,.05);
-      overflow: hidden;
-      min-height: 400px;
+      background:linear-gradient(170deg,#18203a,#111827);
+      border-radius:22px; border:1.5px solid #252f4a; overflow:hidden;
+      box-shadow:0 30px 70px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05);
+      min-height:390px;
     }
+    .fridge-led { height:4px; background:linear-gradient(90deg,transparent,rgba(170,220,255,.6),rgba(200,240,255,.9),rgba(170,220,255,.6),transparent); margin-bottom:2px; }
+    .fridge-freezer { background:linear-gradient(to bottom,rgba(88,166,255,.08),transparent); border-bottom:1px solid rgba(88,166,255,.12); padding:10px 14px; display:flex; align-items:center; gap:10px; }
+    .freeze-label { font-size:.72rem; color:rgba(88,166,255,.6); font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
+    .fridge-shelf { display:flex; padding:10px 10px 4px; gap:6px; position:relative; }
+    .fridge-shelf::after { content:''; position:absolute; bottom:0; left:10px; right:10px; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent); }
+    .fridge-shelf:last-child::after { display:none; }
 
-    /* LED strip at top */
-    .fridge-led {
-      height: 4px;
-      background: linear-gradient(90deg, transparent, rgba(170,220,255,.6), rgba(200,240,255,.9), rgba(170,220,255,.6), transparent);
-      margin-bottom: 2px;
-    }
-
-    /* Freezer compartment */
-    .fridge-freezer {
-      background: linear-gradient(to bottom, rgba(88,166,255,.08), transparent);
-      border-bottom: 1px solid rgba(88,166,255,.12);
-      padding: 10px 14px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .freeze-label {
-      font-size: .72rem; color: rgba(88,166,255,.6);
-      font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
-    }
-
-    /* Shelves */
-    .fridge-shelf {
-      display: flex;
-      padding: 10px 10px 4px;
-      gap: 6px;
-      position: relative;
-    }
-    .fridge-shelf::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 10px; right: 10px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
-    }
-    .fridge-shelf:last-child::after { display: none; }
-
-    /* Category slot */
-    .cat-slot {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 5px; padding: 10px 4px;
-      border-radius: 12px; cursor: pointer;
-      transition: all .18s; position: relative;
-      min-height: 80px;
-    }
-    .cat-slot:hover { background: rgba(255,255,255,.06); transform: translateY(-2px); }
-    .cat-slot:active { transform: scale(.95); }
-    .cat-slot.empty { opacity: .18; cursor: default; pointer-events: none; }
-    .cat-slot.empty:hover { background: transparent; transform: none; }
-
-    .cat-slot-emo { font-size: 2rem; line-height: 1; }
-    .cat-slot-lbl { font-size: .6rem; color: var(--muted); text-align: center; line-height: 1.2; }
-    .cat-slot-cnt {
-      font-size: .62rem; font-weight: 700;
-      background: var(--surface2); border-radius: 10px;
-      padding: 1px 7px; color: var(--text);
-    }
-
-    /* Urgency dot */
-    .urgency-dot {
-      position: absolute; top: 6px; right: 6px;
-      width: 8px; height: 8px; border-radius: 50%;
-      box-shadow: 0 0 6px currentColor;
-    }
-    .u-expired { background: var(--red);    color: var(--red); }
-    .u-danger  { background: var(--orange); color: var(--orange); }
-    .u-warning { background: var(--yellow); color: var(--yellow); }
-    .u-safe    { background: var(--green);  color: var(--green); }
+    .cat-slot { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; padding:10px 4px; border-radius:12px; cursor:pointer; transition:all .18s; position:relative; min-height:80px; }
+    .cat-slot:hover { background:rgba(255,255,255,.06); transform:translateY(-2px); }
+    .cat-slot:active { transform:scale(.95); }
+    .cat-slot.empty { opacity:.18; cursor:default; pointer-events:none; }
+    .cat-slot-emo { font-size:2rem; line-height:1; }
+    .cat-slot-lbl { font-size:.6rem; color:var(--muted); text-align:center; line-height:1.2; }
+    .cat-slot-cnt { font-size:.62rem; font-weight:700; background:var(--surface2); border-radius:10px; padding:1px 7px; color:var(--text); }
+    .urgency-dot { position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; box-shadow:0 0 6px currentColor; }
+    .u-expired { background:var(--red);    color:var(--red); }
+    .u-danger  { background:var(--orange); color:var(--orange); }
+    .u-warning { background:var(--yellow); color:var(--yellow); }
+    .u-safe    { background:var(--green);  color:var(--green); }
 
     /* ══ Fridge door ══ */
     .fridge-door {
-      position: absolute; inset: 0;
-      background: linear-gradient(160deg, #1c2645 0%, #161e35 60%, #111828 100%);
-      border-radius: 22px;
-      border: 1.5px solid #283050;
-      transform-origin: left center;
-      transform: rotateY(0deg);
-      transition: transform 1.35s cubic-bezier(.4,0,.2,1);
-      box-shadow: 8px 0 40px rgba(0,0,0,.5);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 16px;
+      position:absolute; inset:0;
+      background:linear-gradient(160deg,#1c2645,#161e35,#111828);
+      border-radius:22px; border:1.5px solid #283050;
+      transform-origin:left center; transform:rotateY(0deg);
+      transition:transform 1.35s cubic-bezier(.4,0,.2,1);
+      box-shadow:8px 0 40px rgba(0,0,0,.5);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
     }
-    .fridge-door.open { transform: rotateY(-132deg); }
-
-    /* Door handle */
-    .door-handle {
-      position: absolute; right: 14px; top: 50%;
-      transform: translateY(-50%);
-      width: 7px; height: 90px;
-      background: linear-gradient(to bottom, #4a5568, #a0aec0, #718096, #4a5568);
-      border-radius: 4px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2);
-    }
-
-    /* Door logo */
-    .door-emoji { font-size: 3.5rem; opacity: .6; }
-    .door-brand {
-      font-size: .75rem; font-weight: 700;
-      color: rgba(255,255,255,.18); letter-spacing: .18em; text-transform: uppercase;
-    }
-    .door-tagline { font-size: .62rem; color: rgba(255,255,255,.1); letter-spacing: .06em; }
+    .fridge-door.open { transform:rotateY(-132deg); }
+    .door-handle { position:absolute; right:14px; top:50%; transform:translateY(-50%); width:7px; height:90px; background:linear-gradient(to bottom,#4a5568,#a0aec0,#718096,#4a5568); border-radius:4px; box-shadow:0 2px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.2); }
+    .door-emoji  { font-size:3.5rem; opacity:.6; }
+    .door-brand  { font-size:.75rem; font-weight:700; color:rgba(255,255,255,.18); letter-spacing:.18em; text-transform:uppercase; }
+    .door-tagline{ font-size:.62rem; color:rgba(255,255,255,.1); letter-spacing:.06em; }
 
     /* ══ Stats ══ */
-    .stats {
-      display: grid; grid-template-columns: repeat(3,1fr);
-      gap: 9px; margin-bottom: 18px;
-    }
-    .stat-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 13px 8px; text-align: center;
-    }
-    .stat-num { font-size: 1.8rem; font-weight: 800; line-height: 1; margin-bottom: 3px; }
-    .stat-lbl { font-size: .7rem; color: var(--muted); }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:18px; }
+    .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:13px 8px; text-align:center; }
+    .stat-num { font-size:1.8rem; font-weight:800; line-height:1; margin-bottom:3px; }
+    .stat-lbl { font-size:.7rem; color:var(--muted); }
 
-    /* ══ Filter + list (home sub-view) ══ */
-    .view-toggle {
-      display: flex; gap: 7px; margin-bottom: 14px;
-    }
-    .vtab {
-      padding: 6px 14px; border-radius: 20px;
-      border: 1px solid var(--border);
-      background: transparent; color: var(--muted);
-      font-size: .82rem; cursor: pointer; transition: all .15s;
-    }
-    .vtab.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+    /* ══ View toggle ══ */
+    .view-toggle { display:flex; gap:7px; margin-bottom:14px; overflow-x:auto; scrollbar-width:none; }
+    .view-toggle::-webkit-scrollbar { display:none; }
+    .vtab { padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.82rem; cursor:pointer; transition:all .15s; white-space:nowrap; }
+    .vtab.on { background:var(--blue); border-color:var(--blue); color:#fff; }
 
-    .tabs { display: flex; gap: 7px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; }
-    .tabs::-webkit-scrollbar { display: none; }
-    .tab {
-      padding: 6px 14px; border-radius: 20px;
-      border: 1px solid var(--border);
-      background: transparent; color: var(--muted);
-      font-size: .82rem; cursor: pointer; transition: all .15s; white-space: nowrap;
-    }
-    .tab.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+    /* ══ Filter tabs ══ */
+    .tabs { display:flex; gap:7px; margin-bottom:16px; overflow-x:auto; scrollbar-width:none; }
+    .tabs::-webkit-scrollbar { display:none; }
+    .tab { padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.82rem; cursor:pointer; transition:all .15s; white-space:nowrap; }
+    .tab.on { background:var(--blue); border-color:var(--blue); color:#fff; }
 
     /* ══ Food cards ══ */
-    .food-list { display: flex; flex-direction: column; gap: 9px; }
-    .food-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-left: 3px solid transparent;
-      border-radius: var(--radius); padding: 15px 14px;
-      display: flex; align-items: center; gap: 13px;
-      cursor: pointer; transition: background .12s;
-    }
-    .food-card:hover { background: var(--surface2); }
-    .food-card.c-expired { border-left-color: var(--red); }
-    .food-card.c-danger  { border-left-color: var(--orange); }
-    .food-card.c-warning { border-left-color: var(--yellow); }
-    .food-card.c-safe    { border-left-color: var(--green); }
+    .food-list { display:flex; flex-direction:column; gap:9px; }
+    .food-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid transparent; border-radius:var(--radius); padding:15px 14px; display:flex; align-items:center; gap:13px; cursor:pointer; transition:background .12s; }
+    .food-card:hover { background:var(--surface2); }
+    .food-card.c-expired { border-left-color:var(--red); }
+    .food-card.c-danger  { border-left-color:var(--orange); }
+    .food-card.c-warning { border-left-color:var(--yellow); }
+    .food-card.c-safe    { border-left-color:var(--green); }
+    .food-emo  { font-size:1.9rem; width:46px; height:46px; display:flex; align-items:center; justify-content:center; background:var(--surface2); border-radius:10px; flex-shrink:0; }
+    .food-info { flex:1; min-width:0; }
+    .food-name { font-size:.97rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .food-sub  { font-size:.75rem; color:var(--muted); margin-top:2px; }
+    .food-date { font-size:.73rem; color:var(--muted); margin-top:4px; }
+    .dday { padding:6px 11px; border-radius:8px; font-size:.82rem; font-weight:700; text-align:center; flex-shrink:0; min-width:58px; }
+    .dday.c-expired { background:rgba(248,81,73,.14);  color:var(--red); }
+    .dday.c-danger  { background:rgba(240,136,62,.14); color:var(--orange); }
+    .dday.c-warning { background:rgba(227,179,65,.14); color:var(--yellow); }
+    .dday.c-safe    { background:rgba(63,185,80,.14);  color:var(--green); }
 
-    .food-emo {
-      font-size: 1.9rem; width: 46px; height: 46px;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--surface2); border-radius: 10px; flex-shrink: 0;
-    }
-    .food-info { flex: 1; min-width: 0; }
-    .food-name { font-size: .97rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .food-sub  { font-size: .75rem; color: var(--muted); margin-top: 2px; }
-    .food-date { font-size: .73rem; color: var(--muted); margin-top: 4px; }
-
-    .dday {
-      padding: 6px 11px; border-radius: 8px;
-      font-size: .82rem; font-weight: 700;
-      text-align: center; flex-shrink: 0; min-width: 58px;
-    }
-    .dday.c-expired { background: rgba(248,81,73,.14);  color: var(--red); }
-    .dday.c-danger  { background: rgba(240,136,62,.14); color: var(--orange); }
-    .dday.c-warning { background: rgba(227,179,65,.14); color: var(--yellow); }
-    .dday.c-safe    { background: rgba(63,185,80,.14);  color: var(--green); }
+    /* ══ Calendar ══ */
+    .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .cal-title  { font-size:1rem; font-weight:700; }
+    .cal-nav    { width:36px; height:36px; border:none; background:var(--surface2); border-radius:9px; color:var(--text); cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+    .cal-nav:hover { background:var(--border); }
+    .cal-grid   { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+    .cal-lbl    { text-align:center; font-size:.68rem; color:var(--muted); padding:4px 0; font-weight:600; }
+    .cal-day    { aspect-ratio:1; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:5px 2px 2px; transition:background .12s; position:relative; }
+    .cal-day.clickable { cursor:pointer; }
+    .cal-day.clickable:hover { background:var(--surface2); }
+    .cal-day.is-today { background:rgba(88,166,255,.12); }
+    .cal-day.other-m  { opacity:.25; pointer-events:none; }
+    .cal-day-num { font-size:.75rem; font-weight:600; line-height:1; }
+    .cal-day.is-today .cal-day-num { color:var(--blue); font-weight:800; }
+    .cal-dots   { display:flex; gap:2px; flex-wrap:wrap; justify-content:center; margin-top:3px; }
+    .cal-dot    { width:5px; height:5px; border-radius:50%; }
 
     /* ══ Bottom Nav ══ */
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 480px; height: var(--nav-h);
-      background: var(--surface); border-top: 1px solid var(--border);
-      display: flex; z-index: 100;
-    }
-    .nav-btn {
-      flex: 1; border: none; background: transparent; color: var(--muted);
-      cursor: pointer; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 3px; font-size: .68rem; transition: color .15s;
-    }
-    .nav-btn.on { color: var(--blue); }
-    .nav-btn .ni { font-size: 1.25rem; }
+    .bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; height:var(--nav-h); background:var(--surface); border-top:1px solid var(--border); display:flex; z-index:100; }
+    .nav-btn { flex:1; border:none; background:transparent; color:var(--muted); cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:.68rem; transition:color .15s; }
+    .nav-btn.on { color:var(--blue); }
+    .nav-btn .ni { font-size:1.25rem; }
 
     /* ══ Forms ══ */
-    .page-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; }
-    .sect { margin-bottom: 18px; }
-    .lbl {
-      display: block; font-size: .78rem; font-weight: 600;
-      color: var(--muted); text-transform: uppercase;
-      letter-spacing: .05em; margin-bottom: 8px;
-    }
-    .inp {
-      width: 100%; padding: 12px 14px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); color: var(--text); font-size: .93rem;
-      transition: border-color .15s; outline: none; font-family: inherit;
-    }
-    .inp:focus { border-color: var(--blue); }
-    .inp::placeholder { color: var(--muted); }
-    select.inp {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238b949e' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px;
-    }
-    .row2    { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-    .row-qty { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+    .page-title { font-size:1.25rem; font-weight:700; margin-bottom:20px; }
+    .sect { margin-bottom:18px; }
+    .lbl { display:block; font-size:.78rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+    .inp { width:100%; padding:12px 14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-size:.93rem; transition:border-color .15s; outline:none; font-family:inherit; }
+    .inp:focus { border-color:var(--blue); }
+    .inp::placeholder { color:var(--muted); }
+    select.inp { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238b949e' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:34px; }
+    .row2    { display:grid; grid-template-columns:1fr auto; gap:8px; }
+    .row-qty { display:grid; grid-template-columns:2fr 1fr; gap:8px; }
+    .price-wrap { position:relative; }
+    .price-wrap .inp { padding-right:36px; }
+    .price-unit { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:.85rem; pointer-events:none; }
 
-    .cat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
-    .cat-btn {
-      padding: 9px 4px; background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); color: var(--text); cursor: pointer;
-      text-align: center; transition: all .13s; font-size: .72rem;
-    }
-    .cat-btn .ce { font-size: 1.35rem; display: block; margin-bottom: 3px; }
-    .cat-btn.on { border-color: var(--blue); background: rgba(88,166,255,.1); }
+    .cat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+    .cat-btn { padding:9px 4px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); cursor:pointer; text-align:center; transition:all .13s; font-size:.72rem; }
+    .cat-btn .ce { font-size:1.35rem; display:block; margin-bottom:3px; }
+    .cat-btn.on { border-color:var(--blue); background:rgba(88,166,255,.1); }
 
-    .btn-p {
-      width: 100%; padding: 13px; background: var(--blue); border: none;
-      border-radius: var(--radius); color: #fff; font-size: .97rem; font-weight: 600;
-      cursor: pointer; transition: opacity .15s; font-family: inherit;
-    }
-    .btn-p:hover { opacity: .88; }
-    .btn-p:disabled { opacity: .45; cursor: not-allowed; }
-
-    .btn-s {
-      width: 100%; padding: 13px; background: transparent; border: 1px solid var(--border);
-      border-radius: var(--radius); color: var(--text); font-size: .97rem; font-weight: 600;
-      cursor: pointer; transition: background .15s; font-family: inherit;
-    }
-    .btn-s:hover { background: var(--surface2); }
-
-    .btn-d {
-      width: 100%; padding: 12px; background: rgba(248,81,73,.1);
-      border: 1px solid rgba(248,81,73,.3); border-radius: var(--radius); color: var(--red);
-      font-size: .9rem; cursor: pointer; transition: background .15s; font-family: inherit;
-    }
-    .btn-d:hover { background: rgba(248,81,73,.2); }
-
-    .ocr-btn {
-      padding: 12px 13px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius); color: var(--text); cursor: pointer; font-size: .82rem;
-      white-space: nowrap; transition: all .15s; font-family: inherit;
-    }
-    .ocr-btn:hover { border-color: var(--blue); color: var(--blue); }
-    .stack { display: flex; flex-direction: column; gap: 9px; }
+    .btn-p { width:100%; padding:13px; background:var(--blue); border:none; border-radius:var(--radius); color:#fff; font-size:.97rem; font-weight:600; cursor:pointer; transition:opacity .15s; font-family:inherit; }
+    .btn-p:hover { opacity:.88; }
+    .btn-s { width:100%; padding:13px; background:transparent; border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-size:.97rem; font-weight:600; cursor:pointer; transition:background .15s; font-family:inherit; }
+    .btn-s:hover { background:var(--surface2); }
+    .btn-d { width:100%; padding:12px; background:rgba(248,81,73,.1); border:1px solid rgba(248,81,73,.3); border-radius:var(--radius); color:var(--red); font-size:.9rem; cursor:pointer; transition:background .15s; font-family:inherit; }
+    .btn-d:hover { background:rgba(248,81,73,.2); }
+    .ocr-btn { padding:12px 13px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); cursor:pointer; font-size:.82rem; white-space:nowrap; transition:all .15s; font-family:inherit; }
+    .ocr-btn:hover { border-color:var(--blue); color:var(--blue); }
+    .stack { display:flex; flex-direction:column; gap:9px; }
 
     /* ══ Scan ══ */
-    .drop-area {
-      background: var(--surface); border: 2px dashed var(--border);
-      border-radius: var(--radius); padding: 44px 20px;
-      text-align: center; cursor: pointer; transition: all .15s; margin-bottom: 14px;
-    }
-    .drop-area:hover { border-color: var(--blue); }
-    .drop-area .di { font-size: 2.8rem; margin-bottom: 10px; }
-    .drop-area .dt { color: var(--muted); font-size: .88rem; line-height: 1.5; }
-    .scan-img { width: 100%; border-radius: var(--radius); margin-bottom: 14px; max-height: 280px; object-fit: contain; }
-
-    .receipt-row {
-      display: flex; align-items: center; gap: 10px; padding: 11px 12px;
-      background: var(--surface2); border-radius: var(--radius); margin-bottom: 7px;
-    }
-    .receipt-row input[type=checkbox] { width: 17px; height: 17px; accent-color: var(--blue); flex-shrink: 0; }
-    .rname { flex: 1; font-size: .92rem; }
-    .rqty  { font-size: .78rem; color: var(--muted); }
+    .drop-area { background:var(--surface); border:2px dashed var(--border); border-radius:var(--radius); padding:44px 20px; text-align:center; cursor:pointer; transition:all .15s; margin-bottom:14px; }
+    .drop-area:hover { border-color:var(--blue); }
+    .drop-area .di { font-size:2.8rem; margin-bottom:10px; }
+    .drop-area .dt { color:var(--muted); font-size:.88rem; line-height:1.5; }
+    .scan-img { width:100%; border-radius:var(--radius); margin-bottom:14px; max-height:280px; object-fit:contain; }
+    .receipt-row { display:flex; align-items:center; gap:10px; padding:11px 12px; background:var(--surface2); border-radius:var(--radius); margin-bottom:7px; }
+    .receipt-row input[type=checkbox] { width:17px; height:17px; accent-color:var(--blue); flex-shrink:0; }
+    .rname { flex:1; font-size:.92rem; }
+    .rqty  { font-size:.78rem; color:var(--muted); }
 
     /* ══ Settings ══ */
-    .s-sect { margin-bottom: 22px; }
-    .s-title {
-      font-size: .73rem; font-weight: 600; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 9px;
-    }
-    .s-row {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 13px 14px;
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px;
-    }
-    .s-row-lbl { font-size: .93rem; }
-    .toggle {
-      width: 44px; height: 24px; background: var(--border); border-radius: 12px;
-      position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0;
-    }
-    .toggle.on { background: var(--blue); }
-    .toggle::after {
-      content: ''; position: absolute; width: 18px; height: 18px;
-      background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: transform .2s;
-    }
-    .toggle.on::after { transform: translateX(20px); }
+    .s-sect { margin-bottom:22px; }
+    .s-title { font-size:.73rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:9px; }
+    .s-row { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:13px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+    .s-row-lbl { font-size:.93rem; }
+    .toggle { width:44px; height:24px; background:var(--border); border-radius:12px; position:relative; cursor:pointer; transition:background .2s; flex-shrink:0; }
+    .toggle.on { background:var(--blue); }
+    .toggle::after { content:''; position:absolute; width:18px; height:18px; background:#fff; border-radius:50%; top:3px; left:3px; transition:transform .2s; }
+    .toggle.on::after { transform:translateX(20px); }
 
     /* ══ Modal ══ */
-    .overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.65);
-      z-index: 200; display: flex; align-items: flex-end;
-      animation: fadein .18s;
-    }
-    .modal {
-      background: var(--surface); border-radius: var(--radius) var(--radius) 0 0;
-      width: 100%; max-width: 480px; margin: 0 auto;
-      padding: 22px 18px 28px; animation: slideup .22s;
-      max-height: 88vh; overflow-y: auto;
-    }
-    .modal-handle { width: 38px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 18px; }
-    @keyframes fadein { from{opacity:0} to{opacity:1} }
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:200; display:flex; align-items:flex-end; animation:fadein .18s; }
+    .modal { background:var(--surface); border-radius:var(--radius) var(--radius) 0 0; width:100%; max-width:480px; margin:0 auto; padding:22px 18px 28px; animation:slideup .22s; max-height:88vh; overflow-y:auto; }
+    .modal-handle { width:38px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 18px; }
+    @keyframes fadein  { from{opacity:0} to{opacity:1} }
     @keyframes slideup { from{transform:translateY(100%)} to{transform:translateY(0)} }
 
     /* ══ Misc ══ */
-    .spin {
-      display: inline-block; width: 18px; height: 18px;
-      border: 2px solid var(--border); border-top-color: var(--blue);
-      border-radius: 50%; animation: rotate .75s linear infinite;
-    }
+    .spin { display:inline-block; width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:rotate .75s linear infinite; }
     @keyframes rotate { to{transform:rotate(360deg)} }
-    .loading-row { display: flex; align-items: center; gap: 10px; padding: 14px 0; color: var(--muted); font-size: .88rem; }
-
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 18px; }
-    .detail-cell { background: var(--surface2); border-radius: var(--radius); padding: 12px; }
-    .detail-cell-lbl { font-size: .72rem; color: var(--muted); margin-bottom: 4px; }
-    .detail-cell-val { font-weight: 600; font-size: .92rem; }
-
-    .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
-    .empty .ei { font-size: 2.8rem; margin-bottom: 12px; }
-    .empty .et { font-size: .9rem; line-height: 1.6; }
-    .link { color: var(--blue); cursor: pointer; }
-    .muted { color: var(--muted); }
-    .sm { font-size: .82rem; }
-    .mt8 { margin-top: 8px; }
-    .mb12 { margin-bottom: 12px; }
-    .ocr-msg { padding: 7px 0; font-size: .82rem; }
-
-    .view { animation: viewin .2s; }
-    @keyframes viewin {
-      from { opacity: 0; transform: translateY(7px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .import-row { background: var(--surface2); border-radius: var(--radius); padding: 12px; margin-bottom: 9px; }
-    .import-row-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
-    .import-name { flex: 1; font-weight: 600; font-size: .93rem; }
-    .import-fields { display: flex; flex-direction: column; gap: 6px; }
-
-    /* Category modal item list */
-    .cat-modal-header {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
-    }
-    .cat-modal-emo { font-size: 2.8rem; }
-    .cat-modal-title { font-size: 1.2rem; font-weight: 700; }
-    .cat-modal-cnt { font-size: .82rem; color: var(--muted); }
+    .loading-row { display:flex; align-items:center; gap:10px; padding:14px 0; color:var(--muted); font-size:.88rem; }
+    .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:18px; }
+    .detail-cell { background:var(--surface2); border-radius:var(--radius); padding:12px; }
+    .detail-cell-lbl { font-size:.72rem; color:var(--muted); margin-bottom:4px; }
+    .detail-cell-val { font-weight:600; font-size:.92rem; }
+    .empty { text-align:center; padding:60px 20px; color:var(--muted); }
+    .empty .ei { font-size:2.8rem; margin-bottom:12px; }
+    .empty .et { font-size:.9rem; line-height:1.6; }
+    .link  { color:var(--blue); cursor:pointer; }
+    .muted { color:var(--muted); }
+    .sm    { font-size:.82rem; }
+    .mt8   { margin-top:8px; }
+    .mb12  { margin-bottom:12px; }
+    .ocr-msg { padding:7px 0; font-size:.82rem; }
+    .view { animation:viewin .2s; }
+    @keyframes viewin { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
+    .import-row { background:var(--surface2); border-radius:var(--radius); padding:12px; margin-bottom:9px; }
+    .import-row-head { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+    .import-name { flex:1; font-weight:600; font-size:.93rem; }
+    .import-fields { display:flex; flex-direction:column; gap:6px; }
+    .cat-modal-header { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+    .cat-modal-emo   { font-size:2.8rem; }
+    .cat-modal-title { font-size:1.2rem; font-weight:700; }
+    .cat-modal-cnt   { font-size:.82rem; color:var(--muted); }
   </style>
 </head>
 <body>
@@ -484,15 +272,11 @@
 <!-- ══ Header ══ -->
 <header class="header">
   <span class="header-logo">🧊 냉장고 파먹기</span>
-  <button class="icon-btn" title="알림" onclick="onNotifBtn()">
-    🔔<span class="badge" id="notif-badge" style="display:none"></span>
-  </button>
+  <button class="icon-btn" onclick="onNotifBtn()">🔔<span class="badge" id="notif-badge" style="display:none"></span></button>
 </header>
 
-<!-- ══ Main ══ -->
 <main id="main"></main>
 
-<!-- ══ Bottom Nav ══ -->
 <nav class="bottom-nav">
   <button class="nav-btn on" id="nb-home"     onclick="go('home')">    <span class="ni">🧊</span>냉장고</button>
   <button class="nav-btn"    id="nb-add"      onclick="go('add')">     <span class="ni">➕</span>추가</button>
@@ -500,235 +284,211 @@
   <button class="nav-btn"    id="nb-settings" onclick="go('settings')"><span class="ni">⚙️</span>설정</button>
 </nav>
 
-<!-- ══ Modal container ══ -->
 <div id="mc"></div>
-
-<!-- ══ File inputs ══ -->
 <input type="file" id="fi-expiry"  accept="image/*" capture="environment" style="display:none" onchange="onExpiryFile(this)">
 <input type="file" id="fi-receipt" accept="image/*" capture="environment" style="display:none" onchange="onReceiptFile(this)">
 
 <script>
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Data
-// ════════════════════════════════
+// ══════════════════════════════════════════
 const CATS = [
-  { id:'육류/수산', e:'🥩', l:'육류/수산' },
-  { id:'채소/과일', e:'🥦', l:'채소/과일' },
-  { id:'유제품',   e:'🥛', l:'유제품' },
-  { id:'가공식품', e:'🍱', l:'가공식품' },
-  { id:'음료',     e:'🥤', l:'음료' },
-  { id:'조미료',   e:'🧂', l:'조미료' },
-  { id:'냉동식품', e:'❄️', l:'냉동식품' },
-  { id:'기타',     e:'📦', l:'기타' },
+  {id:'육류/수산',e:'🥩',l:'육류/수산'},
+  {id:'채소/과일',e:'🥦',l:'채소/과일'},
+  {id:'유제품',  e:'🥛',l:'유제품'},
+  {id:'가공식품',e:'🍱',l:'가공식품'},
+  {id:'음료',    e:'🥤',l:'음료'},
+  {id:'조미료',  e:'🧂',l:'조미료'},
+  {id:'냉동식품',e:'❄️',l:'냉동식품'},
+  {id:'기타',    e:'📦',l:'기타'},
 ];
-const EMO = Object.fromEntries(CATS.map(c => [c.id, c.e]));
-
-// Shelf layout: [row1, row2, row3]
+const EMO = Object.fromEntries(CATS.map(c=>[c.id,c.e]));
 const SHELVES = [
-  ['육류/수산', '채소/과일', '유제품'],
-  ['가공식품',  '음료',     '조미료'],
-  ['냉동식품',  '기타'],
+  ['육류/수산','채소/과일','유제품'],
+  ['가공식품', '음료',    '조미료'],
+  ['냉동식품', '기타'],
 ];
+const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+const DAY_KO   = ['일','월','화','수','목','금','토'];
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  State
-// ════════════════════════════════
+// ══════════════════════════════════════════
+const _now = new Date();
 let S = {
   view: 'home',
-  homeTab: 'fridge',  // 'fridge' | 'list'
+  homeTab: 'fridge',
   filter: 'all',
   items: [],
-  settings: { apiKey:'', notifyDays:3, notifEnabled:false },
+  settings: {apiKey:'',notifyDays:3,notifEnabled:false},
   editId: null,
   form: blankForm(),
-  scan: { img:null, items:[], loading:false },
+  scan: {img:null,items:[],loading:false},
   pendingImport: [],
+  doorOpen: false,
+  calYear: _now.getFullYear(),
+  calMonth: _now.getMonth(),
 };
 
 function blankForm() {
-  return { name:'', category:'기타', expiryDate:'', purchaseDate:today(), quantity:'1', unit:'개', notes:'' };
+  return {name:'',category:'기타',expiryDate:'',purchaseDate:today(),quantity:'1',unit:'개',price:'',notes:''};
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Storage
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function load() {
   try {
-    S.items    = JSON.parse(ls('items') || '[]');
-    S.settings = { ...S.settings, ...JSON.parse(ls('cfg') || '{}') };
-  } catch(_) {}
+    S.items    = JSON.parse(ls('items')||'[]');
+    S.settings = {...S.settings,...JSON.parse(ls('cfg')||'{}')};
+  } catch(_){}
 }
-function saveItems() { lset('items', JSON.stringify(S.items)); }
-function saveCfg()   { lset('cfg',   JSON.stringify(S.settings)); }
-function ls(k)       { return localStorage.getItem('fn-' + k); }
-function lset(k,v)   { localStorage.setItem('fn-' + k, v); }
+function saveItems() { lset('items',JSON.stringify(S.items)); }
+function saveCfg()   { lset('cfg',  JSON.stringify(S.settings)); }
+function ls(k)       { return localStorage.getItem('fn-'+k); }
+function lset(k,v)   { localStorage.setItem('fn-'+k,v); }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Helpers
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function daysLeft(exp) {
-  const t = new Date(); t.setHours(0,0,0,0);
-  const e = new Date(exp); e.setHours(0,0,0,0);
-  return Math.round((e - t) / 86400000);
+  const t=new Date(); t.setHours(0,0,0,0);
+  const e=new Date(exp); e.setHours(0,0,0,0);
+  return Math.round((e-t)/86400000);
 }
-function ddayLabel(d) { if (d<0) return `D+${-d}`; if (d===0) return 'D-Day'; return `D-${d}`; }
-function ddayCls(d)   { if (d<0) return 'c-expired'; if (d<=2) return 'c-danger'; if (d<=5) return 'c-warning'; return 'c-safe'; }
+function ddayLabel(d) { if(d<0) return `D+${-d}`; if(d===0) return 'D-Day'; return `D-${d}`; }
+function ddayCls(d)   { if(d<0) return 'c-expired'; if(d<=2) return 'c-danger'; if(d<=5) return 'c-warning'; return 'c-safe'; }
+function urgColor(cls){ return {['c-expired']:'var(--red)',['c-danger']:'var(--orange)',['c-warning']:'var(--yellow)',['c-safe']:'var(--green)'}[cls]; }
 function today()      { return new Date().toISOString().split('T')[0]; }
-function uid()        { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-
-function catUrgency(catId) {
-  const its = S.items.filter(i => i.category === catId);
-  if (!its.length) return null;
-  const min = Math.min(...its.map(i => daysLeft(i.expiryDate)));
-  return ddayCls(min);
+function uid()        { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function catUrgency(id) {
+  const its=S.items.filter(i=>i.category===id); if(!its.length) return null;
+  return ddayCls(Math.min(...its.map(i=>daysLeft(i.expiryDate))));
 }
 
-// ════════════════════════════════
-//  Landing → App
-// ════════════════════════════════
+// ══════════════════════════════════════════
+//  Landing
+// ══════════════════════════════════════════
 function startApp() {
-  const el = document.getElementById('landing');
+  const el=document.getElementById('landing');
   el.classList.add('hide');
-  setTimeout(() => {
-    el.style.display = 'none';
-    // Open the fridge door
-    setTimeout(() => {
-      const door = document.getElementById('fridge-door');
-      if (door) door.classList.add('open');
-    }, 200);
-  }, 700);
+  setTimeout(()=>{
+    el.style.display='none';
+    // Trigger door open animation
+    setTimeout(()=>{
+      const door=document.getElementById('fridge-door');
+      if(door) door.classList.add('open');
+      // Mark door as open in state after animation completes
+      setTimeout(()=>{ S.doorOpen=true; },1400);
+    },200);
+  },700);
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Navigation
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function go(view) {
-  if (view === 'add' && !S.editId) S.form = blankForm();
-  if (view !== 'add') S.editId = null;
-  S.view = view;
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
-  const nb = document.getElementById('nb-' + view);
-  if (nb) nb.classList.add('on');
+  if(view==='add'&&!S.editId) S.form=blankForm();
+  if(view!=='add') S.editId=null;
+  S.view=view;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  const nb=document.getElementById('nb-'+view);
+  if(nb) nb.classList.add('on');
   render();
   window.scrollTo(0,0);
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Render
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function render() {
-  const m = document.getElementById('main');
-  const map = { home:renderHome, add:renderAdd, scan:renderScan, settings:renderSettings };
-  m.innerHTML = (map[S.view] || renderHome)();
+  const m=document.getElementById('main');
+  const map={home:renderHome,add:renderAdd,scan:renderScan,settings:renderSettings};
+  m.innerHTML=(map[S.view]||renderHome)();
   updateBadge();
 }
 
-// ════════════════════════════════
-//  Home (fridge + list toggle)
-// ════════════════════════════════
+// ══════════════════════════════════════════
+//  Home
+// ══════════════════════════════════════════
 function renderHome() {
-  const items = S.items;
-  const expired = items.filter(i => daysLeft(i.expiryDate) < 0).length;
-  const warn    = items.filter(i => { const d=daysLeft(i.expiryDate); return d>=0&&d<=S.settings.notifyDays; }).length;
-
+  const expired=S.items.filter(i=>daysLeft(i.expiryDate)<0).length;
+  const warn=S.items.filter(i=>{ const d=daysLeft(i.expiryDate); return d>=0&&d<=S.settings.notifyDays; }).length;
   return `<div class="view">
-    <!-- Stats -->
     <div class="stats">
-      <div class="stat-card"><div class="stat-num">${items.length}</div><div class="stat-lbl">전체</div></div>
+      <div class="stat-card"><div class="stat-num">${S.items.length}</div><div class="stat-lbl">전체</div></div>
       <div class="stat-card"><div class="stat-num" style="color:var(--yellow)">${warn}</div><div class="stat-lbl">임박</div></div>
       <div class="stat-card"><div class="stat-num" style="color:var(--red)">${expired}</div><div class="stat-lbl">만료됨</div></div>
     </div>
-
-    <!-- View toggle -->
     <div class="view-toggle">
       <button class="vtab ${S.homeTab==='fridge'?'on':''}" onclick="setHomeTab('fridge')">🧊 냉장고</button>
-      <button class="vtab ${S.homeTab==='list'?'on':''}"   onclick="setHomeTab('list')">📋 목록</button>
+      <button class="vtab ${S.homeTab==='list'?'on':''}"   onclick="setHomeTab('list')">  📋 목록</button>
+      <button class="vtab ${S.homeTab==='cal'?'on':''}"    onclick="setHomeTab('cal')">   📅 캘린더</button>
     </div>
-
-    ${S.homeTab === 'fridge' ? renderFridge() : renderList()}
+    ${ S.homeTab==='fridge' ? renderFridge()
+     : S.homeTab==='list'   ? renderList()
+     :                        renderCalendar() }
   </div>`;
 }
 
-// ════════════════════════════════
-//  Fridge visual
-// ════════════════════════════════
+// ══════════════════════════════════════════
+//  Fridge view
+// ══════════════════════════════════════════
 function renderFridge() {
-  const doorOpen = document.getElementById('fridge-door')?.classList.contains('open');
+  // If door is already open, render it instantly open (no re-animation)
+  const doorAttr = S.doorOpen
+    ? 'class="fridge-door open" style="transition:none"'
+    : 'class="fridge-door" id="fridge-door"';
+  const doorId = S.doorOpen ? '' : 'id="fridge-door"';
 
-  const shelvesHtml = SHELVES.map(row => `
+  const shelvesHtml = SHELVES.map(row=>`
     <div class="fridge-shelf">
-      ${row.map(catId => {
-        const cat    = CATS.find(c => c.id === catId);
-        const its    = S.items.filter(i => i.category === catId);
-        const cnt    = its.length;
-        const urg    = catUrgency(catId);
-        const urgCls = urg ? urg.replace('c-', 'u-') : '';
-        const empty  = cnt === 0;
-        return `<div class="cat-slot ${empty?'empty':''}" onclick="${empty?'':' openCategory(\''+catId+'\')'}">
-          ${urg ? `<span class="urgency-dot ${urgCls}"></span>` : ''}
-          <span class="cat-slot-emo">${cat.e}</span>
-          <span class="cat-slot-lbl">${cat.l}</span>
-          ${!empty ? `<span class="cat-slot-cnt">${cnt}개</span>` : ''}
-        </div>`;
+      ${row.map(catId=>{
+        const cat=CATS.find(c=>c.id===catId);
+        const cnt=S.items.filter(i=>i.category===catId).length;
+        const urg=catUrgency(catId);
+        const uc=urg?urg.replace('c-','u-'):'';
+        return `<div class="cat-slot ${cnt===0?'empty':''}" ${cnt?`onclick="openCategory('${catId}')"`:''}>`+
+          (urg?`<span class="urgency-dot ${uc}"></span>`:'')+
+          `<span class="cat-slot-emo">${cat.e}</span>`+
+          `<span class="cat-slot-lbl">${cat.l}</span>`+
+          (cnt?`<span class="cat-slot-cnt">${cnt}개</span>`:'')+
+          `</div>`;
       }).join('')}
-    </div>
-  `).join('');
+    </div>`).join('');
 
   return `
     <div class="fridge-scene">
-      <!-- Interior -->
       <div class="fridge-frame">
         <div class="fridge-led"></div>
-        <div class="fridge-freezer">
-          <span style="font-size:.9rem">❄️</span>
-          <span class="freeze-label">냉동 / 냉장실</span>
-        </div>
-        <div class="fridge-interior">
-          ${shelvesHtml}
-        </div>
+        <div class="fridge-freezer"><span style="font-size:.9rem">❄️</span><span class="freeze-label">냉동 / 냉장실</span></div>
+        ${shelvesHtml}
       </div>
-
-      <!-- Door -->
-      <div class="fridge-door" id="fridge-door" ${doorOpen?'style="transform:rotateY(-132deg)"':''}>
+      <div ${doorAttr} ${doorId}>
         <div class="door-handle"></div>
         <div class="door-emoji">🧊</div>
         <div class="door-brand">Freshness</div>
         <div class="door-tagline">유통기한 세이퍼</div>
       </div>
     </div>
-
-    ${S.items.length === 0 ? `
-      <div class="empty">
-        <div class="ei">🛒</div>
-        <div class="et">냉장고가 비어있어요!<br>
-          <span class="link" onclick="go('add')">+ 식재료 추가하기</span>
-        </div>
-      </div>` : ''}
-  `;
+    ${S.items.length===0?`<div class="empty"><div class="ei">🛒</div><div class="et">냉장고가 비어있어요!<br><span class="link" onclick="go('add')">+ 식재료 추가하기</span></div></div>`:''}`;
 }
 
-// ════════════════════════════════
-//  Category click modal
-// ════════════════════════════════
+// ══════════════════════════════════════════
+//  Category modal
+// ══════════════════════════════════════════
 function openCategory(catId) {
-  const cat   = CATS.find(c => c.id === catId);
-  const items = S.items
-    .filter(i => i.category === catId)
-    .sort((a,b) => daysLeft(a.expiryDate) - daysLeft(b.expiryDate));
-
+  const cat=CATS.find(c=>c.id===catId);
+  const items=S.items.filter(i=>i.category===catId).sort((a,b)=>daysLeft(a.expiryDate)-daysLeft(b.expiryDate));
   showModal(`
     <div class="modal-handle"></div>
     <div class="cat-modal-header">
       <span class="cat-modal-emo">${cat.e}</span>
-      <div>
-        <div class="cat-modal-title">${cat.l}</div>
-        <div class="cat-modal-cnt">${items.length}개 보관 중</div>
-      </div>
+      <div><div class="cat-modal-title">${cat.l}</div><div class="cat-modal-cnt">${items.length}개 보관 중</div></div>
     </div>
     <div class="food-list">
-      ${items.map(item => {
-        const d = daysLeft(item.expiryDate);
-        const cls = ddayCls(d);
+      ${items.map(item=>{
+        const d=daysLeft(item.expiryDate);const cls=ddayCls(d);
         return `<div class="food-card ${cls}" onclick="closeModal();openDetail('${item.id}')">
           <div class="food-emo">${EMO[item.category]||'📦'}</div>
           <div class="food-info">
@@ -740,21 +500,17 @@ function openCategory(catId) {
         </div>`;
       }).join('')}
     </div>
-    <div style="margin-top:14px">
-      <button class="btn-s" onclick="closeModal()">닫기</button>
-    </div>
-  `);
+    <div style="margin-top:14px"><button class="btn-s" onclick="closeModal()">닫기</button></div>`);
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  List view
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function renderList() {
-  let list = [...S.items];
-  if (S.filter === 'expired') list = list.filter(i => daysLeft(i.expiryDate) < 0);
-  if (S.filter === 'warning') list = list.filter(i => { const d=daysLeft(i.expiryDate); return d>=0&&d<=5; });
-  list.sort((a,b) => daysLeft(a.expiryDate) - daysLeft(b.expiryDate));
-
+  let list=[...S.items];
+  if(S.filter==='expired') list=list.filter(i=>daysLeft(i.expiryDate)<0);
+  if(S.filter==='warning') list=list.filter(i=>{ const d=daysLeft(i.expiryDate); return d>=0&&d<=5; });
+  list.sort((a,b)=>daysLeft(a.expiryDate)-daysLeft(b.expiryDate));
   return `
     <div class="tabs">
       <button class="tab ${S.filter==='all'?'on':''}"     onclick="setFilter('all')">전체</button>
@@ -762,9 +518,10 @@ function renderList() {
       <button class="tab ${S.filter==='expired'?'on':''}" onclick="setFilter('expired')">🚨 만료됨</button>
     </div>
     <div class="food-list">
-      ${list.length===0 ? `<div class="empty"><div class="ei">🛒</div><div class="et">등록된 식재료가 없어요<br><span class="link" onclick="go('add')">+ 지금 추가하기</span></div></div>`
-      : list.map(item => {
-          const d=daysLeft(item.expiryDate); const cls=ddayCls(d);
+      ${list.length===0
+        ?`<div class="empty"><div class="ei">🛒</div><div class="et">등록된 식재료가 없어요<br><span class="link" onclick="go('add')">+ 지금 추가하기</span></div></div>`
+        :list.map(item=>{
+          const d=daysLeft(item.expiryDate);const cls=ddayCls(d);
           return `<div class="food-card ${cls}" onclick="openDetail('${item.id}')">
             <div class="food-emo">${EMO[item.category]||'📦'}</div>
             <div class="food-info">
@@ -778,9 +535,95 @@ function renderList() {
     </div>`;
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
+//  Calendar view
+// ══════════════════════════════════════════
+function renderCalendar() {
+  const y=S.calYear, m=S.calMonth;
+  const firstDow=new Date(y,m,1).getDay();
+  const daysInM=new Date(y,m+1,0).getDate();
+  const todayStr=today();
+
+  // Build expiry map
+  const expMap={};
+  S.items.forEach(item=>{
+    if(!expMap[item.expiryDate]) expMap[item.expiryDate]=[];
+    expMap[item.expiryDate].push(item);
+  });
+
+  let cells='';
+
+  // Prev month padding
+  const prevDays=new Date(y,m,0).getDate();
+  for(let i=firstDow-1;i>=0;i--) {
+    cells+=`<div class="cal-day other-m"><span class="cal-day-num">${prevDays-i}</span></div>`;
+  }
+
+  // Current month
+  for(let day=1;day<=daysInM;day++) {
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isToday=ds===todayStr;
+    const its=expMap[ds]||[];
+    const dots=its.map(i=>{
+      const cls=ddayCls(daysLeft(i.expiryDate));
+      return `<span class="cal-dot" style="background:${urgColor(cls)}"></span>`;
+    }).join('');
+    cells+=`<div class="cal-day${isToday?' is-today':''}${its.length?' clickable':''}" ${its.length?`onclick="openCalDay('${ds}')"`:''}>`+
+      `<span class="cal-day-num">${day}</span>`+
+      (dots?`<div class="cal-dots">${dots}</div>`:'')+
+      `</div>`;
+  }
+
+  // Next month padding
+  const total=Math.ceil((firstDow+daysInM)/7)*7;
+  for(let i=1;i<=total-firstDow-daysInM;i++) {
+    cells+=`<div class="cal-day other-m"><span class="cal-day-num">${i}</span></div>`;
+  }
+
+  return `
+    <div class="cal-header">
+      <button class="cal-nav" onclick="calMove(-1)">‹</button>
+      <span class="cal-title">${y}년 ${MONTH_KO[m]}</span>
+      <button class="cal-nav" onclick="calMove(1)">›</button>
+    </div>
+    <div class="cal-grid">
+      ${DAY_KO.map(d=>`<div class="cal-lbl">${d}</div>`).join('')}
+      ${cells}
+    </div>`;
+}
+
+function calMove(dir) {
+  S.calMonth+=dir;
+  if(S.calMonth<0)  { S.calMonth=11; S.calYear--; }
+  if(S.calMonth>11) { S.calMonth=0;  S.calYear++; }
+  render();
+}
+
+function openCalDay(ds) {
+  const items=S.items.filter(i=>i.expiryDate===ds);
+  if(!items.length) return;
+  showModal(`
+    <div class="modal-handle"></div>
+    <div style="font-size:1.05rem;font-weight:700;margin-bottom:14px">📅 ${ds} 만료</div>
+    <div class="food-list">
+      ${items.map(item=>{
+        const d=daysLeft(item.expiryDate);const cls=ddayCls(d);
+        return `<div class="food-card ${cls}" onclick="closeModal();openDetail('${item.id}')">
+          <div class="food-emo">${EMO[item.category]||'📦'}</div>
+          <div class="food-info">
+            <div class="food-name">${esc(item.name)}</div>
+            <div class="food-date">만료: ${item.expiryDate}</div>
+          </div>
+          <div class="dday ${cls}">${ddayLabel(d)}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="margin-top:14px"><button class="btn-s" onclick="closeModal()">닫기</button></div>`);
+}
+
+// ══════════════════════════════════════════
 //  Add / Edit
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function renderAdd() {
   const f=S.form; const editing=!!S.editId;
   return `<div class="view">
@@ -812,6 +655,12 @@ function renderAdd() {
         </select>
       </div>
     </div>
+    <div class="sect"><label class="lbl">가격 (선택)</label>
+      <div class="price-wrap">
+        <input class="inp" type="number" placeholder="0" value="${esc(f.price)}" oninput="sf('price',this.value)">
+        <span class="price-unit">원</span>
+      </div>
+    </div>
     <div class="sect"><label class="lbl">메모 (선택)</label>
       <input class="inp" type="text" placeholder="보관 방법, 위치 등..." value="${esc(f.notes)}" oninput="sf('notes',this.value)">
     </div>
@@ -823,23 +672,23 @@ function renderAdd() {
   </div>`;
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Scan
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function renderScan() {
   const sc=S.scan;
   return `<div class="view">
     <div class="page-title">영수증 스캔</div>
     <p class="muted sm mb12">영수증을 촬영하면 AI가 식재료를 자동으로 추출해요.</p>
-    ${!sc.img ? `<div class="drop-area" onclick="document.getElementById('fi-receipt').click()">
+    ${!sc.img?`<div class="drop-area" onclick="document.getElementById('fi-receipt').click()">
       <div class="di">🧾</div><div class="dt">영수증 사진 촬영 / 업로드<br><small>탭하여 카메라 열기</small></div></div>`
-    : `<img class="scan-img" src="${sc.img}" alt="영수증">
-       <button class="btn-s mb12" onclick="clearScan()">다시 촬영</button>`}
-    ${sc.img&&!sc.loading&&sc.items.length===0 ? `
+    :`<img class="scan-img" src="${sc.img}" alt="영수증">
+      <button class="btn-s mb12" onclick="clearScan()">다시 촬영</button>`}
+    ${sc.img&&!sc.loading&&sc.items.length===0?`
       <button class="btn-p" onclick="analyzeReceipt()">🤖 AI로 분석하기</button>
-      ${!S.settings.apiKey?`<p class="muted sm" style="margin-top:10px;text-align:center">⚠️ 설정에서 Claude API 키를 먼저 입력해주세요</p>`:''}` : ''}
-    ${sc.loading ? `<div class="loading-row"><span class="spin"></span><span>AI가 분석하고 있어요...</span></div>` : ''}
-    ${sc.items.length>0 ? `
+      ${!S.settings.apiKey?`<p class="muted sm" style="margin-top:10px;text-align:center">⚠️ 설정에서 Claude API 키를 먼저 입력해주세요</p>`:''}`:'' }
+    ${sc.loading?`<div class="loading-row"><span class="spin"></span><span>AI가 분석하고 있어요...</span></div>`:''}
+    ${sc.items.length>0?`
       <div style="margin-top:4px">
         <div style="font-weight:700;margin-bottom:11px">추출된 식재료 (${sc.items.length}개)</div>
         ${sc.items.map((it,i)=>`<div class="receipt-row">
@@ -851,14 +700,14 @@ function renderScan() {
           <button class="btn-p" onclick="openImportModal()">선택 항목 추가하기</button>
           <button class="btn-s" onclick="clearScan()">취소</button>
         </div>
-      </div>` : ''}
+      </div>`:''}
     <div style="height:16px"></div>
   </div>`;
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Settings
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function renderSettings() {
   const s=S.settings;
   return `<div class="view">
@@ -889,45 +738,44 @@ function renderSettings() {
     </div>
     <div class="s-sect">
       <div class="s-title">정보</div>
-      <div class="s-row"><span class="s-row-lbl">냉장고 파먹기</span><span class="muted">v2.0</span></div>
+      <div class="s-row"><span class="s-row-lbl">냉장고 파먹기</span><span class="muted">v2.1</span></div>
     </div>
   </div>`;
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Helpers
-// ════════════════════════════════
-function sf(k,v)        { S.form[k]=v; }
-function setFilter(f)   { S.filter=f; render(); }
-function updCfg(k,v)    { S.settings[k]=v; saveCfg(); }
-function setHomeTab(t)  { S.homeTab=t; render(); }
+// ══════════════════════════════════════════
+function sf(k,v)       { S.form[k]=v; }
+function setFilter(f)  { S.filter=f; render(); }
+function updCfg(k,v)   { S.settings[k]=v; saveCfg(); }
+function setHomeTab(t) { S.homeTab=t; render(); }
 
-// ════════════════════════════════
-//  Item CRUD
-// ════════════════════════════════
+// ══════════════════════════════════════════
+//  CRUD
+// ══════════════════════════════════════════
 function saveItem() {
   const f=S.form;
-  if (!f.name.trim()) { alert('이름을 입력해주세요'); return; }
-  if (!f.expiryDate)  { alert('유통기한을 입력해주세요'); return; }
-  if (S.editId) {
-    S.items = S.items.map(i => i.id===S.editId ? {...i,...f,updatedAt:Date.now()} : i);
+  if(!f.name.trim()) { alert('이름을 입력해주세요'); return; }
+  if(!f.expiryDate)  { alert('유통기한을 입력해주세요'); return; }
+  if(S.editId) {
+    S.items=S.items.map(i=>i.id===S.editId?{...i,...f,updatedAt:Date.now()}:i);
   } else {
-    S.items.push({ id:uid(), ...f, createdAt:Date.now() });
+    S.items.push({id:uid(),...f,createdAt:Date.now()});
   }
   saveItems(); S.editId=null; go('home');
 }
 
 function delItem(id) {
-  if (!confirm('이 식재료를 삭제할까요?')) return;
-  S.items = S.items.filter(i=>i.id!==id);
+  if(!confirm('이 식재료를 삭제할까요?')) return;
+  S.items=S.items.filter(i=>i.id!==id);
   saveItems(); closeModal(); go('home');
 }
 
 function openDetail(id) {
-  const item=S.items.find(i=>i.id===id); if (!item) return;
+  const item=S.items.find(i=>i.id===id); if(!item) return;
   const d=daysLeft(item.expiryDate); const cls=ddayCls(d);
-  const stateLabel = d<0?'만료됨':d===0?'오늘 만료':`${d}일 남음`;
-  const stateColor = {'c-expired':'var(--red)','c-danger':'var(--orange)','c-warning':'var(--yellow)','c-safe':'var(--green)'}[cls];
+  const stateLabel=d<0?'만료됨':d===0?'오늘 만료':`${d}일 남음`;
   showModal(`
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;gap:13px;margin-bottom:18px">
@@ -942,7 +790,8 @@ function openDetail(id) {
       <div class="detail-cell"><div class="detail-cell-lbl">유통기한</div><div class="detail-cell-val">${item.expiryDate}</div></div>
       <div class="detail-cell"><div class="detail-cell-lbl">구매일</div><div class="detail-cell-val">${item.purchaseDate||'-'}</div></div>
       <div class="detail-cell"><div class="detail-cell-lbl">수량</div><div class="detail-cell-val">${esc(item.quantity||'-')} ${esc(item.unit||'')}</div></div>
-      <div class="detail-cell"><div class="detail-cell-lbl">상태</div><div class="detail-cell-val" style="color:${stateColor}">${stateLabel}</div></div>
+      <div class="detail-cell"><div class="detail-cell-lbl">상태</div><div class="detail-cell-val" style="color:${urgColor(cls)}">${stateLabel}</div></div>
+      ${item.price?`<div class="detail-cell"><div class="detail-cell-lbl">가격</div><div class="detail-cell-val">${Number(item.price).toLocaleString()}원</div></div>`:''}
     </div>
     ${item.notes?`<div class="detail-cell" style="margin-bottom:16px"><div class="detail-cell-lbl">메모</div><div class="detail-cell-val" style="font-weight:400">${esc(item.notes)}</div></div>`:''}
     <div class="stack">
@@ -953,26 +802,26 @@ function openDetail(id) {
 }
 
 function editItem(id) {
-  const item=S.items.find(i=>i.id===id); if (!item) return;
+  const item=S.items.find(i=>i.id===id); if(!item) return;
   S.editId=id;
-  S.form={name:item.name,category:item.category,expiryDate:item.expiryDate,purchaseDate:item.purchaseDate||'',quantity:item.quantity||'1',unit:item.unit||'개',notes:item.notes||''};
+  S.form={name:item.name,category:item.category,expiryDate:item.expiryDate,purchaseDate:item.purchaseDate||'',quantity:item.quantity||'1',unit:item.unit||'개',price:item.price||'',notes:item.notes||''};
   closeModal(); go('add');
 }
 
-// ════════════════════════════════
-//  Expiry OCR
-// ════════════════════════════════
+// ══════════════════════════════════════════
+//  OCR
+// ══════════════════════════════════════════
 function onExpiryFile(input) {
-  const file=input.files[0]; if (!file) return;
+  const file=input.files[0]; if(!file) return;
   const reader=new FileReader();
-  reader.onload = async e => {
+  reader.onload=async e=>{
     const status=document.getElementById('expiry-status');
-    if (status) status.innerHTML='<div class="loading-row"><span class="spin"></span><span>유통기한 인식 중...</span></div>';
-    if (!S.settings.apiKey) { if(status) status.innerHTML='<p class="muted sm ocr-msg">⚠️ 설정에서 API 키를 입력해주세요</p>'; return; }
+    if(status) status.innerHTML='<div class="loading-row"><span class="spin"></span><span>유통기한 인식 중...</span></div>';
+    if(!S.settings.apiKey) { if(status) status.innerHTML='<p class="muted sm ocr-msg">⚠️ 설정에서 API 키를 입력해주세요</p>'; return; }
     try {
       const result=await claudeVision(e.target.result,'expiry');
       const m=result.match(/\d{4}[-.\\/]\d{1,2}[-.\\/]\d{1,2}/);
-      if (m) {
+      if(m) {
         const norm=m[0].replace(/[.\\/]/g,'-').split('-').map((p,i)=>i===0?p:p.padStart(2,'0')).join('-');
         S.form.expiryDate=norm;
         const inp=document.getElementById('f-exp'); if(inp) inp.value=norm;
@@ -985,11 +834,8 @@ function onExpiryFile(input) {
   reader.readAsDataURL(file); input.value='';
 }
 
-// ════════════════════════════════
-//  Receipt scan
-// ════════════════════════════════
 function onReceiptFile(input) {
-  const file=input.files[0]; if (!file) return;
+  const file=input.files[0]; if(!file) return;
   const reader=new FileReader();
   reader.onload=e=>{ S.scan={img:e.target.result,items:[],loading:false}; render(); };
   reader.readAsDataURL(file); input.value='';
@@ -997,7 +843,7 @@ function onReceiptFile(input) {
 function clearScan() { S.scan={img:null,items:[],loading:false}; render(); }
 
 async function analyzeReceipt() {
-  if (!S.settings.apiKey) { alert('설정에서 Claude API 키를 먼저 입력해주세요'); go('settings'); return; }
+  if(!S.settings.apiKey) { alert('설정에서 Claude API 키를 먼저 입력해주세요'); go('settings'); return; }
   S.scan.loading=true; render();
   try {
     const result=await claudeVision(S.scan.img,'receipt');
@@ -1013,17 +859,14 @@ function toggleRI(idx,checked) { if(S.scan.items[idx]) S.scan.items[idx].sel=che
 
 function openImportModal() {
   S.pendingImport=S.scan.items.filter(i=>i.sel);
-  if (!S.pendingImport.length) { alert('가져올 항목을 선택해주세요'); return; }
+  if(!S.pendingImport.length) { alert('가져올 항목을 선택해주세요'); return; }
   showModal(`
     <div class="modal-handle"></div>
     <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">유통기한 입력</div>
     <p class="muted sm" style="margin-bottom:14px">각 식재료의 유통기한을 입력해주세요</p>
     ${S.pendingImport.map((it,i)=>`
       <div class="import-row">
-        <div class="import-row-head">
-          <span class="import-name">${esc(it.name)}</span>
-          ${it.quantity?`<span class="muted sm">${esc(it.quantity)}</span>`:''}
-        </div>
+        <div class="import-row-head"><span class="import-name">${esc(it.name)}</span>${it.quantity?`<span class="muted sm">${esc(it.quantity)}</span>`:''}</div>
         <div class="import-fields">
           <input class="inp" type="date" id="imp-d-${i}">
           <select class="inp" id="imp-c-${i}" style="font-size:.82rem">
@@ -1040,27 +883,26 @@ function openImportModal() {
 function doImport() {
   const t=today(); let added=0;
   S.pendingImport.forEach((it,i)=>{
-    const expiry=document.getElementById(`imp-d-${i}`)?.value; if (!expiry) return;
+    const expiry=document.getElementById(`imp-d-${i}`)?.value; if(!expiry) return;
     const category=document.getElementById(`imp-c-${i}`)?.value||'기타';
-    S.items.push({id:uid(),name:it.name,category,expiryDate:expiry,purchaseDate:t,quantity:it.quantity||'1',unit:'개',notes:'',createdAt:Date.now()});
+    S.items.push({id:uid(),name:it.name,category,expiryDate:expiry,purchaseDate:t,quantity:it.quantity||'1',unit:'개',price:'',notes:'',createdAt:Date.now()});
     added++;
   });
-  saveItems(); closeModal();
-  S.scan={img:null,items:[],loading:false};
-  if (added>0) { go('home'); setTimeout(()=>alert(`${added}개 추가됐어요! 🎉`),100); }
+  saveItems(); closeModal(); S.scan={img:null,items:[],loading:false};
+  if(added>0) { go('home'); setTimeout(()=>alert(`${added}개 추가됐어요! 🎉`),100); }
   else alert('유통기한을 입력한 항목이 없어요');
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Claude Vision
-// ════════════════════════════════
-async function claudeVision(imgData, mode) {
-  if (!S.settings.apiKey) throw new Error('API 키가 없습니다');
+// ══════════════════════════════════════════
+async function claudeVision(imgData,mode) {
+  if(!S.settings.apiKey) throw new Error('API 키가 없습니다');
   const base64=imgData.split(',')[1];
   const mt=imgData.split(';')[0].split(':')[1];
-  const prompt = mode==='expiry'
-    ? '이 이미지에서 유통기한 또는 소비기한을 찾아주세요. YYYY-MM-DD 형식으로만 답해주세요. 예: 2026-12-31. 날짜가 없으면 "없음"이라고만 답해주세요.'
-    : '이 영수증에서 식품/식재료 목록만 추출해주세요. 세제나 생활용품은 제외하세요. JSON 배열로만 답해주세요: [{"name":"상품명","quantity":"수량(없으면 빈 문자열)"}]. 설명 없이 JSON만 출력해주세요.';
+  const prompt=mode==='expiry'
+    ?'이 이미지에서 유통기한 또는 소비기한을 찾아주세요. YYYY-MM-DD 형식으로만 답해주세요. 예: 2026-12-31. 날짜가 없으면 "없음"이라고만 답해주세요.'
+    :'이 영수증에서 식품/식재료 목록만 추출해주세요. 세제나 생활용품은 제외하세요. JSON 배열로만 답해주세요: [{"name":"상품명","quantity":"수량(없으면 빈 문자열)"}]. 설명 없이 JSON만 출력해주세요.';
   const res=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':S.settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
@@ -1069,72 +911,69 @@ async function claudeVision(imgData, mode) {
       {type:'text',text:prompt}
     ]}]}),
   });
-  if (!res.ok) { const err=await res.json().catch(()=>({})); throw new Error(err.error?.message||`API 오류 (${res.status})`); }
+  if(!res.ok) { const err=await res.json().catch(()=>({})); throw new Error(err.error?.message||`API 오류 (${res.status})`); }
   return (await res.json()).content[0].text;
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Notifications
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function onNotifBtn() {
   const warn=S.items.filter(i=>{ const d=daysLeft(i.expiryDate); return d>=0&&d<=S.settings.notifyDays; });
-  if (!warn.length) { alert('임박한 식재료가 없어요 ✅'); return; }
+  if(!warn.length) { alert('임박한 식재료가 없어요 ✅'); return; }
   alert(`⚠️ 유통기한 임박 (${warn.length}개)\n\n${warn.slice(0,5).map(i=>`• ${i.name} (${ddayLabel(daysLeft(i.expiryDate))})`).join('\n')}`);
 }
 async function reqNotif() {
-  if (!('Notification' in window)) { alert('이 브라우저는 알림을 지원하지 않아요'); return; }
+  if(!('Notification'in window)) { alert('이 브라우저는 알림을 지원하지 않아요'); return; }
   const p=await Notification.requestPermission();
-  if (p==='granted') { S.settings.notifEnabled=true; saveCfg(); render(); alert('알림이 활성화됐어요! 🔔'); }
+  if(p==='granted') { S.settings.notifEnabled=true; saveCfg(); render(); alert('알림이 활성화됐어요! 🔔'); }
   else alert('알림 권한이 거부됐어요.');
 }
 function toggleNotif() { S.settings.notifEnabled=!S.settings.notifEnabled; saveCfg(); if(S.settings.notifEnabled) reqNotif(); render(); }
 function checkExpiry() {
-  if (!S.settings.notifEnabled||Notification.permission!=='granted') return;
+  if(!S.settings.notifEnabled||Notification.permission!=='granted') return;
   const td=new Date().toDateString();
   const notified=JSON.parse(ls('notified')||'{}'); let dirty=false;
   S.items.forEach(item=>{
     const d=daysLeft(item.expiryDate);
-    if (d>=0&&d<=S.settings.notifyDays&&notified[item.id]!==td) {
+    if(d>=0&&d<=S.settings.notifyDays&&notified[item.id]!==td) {
       new Notification(`🧊 ${item.name}`,{body:d===0?'오늘 만료돼요!':`${d}일 후 만료돼요`});
       notified[item.id]=td; dirty=true;
     }
   });
-  if (dirty) lset('notified',JSON.stringify(notified));
+  if(dirty) lset('notified',JSON.stringify(notified));
 }
 function updateBadge() {
-  const b=document.getElementById('notif-badge'); if (!b) return;
+  const b=document.getElementById('notif-badge'); if(!b) return;
   const n=S.items.filter(i=>{ const d=daysLeft(i.expiryDate); return d>=0&&d<=S.settings.notifyDays; }).length;
   b.style.display=n>0?'block':'none';
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Modal
-// ════════════════════════════════
+// ══════════════════════════════════════════
 function showModal(html) {
   document.getElementById('mc').innerHTML=`<div class="overlay" onclick="overlayClick(event)"><div class="modal">${html}</div></div>`;
 }
 function closeModal()    { document.getElementById('mc').innerHTML=''; }
 function overlayClick(e) { if(e.target.classList.contains('overlay')) closeModal(); }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Misc
-// ════════════════════════════════
-function clearAll() {
-  if (!confirm('모든 데이터를 삭제할까요?')) return;
-  S.items=[]; saveItems(); render();
-}
+// ══════════════════════════════════════════
+function clearAll() { if(!confirm('모든 데이터를 삭제할까요?')) return; S.items=[]; saveItems(); render(); }
 function esc(s) {
-  if (!s) return '';
+  if(!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ════════════════════════════════
+// ══════════════════════════════════════════
 //  Init
-// ════════════════════════════════
+// ══════════════════════════════════════════
 load();
 go('home');
 checkExpiry();
-setInterval(checkExpiry, 30*60*1000);
+setInterval(checkExpiry,30*60*1000);
 </script>
 </body>
 </html>
