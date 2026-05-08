@@ -321,7 +321,7 @@ let S = {
   homeTab: 'fridge',
   filter: 'all',
   items: [],
-  settings: {apiKey:'',notifyDays:3,notifEnabled:false},
+  settings: {notifyDays:3,notifEnabled:false},
   editId: null,
   form: blankForm(),
   scan: {img:null,items:[],loading:false},
@@ -686,8 +686,7 @@ function renderScan() {
     :`<img class="scan-img" src="${sc.img}" alt="영수증">
       <button class="btn-s mb12" onclick="clearScan()">다시 촬영</button>`}
     ${sc.img&&!sc.loading&&sc.items.length===0?`
-      <button class="btn-p" onclick="analyzeReceipt()">🤖 AI로 분석하기</button>
-      ${!S.settings.apiKey?`<p class="muted sm" style="margin-top:10px;text-align:center">⚠️ 설정에서 Claude API 키를 먼저 입력해주세요</p>`:''}`:'' }
+      <button class="btn-p" onclick="analyzeReceipt()">📷 Google Vision으로 분석하기</button>`:'' }
     ${sc.loading?`<div class="loading-row"><span class="spin"></span><span>AI가 분석하고 있어요...</span></div>`:''}
     ${sc.items.length>0?`
       <div style="margin-top:4px">
@@ -715,22 +714,13 @@ function renderSettings() {
     <div class="page-title">설정</div>
     <div class="s-sect">
       <div class="s-title">AI 기능</div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-          <span style="font-size:1.1rem">📷</span>
-          <span style="font-weight:600;font-size:.9rem">이미지 인식</span>
-          <span style="margin-left:auto;font-size:.78rem;background:var(--green);color:#000;padding:2px 8px;border-radius:20px;font-weight:700">활성</span>
-        </div>
-        <p class="muted sm" style="line-height:1.5">Google Vision AI (Cloudflare Worker 경유)<br>유통기한·영수증 OCR에 사용돼요. API 키 불필요.</p>
-      </div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-          <span style="font-size:1.1rem">🤖</span>
-          <span style="font-weight:600;font-size:.9rem">Claude API (영수증 파싱)</span>
+          <span style="font-size:1.1rem">📷</span>
+          <span style="font-weight:600;font-size:.9rem">Google Vision AI</span>
+          <span style="margin-left:auto;font-size:.78rem;background:var(--green);color:#000;padding:2px 8px;border-radius:20px;font-weight:700">활성</span>
         </div>
-        <label class="lbl" style="margin-bottom:7px">API 키</label>
-        <input class="inp" type="password" placeholder="sk-ant-..." value="${esc(s.apiKey)}" oninput="updCfg('apiKey',this.value)">
-        <p class="muted sm" style="margin-top:9px;line-height:1.5">영수증에서 식품 목록을 추출할 때만 사용돼요.<br>없으면 영수증 스캔 기능을 쓸 수 없어요.</p>
+        <p class="muted sm" style="line-height:1.5">Cloudflare Worker 경유로 안전하게 처리돼요.<br>유통기한 인식 · 영수증 스캔 모두 API 키 불필요.</p>
       </div>
     </div>
     <div class="s-sect">
@@ -871,29 +861,31 @@ function onReceiptFile(input) {
 function clearScan() { S.scan={img:null,items:[],loading:false}; render(); }
 
 async function analyzeReceipt() {
-  if(!S.settings.apiKey) { alert('설정에서 Claude API 키를 먼저 입력해주세요'); go('settings'); return; }
   S.scan.loading=true; render();
   try {
     const ocrText=await googleVisionOCR(S.scan.img);
-    const result=await claudeParseReceiptText(ocrText);
-    let items=[];
-    try { const m=result.match(/\[[\s\S]*?\]/); if(m) items=JSON.parse(m[0]); }
-    catch(_) { items=result.split('\n').filter(l=>l.trim()).map(l=>({name:l.trim().replace(/^[-*•·]\s*/,''),quantity:''})); }
-    S.scan.items=items.filter(i=>i.name).map(i=>({...i,sel:true}));
+    S.scan.items=parseReceiptItems(ocrText).map(i=>({...i,sel:true}));
+    if(!S.scan.items.length) alert('식재료를 찾지 못했어요. 영수증이 잘 보이게 다시 촬영해보세요.');
   } catch(err) { alert('분석 실패: '+err.message); }
   S.scan.loading=false; render();
 }
 
-async function claudeParseReceiptText(text) {
-  if(!S.settings.apiKey) throw new Error('Claude API 키가 없습니다');
-  const prompt=`다음 영수증 텍스트에서 식품/식재료 목록만 추출해주세요. 세제나 생활용품은 제외하세요. JSON 배열로만 답해주세요: [{"name":"상품명","quantity":"수량(없으면 빈 문자열)"}]. 설명 없이 JSON만 출력해주세요.\n\n${text}`;
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':S.settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:512,messages:[{role:'user',content:prompt}]}),
-  });
-  if(!res.ok) { const err=await res.json().catch(()=>({})); throw new Error(err.error?.message||`API 오류 (${res.status})`); }
-  return (await res.json()).content[0].text;
+function parseReceiptItems(text) {
+  const SKIP=['합계','소계','부가세','vat','카드','현금','거스름','영수증','가맹점','사업자','전화','주소','tel','승인','할인','포인트','적립','잔액','결제','매출','점포','합산','면세','과세','봉사료','총액','수량','단가','금액','영업'];
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+  const items=[];
+  for(const line of lines){
+    const lower=line.toLowerCase();
+    if(SKIP.some(k=>lower.includes(k))) continue;
+    const korCnt=(line.match(/[가-힣]/g)||[]).length;
+    if(korCnt<2) continue;
+    if(line.length>30) continue;
+    const qtyMatch=line.match(/(\d+)\s*(개|팩|봉|병|캔|g|kg|ml|l|묶음|장|권|마리)/i);
+    const quantity=qtyMatch?qtyMatch[1]+qtyMatch[2]:'';
+    const name=line.replace(/[\d,]+\s*원?$/,'').replace(/^\s*[\d,]+\s*/,'').replace(/\s{2,}/g,' ').trim();
+    if(name.length>=2) items.push({name,quantity});
+  }
+  return items;
 }
 
 function toggleRI(idx,checked) { if(S.scan.items[idx]) S.scan.items[idx].sel=checked; }
@@ -934,27 +926,6 @@ function doImport() {
   else alert('유통기한을 입력한 항목이 없어요');
 }
 
-// ══════════════════════════════════════════
-//  Claude Vision
-// ══════════════════════════════════════════
-async function claudeVision(imgData,mode) {
-  if(!S.settings.apiKey) throw new Error('API 키가 없습니다');
-  const base64=imgData.split(',')[1];
-  const mt=imgData.split(';')[0].split(':')[1];
-  const prompt=mode==='expiry'
-    ?'이 이미지에서 유통기한 또는 소비기한을 찾아주세요. YYYY-MM-DD 형식으로만 답해주세요. 예: 2026-12-31. 날짜가 없으면 "없음"이라고만 답해주세요.'
-    :'이 영수증에서 식품/식재료 목록만 추출해주세요. 세제나 생활용품은 제외하세요. JSON 배열로만 답해주세요: [{"name":"상품명","quantity":"수량(없으면 빈 문자열)"}]. 설명 없이 JSON만 출력해주세요.';
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':S.settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:512,messages:[{role:'user',content:[
-      {type:'image',source:{type:'base64',media_type:mt,data:base64}},
-      {type:'text',text:prompt}
-    ]}]}),
-  });
-  if(!res.ok) { const err=await res.json().catch(()=>({})); throw new Error(err.error?.message||`API 오류 (${res.status})`); }
-  return (await res.json()).content[0].text;
-}
 
 // ══════════════════════════════════════════
 //  Notifications
