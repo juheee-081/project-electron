@@ -703,6 +703,7 @@ function renderScan() {
         <div class="stack mt8">
           <button class="btn-p" onclick="openImportModal()">선택 항목 추가하기</button>
           <button class="btn-s" onclick="clearScan()">취소</button>
+          <button class="btn-s" onclick="showModal('<div class=\\'modal-handle\\'></div><div style=\\'font-weight:700;margin-bottom:10px\\'>OCR 원본 텍스트</div><pre style=\\'white-space:pre-wrap;font-size:.78rem;color:var(--muted);max-height:60vh;overflow-y:auto\\'>${esc(S.scan.rawText||'없음')}</pre><button class=\\'btn-s mt8\\' onclick=\\'closeModal()\\'>닫기</button>')">🔍 원본 텍스트 보기</button>
         </div>
       </div>`:''}
     <div style="height:16px"></div>
@@ -868,6 +869,7 @@ async function analyzeReceipt() {
   S.scan.loading=true; render();
   try {
     const ocrText=await googleVisionOCR(S.scan.img);
+    S.scan.rawText=ocrText;
     S.scan.items=parseReceiptItems(ocrText).map(i=>({...i,sel:true}));
     if(!S.scan.items.length) alert('식재료를 찾지 못했어요. 영수증이 잘 보이게 다시 촬영해보세요.');
   } catch(err) { alert('분석 실패: '+err.message); }
