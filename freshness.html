@@ -878,7 +878,8 @@ function parseReceiptItems(text) {
   const SKIP=['합계','소계','부가세','vat','카드','현금','거스름','영수증','가맹점','사업자','전화','주소','tel','승인','할인','포인트','적립','잔액','결제','매출','점포','합산','면세','과세','봉사료','총액','수량','단가','금액','영업'];
   const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
   const items=[];
-  for(const line of lines){
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i];
     const lower=line.toLowerCase();
     if(SKIP.some(k=>lower.includes(k))) continue;
     const korCnt=(line.match(/[가-힣]/g)||[]).length;
@@ -886,8 +887,20 @@ function parseReceiptItems(text) {
     if(line.length>40) continue;
     const qtyMatch=line.match(/(\d+)\s*(개|팩|봉|병|캔|g|kg|ml|l|묶음|장|권|마리)/i);
     const quantity=qtyMatch?qtyMatch[1]+qtyMatch[2]:'';
-    const priceMatch=line.match(/([\d,]{3,})\s*원?\s*$/);
-    const price=priceMatch?priceMatch[1].replace(/,/g,''):'';
+    // 같은 줄 가격 먼저
+    let price='';
+    const sameLine=line.match(/([\d,]{3,})\s*원?\s*$/);
+    if(sameLine) {
+      price=sameLine[1].replace(/,/g,'');
+    } else {
+      // 다음 1~2줄에서 가격 찾기 (상품명과 가격이 다른 줄에 있는 경우)
+      for(let j=i+1;j<=Math.min(i+2,lines.length-1);j++){
+        const next=lines[j];
+        if((next.match(/[가-힣]/g)||[]).length>=2) break;
+        const nums=(next.match(/([\d,]{3,})/g)||[]).map(p=>parseInt(p.replace(/,/g,'')));
+        if(nums.length) { price=String(Math.max(...nums)); break; }
+      }
+    }
     const name=line.replace(/[\d,]+\s*원?\s*$/,'').replace(/^\s*[\d,]+\s*/,'').replace(/\s{2,}/g,' ').trim();
     if(name.length>=2) items.push({name,quantity,price});
   }
