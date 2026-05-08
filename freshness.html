@@ -294,8 +294,10 @@
 </nav>
 
 <div id="mc"></div>
-<input type="file" id="fi-expiry"  accept="image/*" capture="environment" style="display:none" onchange="onExpiryFile(this)">
-<input type="file" id="fi-receipt" accept="image/*" capture="environment" style="display:none" onchange="onReceiptFile(this)">
+<input type="file" id="fi-expiry-cam"  accept="image/*" capture="environment" style="display:none" onchange="onExpiryFile(this)">
+<input type="file" id="fi-expiry-file" accept="image/*" style="display:none" onchange="onExpiryFile(this)">
+<input type="file" id="fi-receipt-cam"  accept="image/*" capture="environment" style="display:none" onchange="onReceiptFile(this)">
+<input type="file" id="fi-receipt-file" accept="image/*" style="display:none" onchange="onReceiptFile(this)">
 
 <script>
 // ══════════════════════════════════════════
@@ -667,7 +669,7 @@ function renderAdd() {
     <div class="sect"><label class="lbl">유통기한</label>
       <div class="row2">
         <input class="inp" type="date" id="f-exp" value="${f.expiryDate}" oninput="sf('expiryDate',this.value)">
-        <button class="ocr-btn" onclick="document.getElementById('fi-expiry').click()">📷 인식</button>
+        <button class="ocr-btn" onclick="showImgPicker('expiry')">📷 인식</button>
       </div>
       <div id="expiry-status"></div>
     </div>
@@ -707,7 +709,7 @@ function renderScan() {
   return `<div class="view">
     <div class="page-title">영수증 스캔</div>
     <p class="muted sm mb12">영수증을 촬영하면 AI가 식재료를 자동으로 추출해요.</p>
-    ${!sc.img?`<div class="drop-area" onclick="document.getElementById('fi-receipt').click()">
+    ${!sc.img?`<div class="drop-area" onclick="showImgPicker('receipt')">
       <div class="di">🧾</div><div class="dt">영수증 사진 촬영 / 업로드<br><small>탭하여 카메라 열기</small></div></div>`
     :`<img class="scan-img" src="${sc.img}" alt="영수증">
       <button class="btn-s mb12" onclick="clearScan()">다시 촬영</button>`}
@@ -897,7 +899,17 @@ function onReceiptFile(input) {
   reader.onload=e=>{ S.scan={img:e.target.result,items:[],loading:false}; render(); };
   reader.readAsDataURL(file); input.value='';
 }
-function clearScan() { S.scan={img:null,items:[],loading:false}; render(); }
+function clearScan() { S.scan={img:null,items:[],loading:false,rawText:''}; render(); }
+
+function showImgPicker(type) {
+  showModal(`
+    <div class="modal-handle"></div>
+    <div style="font-size:1rem;font-weight:700;margin-bottom:16px;text-align:center">사진 가져오기</div>
+    <button class="btn-p" onclick="closeModal();setTimeout(()=>document.getElementById('fi-${type}-cam').click(),100)">📷 카메라로 촬영</button>
+    <button class="btn-s mt8" onclick="closeModal();setTimeout(()=>document.getElementById('fi-${type}-file').click(),100)">🖼️ 앨범에서 가져오기</button>
+    <button class="btn-s mt8" onclick="closeModal()">취소</button>
+  `);
+}
 
 async function analyzeReceipt() {
   S.scan.loading=true; render();
