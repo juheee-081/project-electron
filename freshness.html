@@ -208,10 +208,12 @@
     .drop-area .di { font-size:2.8rem; margin-bottom:10px; }
     .drop-area .dt { color:var(--muted); font-size:.88rem; line-height:1.5; }
     .scan-img { width:100%; border-radius:var(--radius); margin-bottom:14px; max-height:280px; object-fit:contain; }
-    .receipt-row { display:flex; align-items:center; gap:10px; padding:11px 12px; background:var(--surface2); border-radius:var(--radius); margin-bottom:7px; }
-    .receipt-row input[type=checkbox] { width:17px; height:17px; accent-color:var(--blue); flex-shrink:0; }
-    .rname { flex:1; font-size:.92rem; }
-    .rqty  { font-size:.78rem; color:var(--muted); }
+    .receipt-row { display:flex; align-items:flex-start; gap:10px; padding:11px 12px; background:var(--surface2); border-radius:var(--radius); margin-bottom:7px; }
+    .receipt-row input[type=checkbox] { width:17px; height:17px; accent-color:var(--blue); flex-shrink:0; margin-top:9px; }
+    .rfields { flex:1; display:flex; flex-direction:column; gap:5px; }
+    .rname-inp { font-size:.92rem; padding:6px 10px; }
+    .rprice-inp { font-size:.82rem; padding:5px 10px; color:var(--yellow); }
+    .rprice-inp::placeholder { color:var(--muted); }
 
     /* ══ Settings ══ */
     .s-sect { margin-bottom:22px; }
@@ -693,8 +695,10 @@ function renderScan() {
         <div style="font-weight:700;margin-bottom:11px">추출된 식재료 (${sc.items.length}개)</div>
         ${sc.items.map((it,i)=>`<div class="receipt-row">
           <input type="checkbox" ${it.sel?'checked':''} onchange="toggleRI(${i},this.checked)">
-          <div class="rname">${esc(it.name)}</div>
-          ${it.quantity?`<div class="rqty">${esc(it.quantity)}</div>`:''}
+          <div class="rfields">
+            <input class="inp rname-inp" value="${esc(it.name)}" placeholder="상품명" oninput="editRI(${i},'name',this.value)">
+            <input class="inp rprice-inp" type="number" value="${esc(it.price||'')}" placeholder="가격 (원)" oninput="editRI(${i},'price',this.value)">
+          </div>
         </div>`).join('')}
         <div class="stack mt8">
           <button class="btn-p" onclick="openImportModal()">선택 항목 추가하기</button>
@@ -879,14 +883,18 @@ function parseReceiptItems(text) {
     if(SKIP.some(k=>lower.includes(k))) continue;
     const korCnt=(line.match(/[가-힣]/g)||[]).length;
     if(korCnt<2) continue;
-    if(line.length>30) continue;
+    if(line.length>40) continue;
     const qtyMatch=line.match(/(\d+)\s*(개|팩|봉|병|캔|g|kg|ml|l|묶음|장|권|마리)/i);
     const quantity=qtyMatch?qtyMatch[1]+qtyMatch[2]:'';
-    const name=line.replace(/[\d,]+\s*원?$/,'').replace(/^\s*[\d,]+\s*/,'').replace(/\s{2,}/g,' ').trim();
-    if(name.length>=2) items.push({name,quantity});
+    const priceMatch=line.match(/([\d,]{3,})\s*원?\s*$/);
+    const price=priceMatch?priceMatch[1].replace(/,/g,''):'';
+    const name=line.replace(/[\d,]+\s*원?\s*$/,'').replace(/^\s*[\d,]+\s*/,'').replace(/\s{2,}/g,' ').trim();
+    if(name.length>=2) items.push({name,quantity,price});
   }
   return items;
 }
+
+function editRI(idx,key,val) { if(S.scan.items[idx]) S.scan.items[idx][key]=val; }
 
 function toggleRI(idx,checked) { if(S.scan.items[idx]) S.scan.items[idx].sel=checked; }
 
@@ -918,7 +926,7 @@ function doImport() {
   S.pendingImport.forEach((it,i)=>{
     const expiry=document.getElementById(`imp-d-${i}`)?.value; if(!expiry) return;
     const category=document.getElementById(`imp-c-${i}`)?.value||'기타';
-    S.items.push({id:uid(),name:it.name,category,expiryDate:expiry,purchaseDate:t,quantity:it.quantity||'1',unit:'개',price:'',notes:'',createdAt:Date.now()});
+    S.items.push({id:uid(),name:it.name,category,expiryDate:expiry,purchaseDate:t,quantity:it.quantity||'1',unit:'개',price:it.price||'',notes:'',createdAt:Date.now()});
     added++;
   });
   saveItems(); closeModal(); S.scan={img:null,items:[],loading:false};
