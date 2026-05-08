@@ -310,6 +310,7 @@ const SHELVES = [
 ];
 const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 const DAY_KO   = ['일','월','화','수','목','금','토'];
+const VISION_WORKER = 'https://fridge-ai-project.ju880164.workers.dev';
 
 // ══════════════════════════════════════════
 //  State
@@ -713,11 +714,23 @@ function renderSettings() {
   return `<div class="view">
     <div class="page-title">설정</div>
     <div class="s-sect">
-      <div class="s-title">AI 기능 (Claude API)</div>
+      <div class="s-title">AI 기능</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:1.1rem">📷</span>
+          <span style="font-weight:600;font-size:.9rem">이미지 인식</span>
+          <span style="margin-left:auto;font-size:.78rem;background:var(--green);color:#000;padding:2px 8px;border-radius:20px;font-weight:700">활성</span>
+        </div>
+        <p class="muted sm" style="line-height:1.5">Google Vision AI (Cloudflare Worker 경유)<br>유통기한·영수증 OCR에 사용돼요. API 키 불필요.</p>
+      </div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:1.1rem">🤖</span>
+          <span style="font-weight:600;font-size:.9rem">Claude API (영수증 파싱)</span>
+        </div>
         <label class="lbl" style="margin-bottom:7px">API 키</label>
         <input class="inp" type="password" placeholder="sk-ant-..." value="${esc(s.apiKey)}" oninput="updCfg('apiKey',this.value)">
-        <p class="muted sm" style="margin-top:9px;line-height:1.5">영수증·유통기한 자동 인식에 사용돼요.</p>
+        <p class="muted sm" style="margin-top:9px;line-height:1.5">영수증에서 식품 목록을 추출할 때만 사용돼요.<br>없으면 영수증 스캔 기능을 쓸 수 없어요.</p>
       </div>
     </div>
     <div class="s-sect">
@@ -809,6 +822,22 @@ function editItem(id) {
 }
 
 // ══════════════════════════════════════════
+//  Google Vision OCR (Cloudflare Worker 경유)
+// ══════════════════════════════════════════
+async function googleVisionOCR(imgData) {
+  const base64=imgData.split(',')[1];
+  const res=await fetch(VISION_WORKER,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({requests:[{image:{content:base64},features:[{type:'DOCUMENT_TEXT_DETECTION'}]}]}),
+  });
+  if(!res.ok) throw new Error(`Vision API 오류 (${res.status})`);
+  const data=await res.json();
+  if(data.responses?.[0]?.error) throw new Error(data.responses[0].error.message);
+  return data.responses?.[0]?.fullTextAnnotation?.text||'';
+}
+
+// ══════════════════════════════════════════
 //  OCR
 // ══════════════════════════════════════════
 function onExpiryFile(input) {
@@ -817,17 +846,16 @@ function onExpiryFile(input) {
   reader.onload=async e=>{
     const status=document.getElementById('expiry-status');
     if(status) status.innerHTML='<div class="loading-row"><span class="spin"></span><span>유통기한 인식 중...</span></div>';
-    if(!S.settings.apiKey) { if(status) status.innerHTML='<p class="muted sm ocr-msg">⚠️ 설정에서 API 키를 입력해주세요</p>'; return; }
     try {
-      const result=await claudeVision(e.target.result,'expiry');
-      const m=result.match(/\d{4}[-.\\/]\d{1,2}[-.\\/]\d{1,2}/);
+      const ocrText=await googleVisionOCR(e.target.result);
+      const m=ocrText.match(/\d{4}[-.\\/]\d{1,2}[-.\\/]\d{1,2}/);
       if(m) {
         const norm=m[0].replace(/[.\\/]/g,'-').split('-').map((p,i)=>i===0?p:p.padStart(2,'0')).join('-');
         S.form.expiryDate=norm;
         const inp=document.getElementById('f-exp'); if(inp) inp.value=norm;
         if(status) status.innerHTML=`<p class="ocr-msg" style="color:var(--green)">✓ 인식 완료: ${norm}</p>`;
       } else {
-        if(status) status.innerHTML=`<p class="muted sm ocr-msg">인식 결과: ${esc(result)} — 직접 입력해주세요</p>`;
+        if(status) status.innerHTML=`<p class="muted sm ocr-msg">날짜를 찾지 못했어요 — 직접 입력해주세요</p>`;
       }
     } catch(err) { if(status) status.innerHTML=`<p class="ocr-msg" style="color:var(--red)">오류: ${esc(err.message)}</p>`; }
   };
@@ -846,13 +874,26 @@ async function analyzeReceipt() {
   if(!S.settings.apiKey) { alert('설정에서 Claude API 키를 먼저 입력해주세요'); go('settings'); return; }
   S.scan.loading=true; render();
   try {
-    const result=await claudeVision(S.scan.img,'receipt');
+    const ocrText=await googleVisionOCR(S.scan.img);
+    const result=await claudeParseReceiptText(ocrText);
     let items=[];
     try { const m=result.match(/\[[\s\S]*?\]/); if(m) items=JSON.parse(m[0]); }
     catch(_) { items=result.split('\n').filter(l=>l.trim()).map(l=>({name:l.trim().replace(/^[-*•·]\s*/,''),quantity:''})); }
     S.scan.items=items.filter(i=>i.name).map(i=>({...i,sel:true}));
   } catch(err) { alert('분석 실패: '+err.message); }
   S.scan.loading=false; render();
+}
+
+async function claudeParseReceiptText(text) {
+  if(!S.settings.apiKey) throw new Error('Claude API 키가 없습니다');
+  const prompt=`다음 영수증 텍스트에서 식품/식재료 목록만 추출해주세요. 세제나 생활용품은 제외하세요. JSON 배열로만 답해주세요: [{"name":"상품명","quantity":"수량(없으면 빈 문자열)"}]. 설명 없이 JSON만 출력해주세요.\n\n${text}`;
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':S.settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:512,messages:[{role:'user',content:prompt}]}),
+  });
+  if(!res.ok) { const err=await res.json().catch(()=>({})); throw new Error(err.error?.message||`API 오류 (${res.status})`); }
+  return (await res.json()).content[0].text;
 }
 
 function toggleRI(idx,checked) { if(S.scan.items[idx]) S.scan.items[idx].sel=checked; }
