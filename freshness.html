@@ -214,6 +214,13 @@
     .rname-inp { font-size:.92rem; padding:6px 10px; }
     .rprice-inp { font-size:.82rem; padding:5px 10px; color:var(--yellow); }
     .rprice-inp::placeholder { color:var(--muted); }
+    .rcat-sel { font-size:.8rem; padding:5px 10px; }
+    .receipt-hist { margin-top:20px; }
+    .receipt-hist-ttl { font-size:.82rem; color:var(--muted); font-weight:700; margin-bottom:8px; letter-spacing:.04em; }
+    .receipt-thumb { display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--surface2); border-radius:var(--radius); margin-bottom:7px; cursor:pointer; }
+    .receipt-thumb img { width:50px; height:50px; object-fit:cover; border-radius:8px; flex-shrink:0; }
+    .receipt-thumb-count { font-size:.9rem; font-weight:600; }
+    .receipt-thumb-date  { font-size:.78rem; color:var(--muted); margin-top:2px; }
 
     /* ══ Settings ══ */
     .s-sect { margin-bottom:22px; }
@@ -326,7 +333,8 @@ let S = {
   settings: {notifyDays:3,notifEnabled:false},
   editId: null,
   form: blankForm(),
-  scan: {img:null,items:[],loading:false},
+  scan: {img:null,items:[],loading:false,rawText:''},
+  receipts: [],
   pendingImport: [],
   doorOpen: false,
   calYear: _now.getFullYear(),
@@ -344,12 +352,28 @@ function load() {
   try {
     S.items    = JSON.parse(ls('items')||'[]');
     S.settings = {...S.settings,...JSON.parse(ls('cfg')||'{}')};
+    S.receipts = JSON.parse(ls('receipts')||'[]');
   } catch(_){}
 }
-function saveItems() { lset('items',JSON.stringify(S.items)); }
-function saveCfg()   { lset('cfg',  JSON.stringify(S.settings)); }
-function ls(k)       { return localStorage.getItem('fn-'+k); }
-function lset(k,v)   { localStorage.setItem('fn-'+k,v); }
+function saveItems()    { lset('items',JSON.stringify(S.items)); }
+function saveCfg()      { lset('cfg',  JSON.stringify(S.settings)); }
+function saveReceipts() { lset('receipts',JSON.stringify(S.receipts)); }
+function ls(k)          { return localStorage.getItem('fn-'+k); }
+function lset(k,v)      { localStorage.setItem('fn-'+k,v); }
+
+function compressImg(dataUrl) {
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const ratio=Math.min(600/img.width,1);
+      canvas.width=img.width*ratio; canvas.height=img.height*ratio;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      resolve(canvas.toDataURL('image/jpeg',0.5));
+    };
+    img.src=dataUrl;
+  });
+}
 
 // ══════════════════════════════════════════
 //  Helpers
@@ -698,13 +722,23 @@ function renderScan() {
           <div class="rfields">
             <input class="inp rname-inp" value="${esc(it.name)}" placeholder="상품명" oninput="editRI(${i},'name',this.value)">
             <input class="inp rprice-inp" type="number" value="${esc(it.price||'')}" placeholder="가격 (원)" oninput="editRI(${i},'price',this.value)">
+            <select class="inp rcat-sel" onchange="editRI(${i},'category',this.value)">
+              ${CATS.map(c=>`<option value="${c.id}" ${(it.category||'기타')===c.id?'selected':''}>${c.e} ${c.l}</option>`).join('')}
+            </select>
           </div>
         </div>`).join('')}
         <div class="stack mt8">
           <button class="btn-p" onclick="openImportModal()">선택 항목 추가하기</button>
           <button class="btn-s" onclick="clearScan()">취소</button>
-          <button class="btn-s" onclick="showModal('<div class=\\'modal-handle\\'></div><div style=\\'font-weight:700;margin-bottom:10px\\'>OCR 원본 텍스트</div><pre style=\\'white-space:pre-wrap;font-size:.78rem;color:var(--muted);max-height:60vh;overflow-y:auto\\'>${esc(S.scan.rawText||'없음')}</pre><button class=\\'btn-s mt8\\' onclick=\\'closeModal()\\'>닫기</button>')">🔍 원본 텍스트 보기</button>
         </div>
+      </div>`:''}
+    ${S.receipts.length>0&&!sc.img?`
+      <div class="receipt-hist">
+        <div class="receipt-hist-ttl">이전 영수증</div>
+        ${S.receipts.map(r=>`<div class="receipt-thumb" onclick="viewReceipt('${r.id}')">
+          <img src="${r.img}" alt="영수증">
+          <div><div class="receipt-thumb-count">${r.count}개 추가됨</div><div class="receipt-thumb-date">${r.date}</div></div>
+        </div>`).join('')}
       </div>`:''}
     <div style="height:16px"></div>
   </div>`;
@@ -869,8 +903,7 @@ async function analyzeReceipt() {
   S.scan.loading=true; render();
   try {
     const ocrText=await googleVisionOCR(S.scan.img);
-    S.scan.rawText=ocrText;
-    S.scan.items=parseReceiptItems(ocrText).map(i=>({...i,sel:true}));
+    S.scan.items=parseReceiptItems(ocrText).map(i=>({...i,category:'기타',sel:true}));
     if(!S.scan.items.length) alert('식재료를 찾지 못했어요. 영수증이 잘 보이게 다시 촬영해보세요.');
   } catch(err) { alert('분석 실패: '+err.message); }
   S.scan.loading=false; render();
@@ -926,7 +959,7 @@ function openImportModal() {
         <div class="import-fields">
           <input class="inp" type="date" id="imp-d-${i}">
           <select class="inp" id="imp-c-${i}" style="font-size:.82rem">
-            ${CATS.map(c=>`<option value="${c.id}">${c.e} ${c.l}</option>`).join('')}
+            ${CATS.map(c=>`<option value="${c.id}" ${(it.category||'기타')===c.id?'selected':''}>${c.e} ${c.l}</option>`).join('')}
           </select>
         </div>
       </div>`).join('')}
@@ -936,17 +969,31 @@ function openImportModal() {
     </div>`);
 }
 
-function doImport() {
-  const t=today(); let added=0;
+async function doImport() {
+  const t=today(); const toAdd=[];
   S.pendingImport.forEach((it,i)=>{
     const expiry=document.getElementById(`imp-d-${i}`)?.value; if(!expiry) return;
-    const category=document.getElementById(`imp-c-${i}`)?.value||'기타';
-    S.items.push({id:uid(),name:it.name,category,expiryDate:expiry,purchaseDate:t,quantity:it.quantity||'1',unit:'개',price:it.price||'',notes:'',createdAt:Date.now()});
-    added++;
+    const category=document.getElementById(`imp-c-${i}`)?.value||it.category||'기타';
+    toAdd.push({id:uid(),name:it.name,category,expiryDate:expiry,purchaseDate:t,quantity:it.quantity||'1',unit:'개',price:it.price||'',notes:'',createdAt:Date.now()});
   });
-  saveItems(); closeModal(); S.scan={img:null,items:[],loading:false};
-  if(added>0) { go('home'); setTimeout(()=>alert(`${added}개 추가됐어요! 🎉`),100); }
-  else alert('유통기한을 입력한 항목이 없어요');
+  if(!toAdd.length) { alert('유통기한을 입력한 항목이 없어요'); return; }
+  toAdd.forEach(item=>S.items.push(item));
+  try {
+    const compressed=await compressImg(S.scan.img);
+    S.receipts.unshift({id:uid(),date:t,img:compressed,count:toAdd.length});
+    if(S.receipts.length>10) S.receipts=S.receipts.slice(0,10);
+    saveReceipts();
+  } catch(_){}
+  saveItems(); closeModal(); S.scan={img:null,items:[],loading:false,rawText:''};
+  go('home'); setTimeout(()=>alert(`${toAdd.length}개 추가됐어요! 🎉`),100);
+}
+
+function viewReceipt(id) {
+  const r=S.receipts.find(x=>x.id===id); if(!r) return;
+  showModal(`<div class="modal-handle"></div>
+    <img src="${r.img}" style="width:100%;border-radius:8px;margin-bottom:10px" alt="영수증">
+    <p class="muted sm" style="text-align:center">${r.date} · ${r.count}개 추가됨</p>
+    <button class="btn-s mt8" onclick="closeModal()">닫기</button>`);
 }
 
 
