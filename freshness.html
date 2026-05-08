@@ -66,6 +66,18 @@
     .icon-btn:hover { background:var(--border); color:var(--text); }
     .icon-btn .badge { position:absolute; top:-3px; right:-3px; width:9px; height:9px; background:var(--red); border-radius:50%; border:2px solid var(--bg); }
 
+    /* ══ Warning Banner ══ */
+    .warn-banner { display:flex; align-items:center; gap:10px; margin-bottom:16px;
+      background:linear-gradient(135deg,#3a1a00,#2d1500);
+      border:1px solid rgba(240,136,62,.35); border-radius:var(--radius);
+      padding:13px 14px; animation:slideDown .35s ease; }
+    @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+    .warn-banner-icon { font-size:1.5rem; flex-shrink:0; }
+    .warn-banner-body { flex:1; }
+    .warn-banner-title { font-size:.82rem; color:var(--orange); font-weight:700; margin-bottom:2px; }
+    .warn-banner-msg   { font-size:.88rem; color:var(--text); line-height:1.4; }
+    .warn-banner-close { background:none; border:none; color:var(--muted); font-size:1.1rem; cursor:pointer; padding:4px; flex-shrink:0; }
+
     /* ══ Main ══ */
     main { padding:18px 18px calc(var(--nav-h)+20px); }
 
@@ -331,6 +343,7 @@ let S = {
   view: 'home',
   homeTab: 'fridge',
   filter: 'all',
+  bannerDismissed: false,
   items: [],
   settings: {notifyDays:3,notifEnabled:false},
   editId: null,
@@ -438,12 +451,43 @@ function render() {
 }
 
 // ══════════════════════════════════════════
+//  Warning Banner
+// ══════════════════════════════════════════
+const BANNER_TEMPLATES = [
+  (name,price,days)=>[`💸 지갑 경보`, days===0?`오늘 안에 ${name}을 안 먹으면 ${price?price+'원이':'돈이'} 소멸됩니다!`:`D-${days}, ${name}${price?` (${price}원)`:''}이 사라질 위기예요!`],
+  (name,price,days)=>[`🔥 긴급 알림`, `방금 너의 지갑에서 ${price?price+'원이 ':''} 사라질 뻔했어 — ${name} D-${days}!`],
+  (name,price,days)=>[`⚠️ 유통기한 D-${days}`, `${name}${price?`, ${price}원짜리`:''}를 아직 살릴 수 있어요. 지금 바로 확인하세요!`],
+  (name,price,days)=>[`💰 절약 찬스`, `${name} 유통기한이 ${days===0?'오늘':'D-'+days}! ${price?price+'원 '+( days===0?'오늘만 기회예요!':'아직 지킬 수 있어요!'):'서둘러요!'}`],
+  (name,price,days)=>[`🧊 냉장고 경고`, `${name}이 ${days===0?'오늘 만료돼요':'D-'+days+'이에요'}. ${price?price+'원짜리 '+name+', 버리기 아깝잖아요!':'어서 드세요!'}`],
+];
+
+function renderBanner() {
+  if(S.bannerDismissed) return '';
+  const urgent=S.items.filter(i=>{ const d=daysLeft(i.expiryDate); return d>=0&&d<=S.settings.notifyDays; })
+    .sort((a,b)=>daysLeft(a.expiryDate)-daysLeft(b.expiryDate));
+  if(!urgent.length) return '';
+  const item=urgent[0];
+  const days=daysLeft(item.expiryDate);
+  const price=item.price?Number(item.price).toLocaleString():'';
+  const [title,msg]=BANNER_TEMPLATES[Math.floor(Date.now()/3600000)%BANNER_TEMPLATES.length](item.name,price,days);
+  return `<div class="warn-banner">
+    <div class="warn-banner-icon">🚨</div>
+    <div class="warn-banner-body">
+      <div class="warn-banner-title">${title}</div>
+      <div class="warn-banner-msg">${msg}</div>
+    </div>
+    <button class="warn-banner-close" onclick="S.bannerDismissed=true;render()">✕</button>
+  </div>`;
+}
+
+// ══════════════════════════════════════════
 //  Home
 // ══════════════════════════════════════════
 function renderHome() {
   const expired=S.items.filter(i=>daysLeft(i.expiryDate)<0).length;
   const warn=S.items.filter(i=>{ const d=daysLeft(i.expiryDate); return d>=0&&d<=S.settings.notifyDays; }).length;
   return `<div class="view">
+    ${renderBanner()}
     <div class="stats">
       <div class="stat-card"><div class="stat-num">${S.items.length}</div><div class="stat-lbl">전체</div></div>
       <div class="stat-card"><div class="stat-num" style="color:var(--yellow)">${warn}</div><div class="stat-lbl">임박</div></div>
