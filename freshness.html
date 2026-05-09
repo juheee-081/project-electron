@@ -1084,30 +1084,59 @@ function viewReceipt(id) {
 function onNotifBtn() {
   var expired = S.items.filter(function(i){ return dLeft(i.exp) < 0; });
   var warning = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; });
-  if(!expired.length && !warning.length){ alert('임박하거나 만료된 식재료가 없어요 ✅'); return; }
+  if(!expired.length && !warning.length){
+    showModal('<div class="mhandle"></div>'
+      +'<div style="text-align:center;padding:24px 0">'
+      +'<div style="font-size:3rem;margin-bottom:12px">✅</div>'
+      +'<div style="font-size:1.1rem;font-weight:700;margin-bottom:6px">모두 안전해요!</div>'
+      +'<div style="font-size:.88rem;color:var(--muted)">임박하거나 만료된 식재료가 없어요</div>'
+      +'</div>'
+      +'<button class="btn-s" onclick="closeModal()">닫기</button>');
+    return;
+  }
   var totalLoss = 0;
   for(var i=0;i<expired.length;i++){ totalLoss += Number(expired[i].price)||0; }
-  var msg = '';
+
+  var h = '<div class="mhandle"></div>';
+
   if(totalLoss > 0) {
-    msg += '💸 만료 손실 총액: -' + totalLoss.toLocaleString() + '원\n';
-    msg += '━━━━━━━━━━\n';
+    h += '<div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.2);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:16px">'
+      +'<div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">💸 버린 돈</div>'
+      +'<div style="font-size:2.2rem;font-weight:900;color:var(--red);letter-spacing:-.5px">-'+totalLoss.toLocaleString()+'원</div>'
+      +'</div>';
   }
+
   if(expired.length) {
-    msg += '🚨 만료된 식재료 (' + expired.length + '개)\n';
+    h += '<div style="font-size:.72rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">🚨 만료됨 ('+expired.length+'개)</div>';
     for(var i=0;i<expired.length;i++){
       var p = Number(expired[i].price)||0;
-      msg += '• ' + expired[i].name + '(만료됨)' + (p?' / -'+p.toLocaleString()+'원':'') + '\n';
+      h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 13px;background:var(--surface2);border-radius:10px;margin-bottom:6px">'
+        +'<div>'
+        +'<div style="font-size:.95rem;font-weight:700">'+esc(expired[i].name)+'</div>'
+        +'<div style="font-size:.72rem;color:var(--red);margin-top:2px">만료됨</div>'
+        +'</div>'
+        +(p?'<div style="font-size:1.05rem;font-weight:800;color:var(--red)">-'+p.toLocaleString()+'원</div>':'')
+        +'</div>';
     }
   }
+
   if(warning.length) {
-    if(expired.length) msg += '\n';
-    msg += '⚠️ 임박 식재료 (' + warning.length + '개)\n';
+    h += '<div style="font-size:.72rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.06em;margin:'+(expired.length?'14px':'0')+'px 0 8px">⚠️ 임박 ('+warning.length+'개)</div>';
     for(var i=0;i<warning.length;i++){
       var p = Number(warning[i].price)||0;
-      msg += '• ' + warning[i].name + '(' + dlbl(dLeft(warning[i].exp)) + ')' + (p?' / '+p.toLocaleString()+'원':'') + '\n';
+      var d = dLeft(warning[i].exp);
+      h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 13px;background:var(--surface2);border-radius:10px;margin-bottom:6px">'
+        +'<div>'
+        +'<div style="font-size:.95rem;font-weight:700">'+esc(warning[i].name)+'</div>'
+        +'<div style="font-size:.72rem;color:var(--yellow);margin-top:2px">'+dlbl(d)+'</div>'
+        +'</div>'
+        +(p?'<div style="font-size:1.05rem;font-weight:800;color:var(--yellow)">'+p.toLocaleString()+'원</div>':'')
+        +'</div>';
     }
   }
-  alert(msg.trim());
+
+  h += '<button class="btn-s mt8" onclick="closeModal()">닫기</button>';
+  showModal(h);
 }
 async function reqNotif() {
   if(!('Notification' in window)){alert('이 브라우저는 알림을 지원하지 않아요');return;}
