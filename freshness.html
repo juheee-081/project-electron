@@ -78,7 +78,7 @@ main{padding:16px 16px calc(var(--nh) + 16px);}
 
 /* ── Fridge scene ── */
 .fridge-wrap{max-width:320px;margin:0 auto 20px;cursor:pointer;filter:drop-shadow(0 0 14px rgba(88,166,255,.35));}
-.fridge-scene{perspective:1100px;perspective-origin:center 40%;position:relative;}
+.fridge-scene{-webkit-perspective:1100px;perspective:1100px;perspective-origin:center 40%;position:relative;}
 .fridge-body{position:relative;border-radius:20px;background:linear-gradient(160deg,#f0f8ff,#ffffff);
   border:1.5px solid #c8dde8;min-height:380px;overflow:hidden;
   box-shadow:0 8px 32px rgba(88,166,255,.25),0 0 0 3px rgba(88,166,255,.12),inset 0 1px 0 rgba(255,255,255,.9);}
@@ -124,9 +124,11 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 
 /* ── Fridge door ── */
 .fridge-door{position:absolute;inset:0;transform-origin:left center;
-  transition:transform .65s cubic-bezier(.4,0,.2,1);border-radius:20px;cursor:pointer;
-  transform-style:preserve-3d;}
-.fridge-door.open{transform:rotateY(-138deg);pointer-events:none;}
+  transition:-webkit-transform .65s cubic-bezier(.4,0,.2,1),transform .65s cubic-bezier(.4,0,.2,1);
+  border-radius:20px;cursor:pointer;z-index:2;
+  -webkit-transform-style:preserve-3d;transform-style:preserve-3d;
+  will-change:transform;}
+.fridge-door.open{-webkit-transform:rotateY(-138deg);transform:rotateY(-138deg);pointer-events:none;}
 .door-face{position:absolute;inset:0;
   background:linear-gradient(160deg,#ddeeff 0%,#eef5ff 45%,#f5faff 100%);
   border-radius:20px;border:1.5px solid #aaccee;
@@ -145,7 +147,7 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .door-back{position:absolute;inset:0;
   background:linear-gradient(160deg,#d5e8f5 0%,#e4f0fa 50%,#eef6ff 100%);
   border-radius:20px;border:1.5px solid #9ac8e8;
-  transform:rotateY(180deg);
+  -webkit-transform:rotateY(180deg);transform:rotateY(180deg);
   display:flex;align-items:center;justify-content:center;
   opacity:0;transition:opacity .15s;}
 .fridge-door.open .door-back{opacity:1;transition:opacity .28s ease .38s;}
