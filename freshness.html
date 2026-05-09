@@ -8,12 +8,12 @@
 :root{
   --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
   --text:#e6edf3;--muted:#8b949e;--blue:#58a6ff;--green:#3fb950;
-  --yellow:#ffe033;--orange:#f0883e;--red:#f85149;--r:12px;--nh:64px;
+  --yellow:#caee12;--orange:#f0883e;--red:#f85149;--r:12px;--nh:64px;
 }
 body.light{
   --bg:#f5f7fa;--surface:#ffffff;--surface2:#eef1f6;--border:#d0d7de;
   --text:#1c2128;--muted:#57606a;--blue:#0969da;--green:#1a7f37;
-  --yellow:#ffe033;--orange:#bc4c00;--red:#cf222e;
+  --yellow:#b8960a;--orange:#bc4c00;--red:#cf222e;
 }
 body.light .hdr{background:rgba(245,247,250,.95);}
 body.light .bnav{background:#ffffff;}
@@ -515,8 +515,8 @@ function vHome() {
   return '<div class="view">'
     + renderBanner()
     + '<div class="stats">'
-    + '<div class="stat"><div class="stat-n">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
-    + '<div class="stat"><div class="stat-n" style="color:var(--yellow);text-shadow:0 0 12px #ffe033,0 0 30px #ffe033,0 4px 10px rgba(0,0,0,.3)">'+wrn+'</div><div class="stat-l">임박</div></div>'
+    + '<div class="stat"><div class="stat-n" style="color:#87ceeb;text-shadow:0 0 12px #87ceeb,0 0 28px rgba(135,206,235,.5),0 4px 10px rgba(0,0,0,.3)">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
+    + '<div class="stat"><div class="stat-n" style="color:var(--yellow);text-shadow:0 0 12px #caee12,0 0 30px #caee12,0 4px 10px rgba(0,0,0,.3)">'+wrn+'</div><div class="stat-l">임박</div></div>'
     + '<div class="stat"><div class="stat-n" style="color:var(--red);text-shadow:0 0 12px #f85149,0 0 30px #f85149,0 4px 10px rgba(0,0,0,.3)">'+exp+'</div><div class="stat-l">만료됨</div></div>'
     + '</div>'
     + '<div class="vtabs">'
