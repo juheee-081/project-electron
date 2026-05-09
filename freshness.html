@@ -130,14 +130,13 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .door-emo{font-size:3.4rem;opacity:.5;}
 .door-brand{font-size:.7rem;font-weight:700;color:rgba(80,130,200,.35);letter-spacing:.2em;text-transform:uppercase;}
 .door-sub{font-size:.58rem;color:rgba(80,130,200,.22);letter-spacing:.06em;}
-/* ── Door back (inside) ── */
-.door-back{position:absolute;inset:0;
+/* ── Door inside overlay ── */
+.door-egg-overlay{position:absolute;inset:0;
   background:linear-gradient(160deg,#d5e8f5 0%,#e4f0fa 50%,#eef6ff 100%);
   border-radius:20px;border:1.5px solid #9ac8e8;
-  transform:rotateY(180deg);
-  backface-visibility:hidden;-webkit-backface-visibility:hidden;
-  display:flex;align-items:center;justify-content:center;}
-.door-back-inner{transform:scaleX(-1);display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px;}
+  display:flex;align-items:center;justify-content:center;
+  animation:eggOvIn .28s ease;z-index:5;}
+@keyframes eggOvIn{from{opacity:0}to{opacity:1}}
 .egg-tray-wrap{background:rgba(255,255,255,.42);border:1px solid rgba(160,205,230,.5);
   border-radius:10px;padding:8px 10px;cursor:pointer;transition:background .15s;user-select:none;}
 .egg-tray-wrap:active{background:rgba(255,255,255,.65);}
@@ -448,6 +447,8 @@ function toggleDoor() {
   if (!door) return;
   if (S.door) {
     S.door = false;
+    var ov = document.querySelector('.door-egg-overlay');
+    if (ov) ov.remove();
     door.style.removeProperty('transition');
     door.getBoundingClientRect();
     door.style.removeProperty('pointer-events');
@@ -459,13 +460,15 @@ function toggleDoor() {
     setTimeout(function() {
       var d = document.querySelector('.fridge-door');
       if (d) d.style.removeProperty('pointer-events');
-    }, 700);
+      var scene = d && d.parentNode;
+      if (scene && !scene.querySelector('.door-egg-overlay')) {
+        var ov = document.createElement('div');
+        ov.className = 'door-egg-overlay';
+        ov.innerHTML = eggTrayHTML();
+        scene.appendChild(ov);
+      }
+    }, 350);
   }
-}
-function openDoor() {
-  if (openDoor._done) return;
-  openDoor._done = true;
-  if (!S.door) toggleDoor();
 }
 
 /* ── Navigation ── */
@@ -587,12 +590,8 @@ function vFridge() {
     + '<div class="door-brand">Freshness</div>'
     + '<div class="door-sub">유통기한 세이퍼</div>'
     + '</div>'
-    + '<div class="door-back">'
-    + '<div class="door-back-inner">'
-    + eggTrayHTML()
     + '</div>'
-    + '</div>'
-    + '</div>'
+    + (S.door ? '<div class="door-egg-overlay">'+eggTrayHTML()+'</div>' : '')
     + '</div></div>'
     + empty;
 }
@@ -1170,7 +1169,6 @@ loadTheme();
 go('home');
 checkExp();
 setInterval(checkExp, 30*60*1000);
-requestAnimationFrame(function(){ requestAnimationFrame(openDoor); });
 </script>
 </body>
 </html>
