@@ -22,7 +22,9 @@ body.light .hdr-logo{background:linear-gradient(135deg,#0969da,#1a7f37);-webkit-
 body.light .fridge-body{border:2px solid #87ceeb;box-shadow:0 8px 32px rgba(135,206,235,.3),0 0 0 4px rgba(135,206,235,.15),inset 0 1px 0 rgba(255,255,255,.9);}
 body.light .door-face{border:2px solid #87ceeb;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),4px 0 20px rgba(135,206,235,.2);}
 body.light .fridge-wrap{filter:drop-shadow(0 0 12px rgba(135,206,235,.4));}
-body.light .warn-banner{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-color:rgba(240,136,62,.5);}
+body.light .warn-banner{background:linear-gradient(135deg,#fff0f0,#ffe8e0);border-color:rgba(248,81,73,.35);box-shadow:0 4px 20px rgba(248,81,73,.1);}
+body.light .warn-banner-price{color:#d32f2f;}
+body.light .warn-banner-title{color:#e65100;}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
   background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;
@@ -55,16 +57,18 @@ main{padding:16px 16px calc(var(--nh) + 16px);}
 .nb .ni{font-size:1.2rem;}
 
 /* ── Warning Banner ── */
-.warn-banner{display:flex;align-items:center;gap:10px;margin-bottom:16px;
-  background:linear-gradient(135deg,#3a1a00,#2d1500);
-  border:1px solid rgba(240,136,62,.35);border-radius:var(--r);
-  padding:13px 14px;animation:slideDown .35s ease;}
+.warn-banner{margin-bottom:16px;
+  background:linear-gradient(135deg,#2d0f0f,#3a1500);
+  border:1.5px solid rgba(248,81,73,.45);border-radius:var(--r);
+  padding:16px;animation:slideDown .35s ease;
+  box-shadow:0 4px 20px rgba(248,81,73,.18),inset 0 1px 0 rgba(255,255,255,.05);}
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.warn-banner-icon{font-size:1.5rem;flex-shrink:0;}
-.warn-banner-body{flex:1;}
-.warn-banner-title{font-size:.82rem;color:var(--orange);font-weight:700;margin-bottom:2px;}
-.warn-banner-msg{font-size:.88rem;color:var(--text);line-height:1.4;}
-.warn-banner-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px;flex-shrink:0;}
+.warn-banner-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.warn-banner-icon{font-size:1.3rem;flex-shrink:0;}
+.warn-banner-title{font-size:.85rem;color:var(--orange);font-weight:800;flex:1;letter-spacing:.02em;}
+.warn-banner-close{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:4px;flex-shrink:0;line-height:1;}
+.warn-banner-price{font-size:2rem;font-weight:900;color:var(--red);letter-spacing:-1px;line-height:1;margin-bottom:6px;}
+.warn-banner-msg{font-size:.88rem;color:var(--text);line-height:1.45;opacity:.9;}
 
 /* ── Fridge scene ── */
 .fridge-wrap{max-width:320px;margin:0 auto 20px;cursor:pointer;filter:drop-shadow(0 0 14px rgba(88,166,255,.35));}
@@ -498,12 +502,13 @@ function renderBanner() {
   var tmpl = BANNER_TEMPLATES[Math.floor(Date.now()/3600000) % BANNER_TEMPLATES.length];
   var res = tmpl(item.name, price, days);
   return '<div class="warn-banner">'
-    +'<div class="warn-banner-icon">🚨</div>'
-    +'<div class="warn-banner-body">'
-    +'<div class="warn-banner-title">'+res[0]+'</div>'
-    +'<div class="warn-banner-msg">'+res[1]+'</div>'
-    +'</div>'
+    +'<div class="warn-banner-top">'
+    +'<span class="warn-banner-icon">🚨</span>'
+    +'<span class="warn-banner-title">'+res[0]+'</span>'
     +'<button class="warn-banner-close" onclick="S.bannerDismissed=true;render()">✕</button>'
+    +'</div>'
+    +(price ? '<div class="warn-banner-price">-'+price+'원</div>' : '')
+    +'<div class="warn-banner-msg">'+res[1]+'</div>'
     +'</div>';
 }
 
