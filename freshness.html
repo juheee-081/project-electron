@@ -158,7 +158,7 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 /* ── Stats ── */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 8px;text-align:center;}
-.stat-n{font-size:1.75rem;font-weight:800;line-height:1;margin-bottom:2px;text-shadow:0 2px 8px rgba(0,0,0,.18);}
+.stat-n{font-size:1.75rem;font-weight:800;line-height:1;margin-bottom:2px;text-shadow:0 4px 12px rgba(0,0,0,.35);}
 .stat-l{font-size:.68rem;color:var(--muted);}
 
 /* ── Tabs ── */
@@ -516,8 +516,8 @@ function vHome() {
     + renderBanner()
     + '<div class="stats">'
     + '<div class="stat"><div class="stat-n">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
-    + '<div class="stat"><div class="stat-n" style="color:var(--yellow);text-shadow:0 0 18px rgba(255,224,51,.6),0 2px 8px rgba(0,0,0,.18)">'+wrn+'</div><div class="stat-l">임박</div></div>'
-    + '<div class="stat"><div class="stat-n" style="color:var(--red);text-shadow:0 0 18px rgba(248,81,73,.6),0 2px 8px rgba(0,0,0,.18)">'+exp+'</div><div class="stat-l">만료됨</div></div>'
+    + '<div class="stat"><div class="stat-n" style="color:var(--yellow);text-shadow:0 0 12px #ffe033,0 0 30px #ffe033,0 4px 10px rgba(0,0,0,.3)">'+wrn+'</div><div class="stat-l">임박</div></div>'
+    + '<div class="stat"><div class="stat-n" style="color:var(--red);text-shadow:0 0 12px #f85149,0 0 30px #f85149,0 4px 10px rgba(0,0,0,.3)">'+exp+'</div><div class="stat-l">만료됨</div></div>'
     + '</div>'
     + '<div class="vtabs">'
     + '<button class="vtab '+(S.tab==='fridge'?'on':'')+'" onclick="setTab(\'fridge\')">🧊 냉장고</button>'
