@@ -114,13 +114,15 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 
 /* ── Fridge door ── */
 .fridge-door{position:absolute;inset:0;transform-origin:left center;
-  transition:transform .65s cubic-bezier(.4,0,.2,1);border-radius:20px;cursor:pointer;}
+  transition:transform .65s cubic-bezier(.4,0,.2,1);border-radius:20px;cursor:pointer;
+  transform-style:preserve-3d;}
 .fridge-door.open{transform:rotateY(-138deg);pointer-events:none;}
 .door-face{position:absolute;inset:0;
   background:linear-gradient(160deg,#ddeeff 0%,#eef5ff 45%,#f5faff 100%);
   border-radius:20px;border:1.5px solid #aaccee;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),4px 0 20px rgba(0,0,0,.12);}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),4px 0 20px rgba(0,0,0,.12);
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;}
 .door-handle{position:absolute;right:14px;top:50%;transform:translateY(-50%);
   width:8px;height:100px;border-radius:4px;
   background:linear-gradient(to right,#4a5568,#c8d6e5,#7a8fa8,#4a5568);
@@ -128,6 +130,28 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .door-emo{font-size:3.4rem;opacity:.5;}
 .door-brand{font-size:.7rem;font-weight:700;color:rgba(80,130,200,.35);letter-spacing:.2em;text-transform:uppercase;}
 .door-sub{font-size:.58rem;color:rgba(80,130,200,.22);letter-spacing:.06em;}
+/* ── Door back (inside) ── */
+.door-back{position:absolute;inset:0;
+  background:linear-gradient(160deg,#d5e8f5 0%,#e4f0fa 50%,#eef6ff 100%);
+  border-radius:20px;border:1.5px solid #9ac8e8;
+  transform:rotateY(180deg);
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  display:flex;align-items:center;justify-content:center;}
+.door-back-inner{transform:scaleX(-1);display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px;}
+.egg-tray-wrap{background:rgba(255,255,255,.42);border:1px solid rgba(160,205,230,.5);
+  border-radius:10px;padding:8px 10px;cursor:pointer;transition:background .15s;user-select:none;}
+.egg-tray-wrap:active{background:rgba(255,255,255,.65);}
+.egg-tray-ttl{font-size:.58rem;color:rgba(70,120,180,.6);font-weight:700;
+  letter-spacing:.07em;text-align:center;margin-bottom:5px;text-transform:uppercase;}
+.egg-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;}
+.egg-slot{width:18px;height:24px;
+  border-radius:50% 50% 45% 45%/60% 60% 40% 40%;
+  background:rgba(195,220,240,.32);border:1px solid rgba(165,205,230,.38);}
+.egg-slot.filled{
+  background:radial-gradient(ellipse at 38% 30%,#fff7d5,#f0c82a 55%,#b87808);
+  border-color:rgba(175,135,15,.4);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.52),0 1px 2px rgba(0,0,0,.12);}
+.egg-cnt-lbl{font-size:.63rem;color:rgba(70,120,180,.5);text-align:center;font-weight:600;margin-top:3px;}
 
 /* ── Stats ── */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
@@ -358,6 +382,7 @@ var S = {
   scan:{img:null, items:[], loading:false},
   imp:[],
   receipts:[],
+  eggs:0,
   door:false,
   bannerDismissed:false,
   cy:_n.getFullYear(), cm:_n.getMonth()
@@ -378,6 +403,7 @@ function load() {
   try { S.items = JSON.parse(ls('items') || '[]'); } catch(e) { S.items = []; }
   try { var c = JSON.parse(ls('cfg') || '{}'); S.cfg.notifyDays = c.notifyDays||3; S.cfg.notifOn = !!c.notifOn; } catch(e) {}
   try { S.receipts = JSON.parse(ls('receipts') || '[]'); } catch(e) { S.receipts = []; }
+  S.eggs = parseInt(ls('eggs') || '0') || 0;
 }
 function esc(s) {
   if (!s && s !== 0) return '';
@@ -561,11 +587,71 @@ function vFridge() {
     + '<div class="door-brand">Freshness</div>'
     + '<div class="door-sub">유통기한 세이퍼</div>'
     + '</div>'
+    + '<div class="door-back">'
+    + '<div class="door-back-inner">'
+    + eggTrayHTML()
+    + '</div>'
+    + '</div>'
     + '</div>'
     + '</div></div>'
     + empty;
 }
 function ev() { event && event.stopPropagation && event.stopPropagation(); }
+
+/* ── Egg tray ── */
+function eggTrayHTML() {
+  var slots = '';
+  for (var i = 0; i < 12; i++) {
+    slots += '<div class="egg-slot'+(i < S.eggs ? ' filled' : '')+'"></div>';
+  }
+  return '<div class="egg-tray-wrap" onclick="ev();openEggModal()">'
+    + '<div class="egg-tray-ttl">🥚 계란판</div>'
+    + '<div class="egg-grid">'+slots+'</div>'
+    + '<div class="egg-cnt-lbl">'+S.eggs+' / 12개</div>'
+    + '</div>';
+}
+function openEggModal() {
+  var slots = '';
+  for (var i = 0; i < 12; i++) {
+    slots += '<div class="egg-slot'+(i < S.eggs ? ' filled' : '')+'" style="width:28px;height:36px;cursor:pointer" onclick="setEgg('+(i+1)+')"></div>';
+  }
+  showModal('<div class="mhandle"></div>'
+    + '<div style="text-align:center;margin-bottom:14px">'
+    + '<div style="font-size:1.9rem;margin-bottom:4px">🥚</div>'
+    + '<div style="font-size:1rem;font-weight:700">계란 개수 설정</div>'
+    + '<div class="muted sm" style="margin-top:3px">계란을 직접 클릭해서 개수를 설정해요</div>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:12px;padding:12px;background:var(--surface2);border-radius:var(--r)">'+slots+'</div>'
+    + '<div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:16px">'
+    + '<button onclick="updEgg(-1)" style="width:42px;height:42px;font-size:1.3rem;border:1px solid var(--border);background:var(--surface2);border-radius:50%;cursor:pointer;color:var(--text);font-family:inherit">−</button>'
+    + '<span id="egg-disp" style="font-size:2.2rem;font-weight:800;min-width:70px;text-align:center">'+S.eggs+'개</span>'
+    + '<button onclick="updEgg(1)" style="width:42px;height:42px;font-size:1.3rem;border:none;background:var(--blue);border-radius:50%;cursor:pointer;color:#fff;font-family:inherit">+</button>'
+    + '</div>'
+    + '<div class="stack"><button class="btn-p" onclick="saveEggClose()">저장</button><button class="btn-s" onclick="closeModal()">취소</button></div>');
+}
+function updEgg(d) {
+  S.eggs = Math.max(0, Math.min(12, S.eggs + d));
+  var el = document.getElementById('egg-disp');
+  if (el) el.textContent = S.eggs + '개';
+  var slots = document.querySelectorAll('#mc .egg-slot');
+  for (var i = 0; i < slots.length; i++) {
+    slots[i].classList.toggle('filled', i < S.eggs);
+  }
+}
+function setEgg(n) {
+  S.eggs = (S.eggs === n) ? n - 1 : n;
+  var el = document.getElementById('egg-disp');
+  if (el) el.textContent = S.eggs + '개';
+  var slots = document.querySelectorAll('#mc .egg-slot');
+  for (var i = 0; i < slots.length; i++) {
+    slots[i].classList.toggle('filled', i < S.eggs);
+  }
+}
+function saveEggClose() {
+  lset('eggs', String(S.eggs));
+  closeModal();
+  render();
+}
 
 /* ── Category modal ── */
 function openCat(cid) {
