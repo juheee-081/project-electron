@@ -56,6 +56,12 @@ main{padding:16px 16px calc(var(--nh) + 16px);}
 .nb.on{color:var(--blue);}
 .nb .ni{font-size:1.2rem;}
 
+/* ── Mascot ── */
+.mascot-wrap{display:flex;flex-direction:column;align-items:center;margin:4px 0 14px;gap:6px;}
+@keyframes mascotBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.mascot-wrap svg{animation:mascotBob 2.8s ease-in-out infinite;filter:drop-shadow(0 4px 10px rgba(88,166,255,.22));}
+.mascot-msg{font-size:.78rem;color:var(--muted);font-weight:500;background:var(--surface2);border-radius:20px;padding:4px 12px;}
+
 /* ── Warning Banner ── */
 .warn-banner{margin-bottom:16px;
   background:linear-gradient(135deg,#2d0f0f,#3a1500);
@@ -490,6 +496,78 @@ function render() {
   badge();
 }
 
+/* ── Mascot ── */
+function renderMascot() {
+  var exp = S.items.filter(function(i){ return dLeft(i.exp) < 0; }).length;
+  var wrn = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; }).length;
+  var mood = exp > 0 ? 'scared' : wrn > 0 ? 'worried' : 'happy';
+
+  var eyes = '', mouth = '', extra = '';
+  if (mood === 'happy') {
+    eyes = '<circle cx="35" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="63" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="37" cy="55" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="65" cy="55" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="39.5" cy="52.5" r="2.2" fill="white"/>'
+         + '<circle cx="67.5" cy="52.5" r="2.2" fill="white"/>';
+    mouth = '<path d="M33 74 Q49 88 65 74" stroke="#1a3a5c" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
+    extra = '<text x="49" y="18" text-anchor="middle" font-size="9" fill="#87ceeb" opacity=".7">❄</text>';
+  } else if (mood === 'worried') {
+    eyes = '<circle cx="35" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="63" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<path d="M27 46 Q35 42 39 46" stroke="#1a3a5c" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
+         + '<path d="M59 46 Q63 42 71 46" stroke="#1a3a5c" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
+         + '<circle cx="37" cy="56" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="65" cy="56" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="39.5" cy="53.5" r="2.2" fill="white"/>'
+         + '<circle cx="67.5" cy="53.5" r="2.2" fill="white"/>';
+    mouth = '<path d="M35 78 Q49 72 63 78" stroke="#1a3a5c" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
+    extra = '<ellipse cx="74" cy="48" rx="3.5" ry="5.5" fill="#87ceeb" opacity=".65"/>'
+           + '<circle cx="74" cy="43.5" r="3" fill="#87ceeb" opacity=".65"/>';
+  } else {
+    eyes = '<circle cx="35" cy="56" r="12" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="63" cy="56" r="12" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="35" cy="57" r="7" fill="#1a3a5c"/>'
+         + '<circle cx="63" cy="57" r="7" fill="#1a3a5c"/>'
+         + '<circle cx="38" cy="53" r="2.8" fill="white"/>'
+         + '<circle cx="66" cy="53" r="2.8" fill="white"/>';
+    mouth = '<ellipse cx="49" cy="78" rx="7" ry="5" fill="#1a3a5c"/>'
+           + '<ellipse cx="49" cy="77" rx="5" ry="3.5" fill="white"/>';
+    extra = '<ellipse cx="74" cy="48" rx="3.5" ry="5.5" fill="#87ceeb" opacity=".65"/>'
+           + '<circle cx="74" cy="43.5" r="3" fill="#87ceeb" opacity=".65"/>'
+           + '<ellipse cx="24" cy="48" rx="3.5" ry="5.5" fill="#87ceeb" opacity=".55"/>'
+           + '<circle cx="24" cy="43.5" r="3" fill="#87ceeb" opacity=".55"/>';
+  }
+
+  var msg = mood === 'happy' ? '냉장고 상태 좋아요 ✨' : mood === 'worried' ? '임박한 식재료가 있어요!' : '만료된 게 있어요 😨';
+
+  return '<div class="mascot-wrap">'
+    + '<svg width="98" height="122" viewBox="0 0 98 132" xmlns="http://www.w3.org/2000/svg">'
+    + '<defs>'
+    + '<linearGradient id="mbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f4fd"/><stop offset="100%" stop-color="#c8e6f8"/></linearGradient>'
+    + '<linearGradient id="mfz" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d0e8f8"/><stop offset="100%" stop-color="#a8d2ee"/></linearGradient>'
+    + '</defs>'
+    + '<ellipse cx="49" cy="129" rx="27" ry="5" fill="rgba(0,0,0,0.07)"/>'
+    + '<rect x="2" y="63" width="15" height="10" rx="5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '<rect x="81" y="63" width="15" height="10" rx="5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '<rect x="14" y="5" width="70" height="26" rx="10" fill="url(#mfz)" stroke="#87ceeb" stroke-width="2"/>'
+    + '<rect x="29" y="13" width="40" height="6" rx="3" fill="#87ceeb"/>'
+    + extra
+    + '<rect x="14" y="28" width="70" height="88" rx="12" fill="url(#mbg)" stroke="#87ceeb" stroke-width="2"/>'
+    + '<line x1="16" y1="31" x2="82" y2="31" stroke="#c8e6f5" stroke-width="1.5"/>'
+    + '<rect x="20" y="35" width="11" height="46" rx="5.5" fill="rgba(255,255,255,0.55)"/>'
+    + '<rect x="31" y="84" width="36" height="6" rx="3" fill="#87ceeb"/>'
+    + eyes
+    + '<ellipse cx="24" cy="69" rx="8" ry="4.5" fill="rgba(255,120,120,0.3)"/>'
+    + '<ellipse cx="74" cy="69" rx="8" ry="4.5" fill="rgba(255,120,120,0.3)"/>'
+    + mouth
+    + '<rect x="21" y="111" width="22" height="11" rx="5.5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '<rect x="55" y="111" width="22" height="11" rx="5.5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '</svg>'
+    + '<div class="mascot-msg">'+msg+'</div>'
+    + '</div>';
+}
+
 /* ── Warning Banner ── */
 function renderBanner() {
   if (S.bannerDismissed) return '';
@@ -519,6 +597,7 @@ function vHome() {
   var body = S.tab==='fridge' ? vFridge() : S.tab==='list' ? vList() : vCal();
   return '<div class="view">'
     + renderBanner()
+    + renderMascot()
     + '<div class="stats">'
     + '<div class="stat"><div class="stat-n" style="color:#87ceeb">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
     + '<div class="stat"><div class="stat-n" style="color:var(--yellow)">'+wrn+'</div><div class="stat-l">임박</div></div>'
