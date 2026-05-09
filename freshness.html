@@ -67,11 +67,11 @@ main{padding:16px 16px calc(var(--nh) + 16px);}
 .warn-banner-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px;flex-shrink:0;}
 
 /* ── Fridge scene ── */
-.fridge-wrap{max-width:320px;margin:0 auto 20px;cursor:pointer;}
+.fridge-wrap{max-width:320px;margin:0 auto 20px;cursor:pointer;filter:drop-shadow(0 0 14px rgba(88,166,255,.35));}
 .fridge-scene{perspective:1100px;perspective-origin:center 40%;position:relative;}
 .fridge-body{position:relative;border-radius:20px;background:linear-gradient(160deg,#f0f8ff,#ffffff);
   border:1.5px solid #c8dde8;min-height:380px;overflow:hidden;
-  box-shadow:0 24px 60px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.9);}
+  box-shadow:0 8px 32px rgba(88,166,255,.25),0 0 0 3px rgba(88,166,255,.12),inset 0 1px 0 rgba(255,255,255,.9);}
 .fridge-led{height:4px;background:linear-gradient(90deg,transparent,rgba(100,180,255,.5),rgba(150,210,255,.9),rgba(100,180,255,.5),transparent);}
 .fridge-freeze{padding:9px 14px;border-bottom:1px solid rgba(100,180,255,.2);
   display:flex;align-items:center;gap:8px;background:linear-gradient(to bottom,rgba(100,180,255,.07),transparent);}
@@ -515,9 +515,9 @@ function vHome() {
   return '<div class="view">'
     + renderBanner()
     + '<div class="stats">'
-    + '<div class="stat"><div class="stat-n" style="color:#87ceeb;text-shadow:0 2px 8px rgba(135,206,235,.3)">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
-    + '<div class="stat"><div class="stat-n" style="color:var(--yellow);text-shadow:0 2px 8px rgba(255,224,51,.3)">'+wrn+'</div><div class="stat-l">임박</div></div>'
-    + '<div class="stat"><div class="stat-n" style="color:var(--red);text-shadow:0 2px 8px rgba(248,81,73,.3)">'+exp+'</div><div class="stat-l">만료됨</div></div>'
+    + '<div class="stat"><div class="stat-n" style="color:#87ceeb">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
+    + '<div class="stat"><div class="stat-n" style="color:var(--yellow)">'+wrn+'</div><div class="stat-l">임박</div></div>'
+    + '<div class="stat"><div class="stat-n" style="color:var(--red)">'+exp+'</div><div class="stat-l">만료됨</div></div>'
     + '</div>'
     + '<div class="vtabs">'
     + '<button class="vtab '+(S.tab==='fridge'?'on':'')+'" onclick="setTab(\'fridge\')">🧊 냉장고</button>'
