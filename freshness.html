@@ -115,6 +115,13 @@ main{padding:16px 16px calc(var(--nh) + 16px);}
 .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
   width:100%;max-width:480px;height:var(--nh);background:var(--surface);
   border-top:1px solid var(--border);display:flex;z-index:100;}
+/* ── News ── */
+.news-card{background:var(--surface2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;border:1px solid var(--border);transition:background .15s;text-decoration:none;display:block;}
+.news-card:hover{background:var(--border);}
+.news-title{font-size:.93rem;font-weight:700;line-height:1.45;margin-bottom:6px;color:var(--text);}
+.news-meta{font-size:.74rem;color:var(--muted);display:flex;gap:8px;align-items:center;}
+.news-src{color:var(--blue);font-weight:600;}
+.news-section{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 8px;}
 .nb{flex:1;border:none;background:transparent;color:var(--muted);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:3px;font-size:.66rem;transition:color .15s;cursor:pointer;}
@@ -498,6 +505,7 @@ body.light .mascot-bubble::after{border-bottom-color:#f5faff;}
   <button class="nb on" id="nb-home"     onclick="go('home')">    <span class="ni">&#x1F9CA;</span>냉장고</button>
   <button class="nb"    id="nb-add"      onclick="go('add')">     <span class="ni">&#x2795;</span>추가</button>
   <button class="nb"    id="nb-scan"     onclick="go('scan')">    <span class="ni">&#x1F4F7;</span>영수증</button>
+  <button class="nb"    id="nb-news"     onclick="go('news')">    <span class="ni">&#x1F4F0;</span>뉴스</button>
   <button class="nb"    id="nb-settings" onclick="go('settings')"><span class="ni">&#x2699;&#xFE0F;</span>설정</button>
 </nav>
 
@@ -553,7 +561,8 @@ var S = {
   sauces:[],
   bannerDismissed:false,
   fridgeScale:1.0,
-  cy:_n.getFullYear(), cm:_n.getMonth()
+  cy:_n.getFullYear(), cm:_n.getMonth(),
+  news:{items:[],loading:false,error:null,lastFetch:0}
 };
 S.form = emptyForm();
 
@@ -809,6 +818,7 @@ function go(v) {
   if (nb) nb.classList.add('on');
   render();
   window.scrollTo(0, 0);
+  if (v === 'news') fetchNews();
 }
 function render() {
   var m = document.getElementById('main');
@@ -816,6 +826,7 @@ function render() {
   if (S.view === 'home')     m.innerHTML = vHome();
   else if (S.view === 'add') m.innerHTML = vAdd();
   else if (S.view === 'scan')m.innerHTML = vScan();
+  else if (S.view === 'news')m.innerHTML = vNews();
   else                       m.innerHTML = vSettings();
   badge();
   startBannerCycle();
@@ -1200,6 +1211,66 @@ function vScan() {
   }
   h += '<div style="height:14px"></div></div>';
   return h;
+}
+
+/* ══ News ══ */
+function timeAgo(dateStr) {
+  var d = new Date(dateStr), now = Date.now();
+  var diff = Math.floor((now - d) / 60000);
+  if (diff < 60) return diff + '분 전';
+  if (diff < 1440) return Math.floor(diff/60) + '시간 전';
+  return Math.floor(diff/1440) + '일 전';
+}
+function vNews() {
+  var h = '<div class="view"><div class="ptitle">📰 식재료 뉴스</div>';
+  if (S.news.loading) {
+    h += '<div style="text-align:center;padding:60px 0"><div style="font-size:2rem;margin-bottom:12px">🔄</div><div style="color:var(--muted);font-size:.9rem">뉴스 불러오는 중...</div></div>';
+  } else if (S.news.error) {
+    h += '<div style="text-align:center;padding:60px 0"><div style="font-size:2rem;margin-bottom:12px">😢</div><div style="color:var(--muted);font-size:.9rem">'+esc(S.news.error)+'</div>'
+      +'<button class="btn-s" style="margin-top:16px" onclick="S.news.lastFetch=0;fetchNews()">다시 시도</button></div>';
+  } else if (!S.news.items.length) {
+    h += '<div style="text-align:center;padding:60px 0"><div style="font-size:2rem;margin-bottom:12px">📭</div><div style="color:var(--muted);font-size:.9rem">뉴스가 없어요</div></div>';
+  } else {
+    h += '<div style="font-size:.78rem;color:var(--muted);margin-bottom:14px">최신 식재료 · 농산물 뉴스</div>';
+    for (var i = 0; i < S.news.items.length; i++) {
+      var item = S.news.items[i];
+      h += '<a class="news-card" href="'+esc(item.link)+'" target="_blank" rel="noopener">'
+        +'<div class="news-title">'+esc(item.title)+'</div>'
+        +'<div class="news-meta"><span class="news-src">'+esc(item.source)+'</span><span>·</span><span>'+esc(item.ago)+'</span></div>'
+        +'</a>';
+    }
+    h += '<div style="text-align:center;margin-top:16px"><button class="btn-s" onclick="S.news.lastFetch=0;fetchNews()">새로고침</button></div>';
+  }
+  return h + '</div>';
+}
+async function fetchNews() {
+  if (S.news.loading) return;
+  if (Date.now() - S.news.lastFetch < 1800000 && S.news.items.length) return;
+  S.news.loading = true; S.news.error = null;
+  render();
+  try {
+    var q = encodeURIComponent('식재료 OR 농산물 OR 제철 음식 OR 마트 가격');
+    var rss = 'https://news.google.com/rss/search?q='+q+'&hl=ko&gl=KR&ceid=KR:ko';
+    var res = await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(rss));
+    var data = await res.json();
+    var xml = new DOMParser().parseFromString(data.contents, 'text/xml');
+    var nodes = xml.querySelectorAll('item');
+    var items = [];
+    nodes.forEach(function(node) {
+      var title = node.querySelector('title') ? node.querySelector('title').textContent : '';
+      var link = node.querySelector('link') ? node.querySelector('link').textContent : '';
+      var src = node.querySelector('source') ? node.querySelector('source').textContent : '';
+      var pub = node.querySelector('pubDate') ? node.querySelector('pubDate').textContent : '';
+      title = title.replace(/\s*-\s*[^-]+$/, '');
+      if (title && link) items.push({title:title, link:link, source:src, ago:pub?timeAgo(pub):''});
+    });
+    S.news.items = items.slice(0, 20);
+    S.news.lastFetch = Date.now();
+  } catch(e) {
+    S.news.error = '뉴스를 불러오지 못했어요. 인터넷 연결을 확인해주세요.';
+  }
+  S.news.loading = false;
+  if (S.view === 'news') render();
 }
 
 /* ══ Settings ══ */
