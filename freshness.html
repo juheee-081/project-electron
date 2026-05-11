@@ -1247,30 +1247,54 @@ async function fetchNews() {
   if (S.news.loading) return;
   if (Date.now() - S.news.lastFetch < 1800000 && S.news.items.length) return;
   S.news.loading = true; S.news.error = null;
-  render();
+  if (S.view === 'news') render();
+  var q = encodeURIComponent('식재료 농산물 가격 제철음식');
+  var rss = 'https://news.google.com/rss/search?q='+q+'&hl=ko&gl=KR&ceid=KR:ko';
+  var proxies = [
+    'https://api.allorigins.win/raw?url=',
+    'https://corsproxy.io/?',
+    'https://api.codetabs.com/v1/proxy?quest='
+  ];
+  var text = null;
+  for (var pi = 0; pi < proxies.length; pi++) {
+    try {
+      var ctrl = new AbortController();
+      var t = setTimeout(function(){ ctrl.abort(); }, 7000);
+      var res = await fetch(proxies[pi]+encodeURIComponent(rss), {signal:ctrl.signal});
+      clearTimeout(t);
+      var raw = await res.text();
+      if (raw && raw.indexOf('<item>') !== -1) { text = raw; break; }
+      try { var j = JSON.parse(raw); if (j.contents && j.contents.indexOf('<item>') !== -1) { text = j.contents; break; } } catch(e){}
+    } catch(e) { continue; }
+  }
+  if (!text) {
+    S.news.error = '뉴스를 불러오지 못했어요 😢 잠시 후 다시 시도해주세요.';
+    S.news.loading = false;
+    if (S.view === 'news') render();
+    return;
+  }
   try {
-    var q = encodeURIComponent('식재료 OR 농산물 OR 제철 음식 OR 마트 가격');
-    var rss = 'https://news.google.com/rss/search?q='+q+'&hl=ko&gl=KR&ceid=KR:ko';
-    var ctrl = new AbortController();
-    var timer = setTimeout(function(){ ctrl.abort(); }, 8000);
-    var res = await fetch('https://corsproxy.io/?url='+encodeURIComponent(rss), {signal:ctrl.signal});
-    clearTimeout(timer);
-    var text = await res.text();
     var xml = new DOMParser().parseFromString(text, 'text/xml');
-    var nodes = xml.querySelectorAll('item');
+    var nodes = xml.getElementsByTagName('item');
     var items = [];
-    nodes.forEach(function(node) {
-      var title = node.querySelector('title') ? node.querySelector('title').textContent : '';
-      var link = node.querySelector('link') ? node.querySelector('link').textContent : '';
-      var src = node.querySelector('source') ? node.querySelector('source').textContent : '';
-      var pub = node.querySelector('pubDate') ? node.querySelector('pubDate').textContent : '';
-      title = title.replace(/\s*-\s*[^-]+$/, '');
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      var titleEl = node.getElementsByTagName('title')[0];
+      var linkEl  = node.getElementsByTagName('link')[0];
+      var srcEl   = node.getElementsByTagName('source')[0];
+      var pubEl   = node.getElementsByTagName('pubDate')[0];
+      var title = titleEl ? titleEl.textContent : '';
+      var link  = linkEl  ? (linkEl.textContent || linkEl.getAttribute('href') || '') : '';
+      var src   = srcEl   ? srcEl.textContent : '';
+      var pub   = pubEl   ? pubEl.textContent : '';
+      title = title.replace(/\s*-\s*[^-]+$/, '').trim();
       if (title && link) items.push({title:title, link:link, source:src, ago:pub?timeAgo(pub):''});
-    });
+    }
     S.news.items = items.slice(0, 20);
     S.news.lastFetch = Date.now();
+    S.news.error = items.length ? null : '관련 뉴스가 없어요.';
   } catch(e) {
-    S.news.error = '뉴스를 불러오지 못했어요. 인터넷 연결을 확인해주세요.';
+    S.news.error = '뉴스 파싱에 실패했어요.';
   }
   S.news.loading = false;
   if (S.view === 'news') render();
