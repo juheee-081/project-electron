@@ -368,25 +368,55 @@ select.inp{appearance:none;
 .cm-cnt{font-size:.8rem;color:var(--muted);}
 
 /* ── Mascot ── */
-.mascot-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:16px;}
-.mascot-svg{filter:drop-shadow(0 6px 14px rgba(135,206,235,.35));}
-.mascot-happy .mascot-svg{animation:mascotFloat .9s ease-in-out infinite alternate;}
-@keyframes mascotFloat{from{transform:translateY(0)}to{transform:translateY(-8px)}}
-.mascot-worried .mascot-svg{animation:mascotWobble 1s ease-in-out infinite alternate;}
+.mascot-wrap{display:flex;flex-direction:column;align-items:center;margin:4px 0 14px;gap:6px;}
+@keyframes mascotBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.mascot-happy .mascot-svg{animation:mascotBob 2.8s ease-in-out infinite;filter:drop-shadow(0 5px 12px rgba(88,166,255,.22));}
+.mascot-worried .mascot-svg{animation:mascotWobble 1s ease-in-out infinite alternate;filter:drop-shadow(0 5px 12px rgba(240,136,62,.22));}
 @keyframes mascotWobble{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
-.mascot-panicked .mascot-svg{animation:mascotShake .22s ease-in-out infinite alternate;}
-@keyframes mascotShake{from{transform:rotate(-6deg) scale(1)}to{transform:rotate(6deg) scale(1.05)}}
-.mascot-bubble{position:relative;background:var(--surface2);border:1.5px solid var(--border);
-  border-radius:18px;padding:12px 18px;font-size:.88rem;line-height:1.6;max-width:280px;
-  text-align:center;margin-top:10px;word-break:keep-all;
-  animation:bubblePop .42s cubic-bezier(.34,1.56,.64,1);}
-@keyframes bubblePop{from{opacity:0;transform:scale(.65) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.mascot-bubble::before{content:'';position:absolute;top:-11px;left:50%;transform:translateX(-50%);
-  border:11px solid transparent;border-bottom-color:var(--border);border-top:none;}
-.mascot-bubble::after{content:'';position:absolute;top:-8.5px;left:50%;transform:translateX(-50%);
-  border:9px solid transparent;border-bottom-color:var(--surface2);border-top:none;}
+.mascot-panicked .mascot-svg{animation:mascotShake .22s ease-in-out infinite alternate;filter:drop-shadow(0 5px 12px rgba(248,81,73,.3));}
+@keyframes mascotShake{from{transform:rotate(-6deg) scale(1)}to{transform:rotate(6deg) scale(1.04)}}
+
+/* ── 3D Speech Bubble ── */
+.mascot-bubble{
+  position:relative;
+  background:linear-gradient(150deg,var(--surface) 0%,var(--surface2) 100%);
+  border:1.5px solid var(--border);
+  border-radius:22px;
+  padding:13px 20px;
+  font-size:.88rem;
+  line-height:1.65;
+  max-width:282px;
+  text-align:center;
+  margin-top:12px;
+  word-break:keep-all;
+  box-shadow:
+    0 7px 0 rgba(0,0,0,.18),
+    0 10px 26px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,.14);
+  animation:bubblePop .44s cubic-bezier(.34,1.56,.64,1);
+}
+body.light .mascot-bubble{
+  box-shadow:
+    0 7px 0 rgba(100,170,215,.55),
+    0 10px 26px rgba(135,206,235,.28),
+    inset 0 1px 0 rgba(255,255,255,.85);
+  border-color:#87ceeb;
+  background:linear-gradient(150deg,#f5f9ff 0%,#e4f2fd 100%);
+}
+@keyframes bubblePop{from{opacity:0;transform:scale(.6) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mascot-bubble::before{
+  content:'';position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  border:13px solid transparent;border-bottom-color:var(--border);border-top:none;
+}
+.mascot-bubble::after{
+  content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  border:10px solid transparent;border-bottom-color:var(--surface);border-top:none;
+}
+body.light .mascot-bubble::after{border-bottom-color:#f5f9ff;}
 .mascot-name{font-size:.65rem;font-weight:700;color:var(--muted);letter-spacing:.06em;
   text-transform:uppercase;margin-bottom:4px;}
+/* home screen tiny mascot */
+.mascot-msg{font-size:.78rem;color:var(--muted);font-weight:500;background:var(--surface2);border-radius:20px;padding:4px 12px;}
 </style>
 </head>
 <body ontouchstart="">
@@ -748,6 +778,7 @@ function vHome() {
   var body = S.tab==='fridge' ? vFridge() : S.tab==='list' ? vList() : vCal();
   return '<div class="view">'
     + renderBanner()
+    + renderMascot()
     + '<div class="stats">'
     + '<div class="stat"><div class="stat-n" style="color:#87ceeb">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
     + '<div class="stat"><div class="stat-n" style="color:var(--yellow)">'+wrn+'</div><div class="stat-l">임박</div></div>'
@@ -1317,46 +1348,79 @@ function getMascotMsg(mood, itemName) {
 }
 
 function mascotSvg(mood) {
-  var body, border, eyes, mouth, extras, blush;
-  blush = '';
+  var eyes, mouth, extra;
   if (mood === 'happy') {
-    body='#ddeeff'; border='#87ceeb';
-    eyes='<path d="M26 46 Q33 40 40 46" stroke="#334" stroke-width="2.8" fill="none" stroke-linecap="round"/>'
-        +'<path d="M50 46 Q57 40 64 46" stroke="#334" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
-    mouth='<path d="M31 62 Q45 74 59 62" stroke="#334" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
-    extras='';
-    blush='<ellipse cx="17" cy="57" rx="7" ry="4" fill="rgba(255,150,150,.4)"/>'
-         +'<ellipse cx="73" cy="57" rx="7" ry="4" fill="rgba(255,150,150,.4)"/>';
+    eyes = '<circle cx="35" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="63" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="37" cy="55" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="65" cy="55" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="39.5" cy="52.5" r="2.2" fill="white"/>'
+         + '<circle cx="67.5" cy="52.5" r="2.2" fill="white"/>';
+    mouth = '<path d="M33 74 Q49 88 65 74" stroke="#1a3a5c" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
+    extra = '<text x="49" y="18" text-anchor="middle" font-size="9" fill="#87ceeb" opacity=".7">❄</text>';
   } else if (mood === 'worried') {
-    body='#fff8dd'; border='#f0883e';
-    eyes='<line x1="26" y1="41" x2="40" y2="50" stroke="#445" stroke-width="2.5" stroke-linecap="round"/>'
-        +'<line x1="40" y1="41" x2="26" y2="50" stroke="#445" stroke-width="2.5" stroke-linecap="round"/>'
-        +'<line x1="50" y1="41" x2="64" y2="50" stroke="#445" stroke-width="2.5" stroke-linecap="round"/>'
-        +'<line x1="64" y1="41" x2="50" y2="50" stroke="#445" stroke-width="2.5" stroke-linecap="round"/>';
-    mouth='<path d="M33 65 Q45 58 57 65" stroke="#445" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
-    extras='<path d="M24 33 Q33 27 42 33" stroke="#667" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
-          +'<path d="M48 33 Q57 27 66 33" stroke="#667" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
-    blush='';
+    eyes = '<circle cx="35" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="63" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<path d="M27 46 Q35 42 39 46" stroke="#1a3a5c" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
+         + '<path d="M59 46 Q63 42 71 46" stroke="#1a3a5c" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
+         + '<circle cx="37" cy="56" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="65" cy="56" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="39.5" cy="53.5" r="2.2" fill="white"/>'
+         + '<circle cx="67.5" cy="53.5" r="2.2" fill="white"/>';
+    mouth = '<path d="M35 78 Q49 72 63 78" stroke="#1a3a5c" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
+    extra = '<ellipse cx="74" cy="48" rx="3.5" ry="5.5" fill="#87ceeb" opacity=".65"/>'
+          + '<circle cx="74" cy="43.5" r="3" fill="#87ceeb" opacity=".65"/>';
   } else {
-    body='#ffeeee'; border='#f85149';
-    eyes='<circle cx="33" cy="45" r="9" fill="#334"/><circle cx="57" cy="45" r="9" fill="#334"/>'
-        +'<circle cx="30" cy="42" r="3" fill="white"/><circle cx="54" cy="42" r="3" fill="white"/>';
-    mouth='<ellipse cx="45" cy="64" rx="9" ry="7" fill="#334"/>';
-    extras='<path d="M24 31 Q33 24 42 31" stroke="#f85149" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
-          +'<path d="M48 31 Q57 24 66 31" stroke="#f85149" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
-    blush='';
+    eyes = '<circle cx="35" cy="56" r="12" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="63" cy="56" r="12" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="35" cy="57" r="7" fill="#1a3a5c"/>'
+         + '<circle cx="63" cy="57" r="7" fill="#1a3a5c"/>'
+         + '<circle cx="38" cy="53" r="2.8" fill="white"/>'
+         + '<circle cx="66" cy="53" r="2.8" fill="white"/>';
+    mouth = '<ellipse cx="49" cy="78" rx="7" ry="5" fill="#1a3a5c"/>'
+          + '<ellipse cx="49" cy="77" rx="5" ry="3.5" fill="white"/>';
+    extra = '<ellipse cx="74" cy="48" rx="3.5" ry="5.5" fill="#87ceeb" opacity=".65"/>'
+          + '<circle cx="74" cy="43.5" r="3" fill="#87ceeb" opacity=".65"/>'
+          + '<ellipse cx="24" cy="48" rx="3.5" ry="5.5" fill="#87ceeb" opacity=".55"/>'
+          + '<circle cx="24" cy="43.5" r="3" fill="#87ceeb" opacity=".55"/>';
   }
-  return '<svg width="90" height="100" viewBox="0 0 90 100" xmlns="http://www.w3.org/2000/svg">'
-    +'<ellipse cx="45" cy="52" rx="38" ry="43" fill="'+body+'" stroke="'+border+'" stroke-width="2.5"/>'
-    +'<ellipse cx="26" cy="27" rx="10" ry="7" fill="rgba(255,255,255,.55)" transform="rotate(-20,26,27)"/>'
-    +eyes+mouth+extras+blush
-    +'<ellipse cx="32" cy="93" rx="11" ry="6" fill="'+body+'" stroke="'+border+'" stroke-width="2"/>'
-    +'<ellipse cx="58" cy="93" rx="11" ry="6" fill="'+body+'" stroke="'+border+'" stroke-width="2"/>'
-    +'</svg>';
+  var gid = mood || 'h';
+  return '<svg width="98" height="122" viewBox="0 0 98 132" xmlns="http://www.w3.org/2000/svg">'
+    + '<defs>'
+    + '<linearGradient id="mbg'+gid+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f4fd"/><stop offset="100%" stop-color="#c8e6f8"/></linearGradient>'
+    + '<linearGradient id="mfz'+gid+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d0e8f8"/><stop offset="100%" stop-color="#a8d2ee"/></linearGradient>'
+    + '</defs>'
+    + '<ellipse cx="49" cy="129" rx="27" ry="5" fill="rgba(0,0,0,0.07)"/>'
+    + '<rect x="2" y="63" width="15" height="10" rx="5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '<rect x="81" y="63" width="15" height="10" rx="5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '<rect x="14" y="5" width="70" height="26" rx="10" fill="url(#mfz'+gid+')" stroke="#87ceeb" stroke-width="2"/>'
+    + '<rect x="29" y="13" width="40" height="6" rx="3" fill="#87ceeb"/>'
+    + extra
+    + '<rect x="14" y="28" width="70" height="88" rx="12" fill="url(#mbg'+gid+')" stroke="#87ceeb" stroke-width="2"/>'
+    + '<line x1="16" y1="31" x2="82" y2="31" stroke="#c8e6f5" stroke-width="1.5"/>'
+    + '<rect x="20" y="35" width="11" height="46" rx="5.5" fill="rgba(255,255,255,0.55)"/>'
+    + '<rect x="31" y="84" width="36" height="6" rx="3" fill="#87ceeb"/>'
+    + eyes
+    + '<ellipse cx="24" cy="69" rx="8" ry="4.5" fill="rgba(255,120,120,0.3)"/>'
+    + '<ellipse cx="74" cy="69" rx="8" ry="4.5" fill="rgba(255,120,120,0.3)"/>'
+    + mouth
+    + '<rect x="21" y="111" width="22" height="11" rx="5.5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '<rect x="55" y="111" width="22" height="11" rx="5.5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '</svg>';
+}
+
+function renderMascot() {
+  var exp = S.items.filter(function(i){ return dLeft(i.exp) < 0; }).length;
+  var wrn = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; }).length;
+  var mood = exp > 0 ? 'panicked' : wrn > 0 ? 'worried' : 'happy';
+  var msg = exp > 0 ? '만료된 식재료가 있어요 😨' : wrn > 0 ? '임박한 식재료가 있어요!' : '냉장고 상태 좋아요 ✨';
+  return '<div class="mascot-wrap mascot-'+mood+'">'
+    + '<div class="mascot-svg">'+mascotSvg(mood)+'</div>'
+    + '<div class="mascot-msg">'+msg+'</div>'
+    + '</div>';
 }
 
 function mascotModalHeader(mood, itemName) {
-  var moodName = mood==='happy'?'행복':'';
   return '<div class="mascot-wrap mascot-'+mood+'">'
     +'<div class="mascot-name">🧊 냉장고 마스코트</div>'
     +'<div class="mascot-svg">'+mascotSvg(mood)+'</div>'
