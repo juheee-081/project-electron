@@ -366,6 +366,27 @@ select.inp{appearance:none;
 .cm-emo{font-size:2.6rem;}
 .cm-ttl{font-size:1.15rem;font-weight:700;}
 .cm-cnt{font-size:.8rem;color:var(--muted);}
+
+/* ── Mascot ── */
+.mascot-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:16px;}
+.mascot-svg{filter:drop-shadow(0 6px 14px rgba(135,206,235,.35));}
+.mascot-happy .mascot-svg{animation:mascotFloat .9s ease-in-out infinite alternate;}
+@keyframes mascotFloat{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+.mascot-worried .mascot-svg{animation:mascotWobble 1s ease-in-out infinite alternate;}
+@keyframes mascotWobble{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+.mascot-panicked .mascot-svg{animation:mascotShake .22s ease-in-out infinite alternate;}
+@keyframes mascotShake{from{transform:rotate(-6deg) scale(1)}to{transform:rotate(6deg) scale(1.05)}}
+.mascot-bubble{position:relative;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:18px;padding:12px 18px;font-size:.88rem;line-height:1.6;max-width:280px;
+  text-align:center;margin-top:10px;word-break:keep-all;
+  animation:bubblePop .42s cubic-bezier(.34,1.56,.64,1);}
+@keyframes bubblePop{from{opacity:0;transform:scale(.65) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mascot-bubble::before{content:'';position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+  border:11px solid transparent;border-bottom-color:var(--border);border-top:none;}
+.mascot-bubble::after{content:'';position:absolute;top:-8.5px;left:50%;transform:translateX(-50%);
+  border:9px solid transparent;border-bottom-color:var(--surface2);border-top:none;}
+.mascot-name{font-size:.65rem;font-weight:700;color:var(--muted);letter-spacing:.06em;
+  text-transform:uppercase;margin-bottom:4px;}
 </style>
 </head>
 <body ontouchstart="">
@@ -1234,27 +1255,150 @@ function viewReceipt(id) {
     +'<button class="btn-s mt8" onclick="closeModal()">닫기</button>');
 }
 
+/* ══ Mascot ══ */
+var MASCOT_MSGS = {
+  expired:[
+    '☠️ {name}: "오늘 안 먹으면 내일은 실험체입니다."',
+    '🧫 {name}의 유통기한이 아니라 카운트다운이었습니다.',
+    '🧪 냉장고 과학 프로젝트 시작 3…2…1… 주인공: {name}',
+    '⚠️ {name}이/가 독립을 준비하고 있어.',
+    '🚑 지금 먹으면 {name}, 내일 먹으면 도전.',
+    '{name} 상태: "샐러드"에서 "퇴비"로 이동 중.',
+    '🍤 {name}이/가 진화하기 전에 처리해줘.',
+    '🚨 냉장고 내부에서 {name} 부패 세력이 성장 중입니다.',
+    '🧊 냉장고 던전 보스 출현! 이름: {name}',
+  ],
+  danger:[
+    '🥺 {name}: "나 오늘까지만 신선할 수 있어…"',
+    '{name}이/가 생의 의지를 잃고 있습니다.',
+    '{name}이/가 곧 자연으로 돌아갑니다.',
+    '{name}: "마지막 신호를 보내는 중이야."',
+    '{name}: "언제 먹어줄 거야?" 하고 울고 있어.',
+    '{name}이/가 점점 바나나브레드의 길로 가고 있어.',
+    '{name}이/가 오늘을 넘기기 힘들어 보여…',
+    '{name}이/가 위험한 생각을 시작했어.',
+    '너 지금 {name}랑 거리두기 하는 중이지?',
+    '{name} 싱그러움 HP: 12%… 제발 먹어줘.',
+    '{name} 생존 확률 감소 중… 빨리 구해줘!',
+    '{name} 컨디션: 아슬아슬',
+    '🎯 오늘의 퀘스트: {name} 소비하기',
+    '⚔️ 냉장고 보스전 시작: {name} 처치!',
+    '🔥 긴급 미션! {name} 소비하기. 남은 시간: 1일',
+  ],
+  warning:[
+    '⏰ {name} 유통기한이 얼마 남지 않았어요.',
+    '{name}, 오늘 먹으면 가장 맛있어요!',
+    '📦 {name} 버리기 전에 먼저 확인해보세요!',
+    '아껴둔 {name}, 슬슬 먹을 때가 됐어요!',
+    '🏆 오늘 {name} 소비하면 냉장고 정리 완료!',
+    '🎲 {name}으로 요리 한 번 해볼까요?',
+    '🛡️ 음식물 쓰레기를 막아라! {name} 아직 살릴 수 있어요.',
+    '{name}: "나 아직 먹을 수 있는데…"',
+  ],
+  happy:[
+    '✨ 냉장고 상태 완벽해요! 잘 관리하고 있어요 🎉',
+    '🌟 모든 식재료가 신선해요! 대단한걸요?',
+    '💪 냉장고 관리 만렙 달성! 오늘도 파이팅!',
+    '🎊 임박하거나 만료된 식재료가 없어요! 최고!',
+    '🧊 냉장고가 오늘도 행복해요~ 감사합니다!',
+    '✅ 이번 주도 음식물 쓰레기 0회 도전 중!',
+  ]
+};
+
+function getMascotMsg(mood, itemName) {
+  var pool = MASCOT_MSGS[mood] || MASCOT_MSGS.happy;
+  var msg = pool[Math.floor(Math.random() * pool.length)];
+  if (itemName) {
+    msg = msg.replace(/\{name\}이\/가/g, itemName+'이/가').replace(/\{name\}/g, itemName);
+  } else {
+    msg = msg.replace(/\{name\}이\/가/g, '식재료가').replace(/\{name\}/g, '식재료');
+  }
+  return msg;
+}
+
+function mascotSvg(mood) {
+  var body, border, eyes, mouth, extras, blush;
+  blush = '';
+  if (mood === 'happy') {
+    body='#ddeeff'; border='#87ceeb';
+    eyes='<path d="M26 46 Q33 40 40 46" stroke="#334" stroke-width="2.8" fill="none" stroke-linecap="round"/>'
+        +'<path d="M50 46 Q57 40 64 46" stroke="#334" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
+    mouth='<path d="M31 62 Q45 74 59 62" stroke="#334" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    extras='';
+    blush='<ellipse cx="17" cy="57" rx="7" ry="4" fill="rgba(255,150,150,.4)"/>'
+         +'<ellipse cx="73" cy="57" rx="7" ry="4" fill="rgba(255,150,150,.4)"/>';
+  } else if (mood === 'worried') {
+    body='#fff8dd'; border='#f0883e';
+    eyes='<line x1="26" y1="41" x2="40" y2="50" stroke="#445" stroke-width="2.5" stroke-linecap="round"/>'
+        +'<line x1="40" y1="41" x2="26" y2="50" stroke="#445" stroke-width="2.5" stroke-linecap="round"/>'
+        +'<line x1="50" y1="41" x2="64" y2="50" stroke="#445" stroke-width="2.5" stroke-linecap="round"/>'
+        +'<line x1="64" y1="41" x2="50" y2="50" stroke="#445" stroke-width="2.5" stroke-linecap="round"/>';
+    mouth='<path d="M33 65 Q45 58 57 65" stroke="#445" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    extras='<path d="M24 33 Q33 27 42 33" stroke="#667" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
+          +'<path d="M48 33 Q57 27 66 33" stroke="#667" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+    blush='';
+  } else {
+    body='#ffeeee'; border='#f85149';
+    eyes='<circle cx="33" cy="45" r="9" fill="#334"/><circle cx="57" cy="45" r="9" fill="#334"/>'
+        +'<circle cx="30" cy="42" r="3" fill="white"/><circle cx="54" cy="42" r="3" fill="white"/>';
+    mouth='<ellipse cx="45" cy="64" rx="9" ry="7" fill="#334"/>';
+    extras='<path d="M24 31 Q33 24 42 31" stroke="#f85149" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
+          +'<path d="M48 31 Q57 24 66 31" stroke="#f85149" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    blush='';
+  }
+  return '<svg width="90" height="100" viewBox="0 0 90 100" xmlns="http://www.w3.org/2000/svg">'
+    +'<ellipse cx="45" cy="52" rx="38" ry="43" fill="'+body+'" stroke="'+border+'" stroke-width="2.5"/>'
+    +'<ellipse cx="26" cy="27" rx="10" ry="7" fill="rgba(255,255,255,.55)" transform="rotate(-20,26,27)"/>'
+    +eyes+mouth+extras+blush
+    +'<ellipse cx="32" cy="93" rx="11" ry="6" fill="'+body+'" stroke="'+border+'" stroke-width="2"/>'
+    +'<ellipse cx="58" cy="93" rx="11" ry="6" fill="'+body+'" stroke="'+border+'" stroke-width="2"/>'
+    +'</svg>';
+}
+
+function mascotModalHeader(mood, itemName) {
+  var moodName = mood==='happy'?'행복':'';
+  return '<div class="mascot-wrap mascot-'+mood+'">'
+    +'<div class="mascot-name">🧊 냉장고 마스코트</div>'
+    +'<div class="mascot-svg">'+mascotSvg(mood)+'</div>'
+    +'<div class="mascot-bubble">'+getMascotMsg(mood, itemName)+'</div>'
+    +'</div>';
+}
+
 /* ══ Notifications ══ */
 function onNotifBtn() {
   var expired = S.items.filter(function(i){ return dLeft(i.exp) < 0; });
   var warning = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; });
-  if(!expired.length && !warning.length){
+
+  var mood, topItem;
+  if (expired.length) {
+    mood = 'panicked';
+    topItem = expired[0].name;
+  } else if (warning.filter(function(i){ return dLeft(i.exp)<=2; }).length) {
+    mood = 'worried';
+    topItem = warning[0].name;
+  } else if (warning.length) {
+    mood = 'worried';
+    topItem = warning[0].name;
+  } else {
+    mood = 'happy';
+    topItem = '';
+  }
+
+  if (!expired.length && !warning.length) {
     showModal('<div class="mhandle"></div>'
-      +'<div style="text-align:center;padding:24px 0">'
-      +'<div style="font-size:3rem;margin-bottom:12px">✅</div>'
-      +'<div style="font-size:1.1rem;font-weight:700;margin-bottom:6px">모두 안전해요!</div>'
-      +'<div style="font-size:.88rem;color:var(--muted)">임박하거나 만료된 식재료가 없어요</div>'
-      +'</div>'
-      +'<button class="btn-s" onclick="closeModal()">닫기</button>');
+      + mascotModalHeader('happy', '')
+      + '<button class="btn-s" onclick="closeModal()">닫기</button>');
     return;
   }
+
   var totalLoss = 0;
   for(var i=0;i<expired.length;i++){ totalLoss += Number(expired[i].price)||0; }
-  var h = '<div class="mhandle"></div>';
+  var h = '<div class="mhandle"></div>' + mascotModalHeader(mood, topItem);
+
   if(totalLoss > 0) {
-    h += '<div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.2);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:16px">'
-      +'<div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">💸 버린 돈</div>'
-      +'<div style="font-size:2.2rem;font-weight:900;color:var(--red);letter-spacing:-.5px">-'+totalLoss.toLocaleString()+'원</div>'
+    h += '<div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.2);border-radius:var(--r);padding:14px;text-align:center;margin-bottom:14px">'
+      +'<div style="font-size:.75rem;color:var(--muted);margin-bottom:3px">💸 버린 돈</div>'
+      +'<div style="font-size:2rem;font-weight:900;color:var(--red);letter-spacing:-.5px">-'+totalLoss.toLocaleString()+'원</div>'
       +'</div>';
   }
   if(expired.length) {
@@ -1298,11 +1442,22 @@ function checkExp(){
   for(var i=0;i<S.items.length;i++){
     var d=dLeft(S.items[i].exp);
     if(d>=0&&d<=S.cfg.notifyDays&&notified[S.items[i].id]!==td){
-      new Notification('🧊 '+S.items[i].name,{body:d===0?'오늘 만료돼요!':d+'일 후 만료돼요'});
+      var nMood = d<=2 ? 'danger' : 'warning';
+      var nMsg = getMascotMsg(nMood, S.items[i].name);
+      new Notification('🧊 '+S.items[i].name, {body: nMsg});
       notified[S.items[i].id]=td;dirty=true;
     }
   }
   if(dirty)lset('notified',JSON.stringify(notified));
+}
+function autoPopup(){
+  var expired = S.items.filter(function(i){ return dLeft(i.exp) < 0; });
+  var warning = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; });
+  if(!expired.length && !warning.length) return;
+  var shownToday = ls('autopop');
+  if(shownToday === new Date().toDateString()) return;
+  lset('autopop', new Date().toDateString());
+  setTimeout(function(){ onNotifBtn(); }, 1800);
 }
 function badge(){
   var b=document.getElementById('nbadge'); if(!b) return;
@@ -1345,6 +1500,7 @@ load();
 loadTheme();
 go('home');
 checkExp();
+autoPopup();
 setInterval(checkExp, 30*60*1000);
 requestAnimationFrame(function(){ requestAnimationFrame(openDoor); });
 </script>
