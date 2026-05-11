@@ -379,44 +379,65 @@ select.inp{appearance:none;
 /* ── 3D Speech Bubble ── */
 .mascot-bubble{
   position:relative;
-  background:linear-gradient(150deg,var(--surface) 0%,var(--surface2) 100%);
-  border:1.5px solid var(--border);
-  border-radius:22px;
+  /* 빛이 왼쪽 위에서 오는 느낌의 그라디언트 */
+  background:linear-gradient(145deg,#263c52 0%,#1a2d40 55%,#142234 100%);
+  border:1.5px solid #3a6680;
+  border-top-color:#4a80a0;
+  border-left-color:#4a80a0;
+  border-radius:20px;
   padding:13px 20px;
   font-size:.88rem;
   line-height:1.65;
   max-width:282px;
   text-align:center;
-  margin-top:12px;
+  margin-top:14px;
   word-break:keep-all;
+  color:#c8e6f8;
+  font-weight:500;
+  /* 핵심: 하드 오프셋 쉐도우로 두께감 */
   box-shadow:
-    0 7px 0 rgba(0,0,0,.18),
-    0 10px 26px rgba(0,0,0,.12),
-    inset 0 1px 0 rgba(255,255,255,.14);
+    3px 5px 0 #0d1c28,
+    5px 9px 16px rgba(0,0,0,.45),
+    inset 0 1.5px 0 rgba(255,255,255,.1),
+    inset 1.5px 0 0 rgba(255,255,255,.06),
+    inset 0 -1.5px 0 rgba(0,0,0,.35);
   animation:bubblePop .44s cubic-bezier(.34,1.56,.64,1);
 }
 body.light .mascot-bubble{
+  background:linear-gradient(145deg,#f5faff 0%,#e0effa 50%,#cce3f5 100%);
+  border:1.5px solid #87ceeb;
+  border-top-color:#aaddee;
+  border-left-color:#aaddee;
+  color:#1a3a5c;
   box-shadow:
-    0 7px 0 rgba(100,170,215,.55),
-    0 10px 26px rgba(135,206,235,.28),
-    inset 0 1px 0 rgba(255,255,255,.85);
-  border-color:#87ceeb;
-  background:linear-gradient(150deg,#f5f9ff 0%,#e4f2fd 100%);
+    3px 5px 0 rgba(74,140,180,.55),
+    5px 9px 16px rgba(74,159,200,.25),
+    inset 0 1.5px 0 rgba(255,255,255,.95),
+    inset 1.5px 0 0 rgba(255,255,255,.7),
+    inset 0 -1.5px 0 rgba(100,170,210,.2);
 }
-@keyframes bubblePop{from{opacity:0;transform:scale(.6) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes bubblePop{from{opacity:0;transform:scale(.58) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
+/* 말풍선 꼬리 — 테두리 */
 .mascot-bubble::before{
-  content:'';position:absolute;top:-13px;left:50%;transform:translateX(-50%);
-  border:13px solid transparent;border-bottom-color:var(--border);border-top:none;
+  content:'';position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  border:14px solid transparent;
+  border-bottom-color:#3a6680;
+  border-top:none;
 }
+/* 말풍선 꼬리 — 안쪽 (색상 맞춤) */
 .mascot-bubble::after{
-  content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);
-  border:10px solid transparent;border-bottom-color:var(--surface);border-top:none;
+  content:'';position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+  border:11px solid transparent;
+  border-bottom-color:#263c52;
+  border-top:none;
 }
-body.light .mascot-bubble::after{border-bottom-color:#f5f9ff;}
+body.light .mascot-bubble::before{border-bottom-color:#87ceeb;}
+body.light .mascot-bubble::after{border-bottom-color:#f5faff;}
 .mascot-name{font-size:.65rem;font-weight:700;color:var(--muted);letter-spacing:.06em;
   text-transform:uppercase;margin-bottom:4px;}
-/* home screen tiny mascot */
-.mascot-msg{font-size:.78rem;color:var(--muted);font-weight:500;background:var(--surface2);border-radius:20px;padding:4px 12px;}
+/* 홈 화면 작은 마스코트 메시지 */
+.mascot-msg{font-size:.78rem;color:var(--muted);font-weight:500;background:var(--surface2);
+  border-radius:20px;padding:4px 12px;}
 </style>
 </head>
 <body ontouchstart="">
@@ -750,24 +771,76 @@ function render() {
 }
 
 /* ══ Warning Banner ══ */
+function tinyMascotSvg(mood) {
+  var eyes, mouth, extra;
+  if (mood === 'panicked') {
+    eyes = '<circle cx="35" cy="56" r="11" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="63" cy="56" r="11" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="35" cy="57" r="6.5" fill="#1a3a5c"/>'
+         + '<circle cx="63" cy="57" r="6.5" fill="#1a3a5c"/>'
+         + '<circle cx="38" cy="53" r="2.5" fill="white"/>'
+         + '<circle cx="66" cy="53" r="2.5" fill="white"/>';
+    mouth = '<ellipse cx="49" cy="78" rx="7" ry="5" fill="#1a3a5c"/>'
+          + '<ellipse cx="49" cy="77" rx="5" ry="3.5" fill="white"/>';
+    extra = '<ellipse cx="74" cy="48" rx="3.5" ry="5.5" fill="#87ceeb" opacity=".65"/>'
+          + '<circle cx="74" cy="43.5" r="3" fill="#87ceeb" opacity=".65"/>'
+          + '<ellipse cx="24" cy="48" rx="3.5" ry="5.5" fill="#87ceeb" opacity=".55"/>'
+          + '<circle cx="24" cy="43.5" r="3" fill="#87ceeb" opacity=".55"/>';
+  } else {
+    eyes = '<circle cx="35" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<circle cx="63" cy="56" r="10" fill="white" stroke="#b8d8ee" stroke-width="1.5"/>'
+         + '<path d="M27 46 Q35 42 39 46" stroke="#1a3a5c" stroke-width="2" fill="none" stroke-linecap="round"/>'
+         + '<path d="M59 46 Q63 42 71 46" stroke="#1a3a5c" stroke-width="2" fill="none" stroke-linecap="round"/>'
+         + '<circle cx="37" cy="56" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="65" cy="56" r="5.5" fill="#1a3a5c"/>'
+         + '<circle cx="39.5" cy="53.5" r="2.2" fill="white"/>'
+         + '<circle cx="67.5" cy="53.5" r="2.2" fill="white"/>';
+    mouth = '<path d="M35 78 Q49 72 63 78" stroke="#1a3a5c" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
+    extra = '<ellipse cx="74" cy="48" rx="3.5" ry="5.5" fill="#87ceeb" opacity=".65"/>'
+          + '<circle cx="74" cy="43.5" r="3" fill="#87ceeb" opacity=".65"/>';
+  }
+  return '<svg width="60" height="72" viewBox="0 0 98 132" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));animation:mascotShake .28s ease-in-out infinite alternate;">'
+    + '<defs><linearGradient id="tbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f4fd"/><stop offset="100%" stop-color="#c8e6f8"/></linearGradient>'
+    + '<linearGradient id="tfz" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d0e8f8"/><stop offset="100%" stop-color="#a8d2ee"/></linearGradient></defs>'
+    + '<rect x="2" y="63" width="15" height="10" rx="5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '<rect x="81" y="63" width="15" height="10" rx="5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '<rect x="14" y="5" width="70" height="26" rx="10" fill="url(#tfz)" stroke="#87ceeb" stroke-width="2"/>'
+    + '<rect x="29" y="13" width="40" height="6" rx="3" fill="#87ceeb"/>'
+    + extra
+    + '<rect x="14" y="28" width="70" height="88" rx="12" fill="url(#tbg)" stroke="#87ceeb" stroke-width="2"/>'
+    + '<line x1="16" y1="31" x2="82" y2="31" stroke="#c8e6f5" stroke-width="1.5"/>'
+    + '<rect x="20" y="35" width="11" height="46" rx="5.5" fill="rgba(255,255,255,0.55)"/>'
+    + '<rect x="31" y="84" width="36" height="6" rx="3" fill="#87ceeb"/>'
+    + eyes + mouth
+    + '<rect x="21" y="111" width="22" height="11" rx="5.5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '<rect x="55" y="111" width="22" height="11" rx="5.5" fill="#d4eeff" stroke="#87ceeb" stroke-width="1.5"/>'
+    + '</svg>';
+}
+
 function renderBanner() {
   if (S.bannerDismissed) return '';
+  var expired = S.items.filter(function(i){ return dLeft(i.exp) < 0; });
   var urgent = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; });
   urgent.sort(function(a,b){ return dLeft(a.exp)-dLeft(b.exp); });
-  if (!urgent.length) return '';
-  var item = urgent[0];
+  if (!urgent.length && !expired.length) return '';
+  var topItems = urgent.concat(expired).sort(function(a,b){ return dLeft(a.exp)-dLeft(b.exp); });
+  var item = topItems[0];
   var days = dLeft(item.exp);
   var price = item.price ? Number(item.price).toLocaleString() : '';
   var tmpl = BANNER_TEMPLATES[Math.floor(Date.now()/3600000) % BANNER_TEMPLATES.length];
   var res = tmpl(item.name, price, days);
+  var bannerMood = days < 0 ? 'panicked' : 'worried';
   return '<div class="warn-banner">'
+    +'<div style="display:flex;align-items:center;gap:12px">'
+    +tinyMascotSvg(bannerMood)
+    +'<div style="flex:1;min-width:0">'
     +'<div class="warn-banner-top">'
-    +'<span class="warn-banner-icon">🚨</span>'
     +'<span class="warn-banner-title">'+res[0]+'</span>'
     +'<button class="warn-banner-close" onclick="S.bannerDismissed=true;render()">✕</button>'
     +'</div>'
     +(price ? '<div class="warn-banner-price">-'+price+'원</div>' : '')
     +'<div class="warn-banner-msg">'+res[1]+'</div>'
+    +'</div></div>'
     +'</div>';
 }
 
@@ -1433,31 +1506,20 @@ function onNotifBtn() {
   var expired = S.items.filter(function(i){ return dLeft(i.exp) < 0; });
   var warning = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; });
 
-  var mood, topItem;
-  if (expired.length) {
-    mood = 'panicked';
-    topItem = expired[0].name;
-  } else if (warning.filter(function(i){ return dLeft(i.exp)<=2; }).length) {
-    mood = 'worried';
-    topItem = warning[0].name;
-  } else if (warning.length) {
-    mood = 'worried';
-    topItem = warning[0].name;
-  } else {
-    mood = 'happy';
-    topItem = '';
-  }
-
   if (!expired.length && !warning.length) {
     showModal('<div class="mhandle"></div>'
-      + mascotModalHeader('happy', '')
-      + '<button class="btn-s" onclick="closeModal()">닫기</button>');
+      +'<div style="text-align:center;padding:24px 0">'
+      +'<div style="font-size:3rem;margin-bottom:12px">✅</div>'
+      +'<div style="font-size:1.1rem;font-weight:700;margin-bottom:6px">모두 안전해요!</div>'
+      +'<div style="font-size:.88rem;color:var(--muted)">임박하거나 만료된 식재료가 없어요</div>'
+      +'</div>'
+      +'<button class="btn-s" onclick="closeModal()">닫기</button>');
     return;
   }
 
   var totalLoss = 0;
   for(var i=0;i<expired.length;i++){ totalLoss += Number(expired[i].price)||0; }
-  var h = '<div class="mhandle"></div>' + mascotModalHeader(mood, topItem);
+  var h = '<div class="mhandle"></div>';
 
   if(totalLoss > 0) {
     h += '<div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.2);border-radius:var(--r);padding:14px;text-align:center;margin-bottom:14px">'
