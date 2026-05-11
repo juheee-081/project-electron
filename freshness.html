@@ -27,18 +27,60 @@ body.light .warn-banner-price{color:#d32f2f;}
 body.light .warn-banner-title{color:#e65100;}
 
 /* ── Warning Banner ── */
-.warn-banner{margin-bottom:16px;
+.warn-banner{margin-bottom:16px;position:relative;
   background:linear-gradient(135deg,#2d0f0f,#3a1500);
   border:1.5px solid rgba(248,81,73,.45);border-radius:var(--r);
-  padding:16px;animation:slideDown .35s ease;
+  padding:14px 14px 14px 12px;animation:slideDown .35s ease;
   box-shadow:0 4px 20px rgba(248,81,73,.18),inset 0 1px 0 rgba(255,255,255,.05);}
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.warn-banner-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.warn-banner-icon{font-size:1.3rem;flex-shrink:0;}
-.warn-banner-title{font-size:.85rem;color:var(--orange);font-weight:800;flex:1;letter-spacing:.02em;}
-.warn-banner-close{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:4px;flex-shrink:0;line-height:1;}
-.warn-banner-price{font-size:2rem;font-weight:900;color:var(--red);letter-spacing:-1px;line-height:1;margin-bottom:6px;}
-.warn-banner-msg{font-size:.88rem;color:var(--text);line-height:1.45;opacity:.9;}
+.warn-banner-close{position:absolute;top:10px;right:10px;background:none;border:none;
+  color:rgba(255,255,255,.4);font-size:.95rem;cursor:pointer;padding:4px;line-height:1;}
+.warn-banner-close:hover{color:rgba(255,255,255,.8);}
+/* 배너 안 3D 말풍선 — 왼쪽 꼬리 */
+.banner-bubble{
+  position:relative;flex:1;min-width:0;
+  background:linear-gradient(145deg,#3a1800 0%,#2a1000 55%,#1e0a00 100%);
+  border:1.5px solid rgba(240,136,62,.6);
+  border-top-color:rgba(240,136,62,.85);
+  border-left-color:rgba(240,136,62,.85);
+  border-radius:14px;
+  padding:10px 14px;
+  font-size:.82rem;
+  line-height:1.55;
+  color:#ffd0a0;
+  font-weight:500;
+  word-break:keep-all;
+  box-shadow:
+    3px 4px 0 rgba(0,0,0,.5),
+    4px 7px 14px rgba(0,0,0,.35),
+    inset 0 1.5px 0 rgba(255,200,100,.12),
+    inset 1.5px 0 0 rgba(255,200,100,.07),
+    inset 0 -1.5px 0 rgba(0,0,0,.4);
+  animation:bubblePop .44s cubic-bezier(.34,1.56,.64,1);
+}
+/* 왼쪽 꼬리 — 테두리 */
+.banner-bubble::before{
+  content:'';position:absolute;left:-13px;top:50%;transform:translateY(-50%);
+  border:13px solid transparent;
+  border-right-color:rgba(240,136,62,.65);
+  border-left:none;
+}
+/* 왼쪽 꼬리 — 안쪽 */
+.banner-bubble::after{
+  content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);
+  border:10px solid transparent;
+  border-right-color:#3a1800;
+  border-left:none;
+}
+body.light .warn-banner{background:linear-gradient(135deg,#fff0f0,#ffe8e0);border-color:rgba(248,81,73,.35);}
+body.light .banner-bubble{
+  background:linear-gradient(145deg,#fff5ee 0%,#ffe8d6 50%,#ffd9be 100%);
+  border-color:rgba(200,100,30,.55);color:#7a2a00;
+  box-shadow:3px 4px 0 rgba(180,80,20,.35),4px 7px 14px rgba(180,80,20,.15),
+    inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 -1.5px 0 rgba(180,80,20,.15);
+}
+body.light .banner-bubble::before{border-right-color:rgba(200,100,30,.55);}
+body.light .banner-bubble::after{border-right-color:#fff5ee;}
 
 /* ── Receipt history ── */
 .rec-hist{margin-top:20px;}
@@ -821,26 +863,18 @@ function renderBanner() {
   if (S.bannerDismissed) return '';
   var expired = S.items.filter(function(i){ return dLeft(i.exp) < 0; });
   var urgent = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; });
-  urgent.sort(function(a,b){ return dLeft(a.exp)-dLeft(b.exp); });
   if (!urgent.length && !expired.length) return '';
-  var topItems = urgent.concat(expired).sort(function(a,b){ return dLeft(a.exp)-dLeft(b.exp); });
-  var item = topItems[0];
+  var all = urgent.concat(expired).sort(function(a,b){ return dLeft(a.exp)-dLeft(b.exp); });
+  var item = all[0];
   var days = dLeft(item.exp);
-  var price = item.price ? Number(item.price).toLocaleString() : '';
-  var tmpl = BANNER_TEMPLATES[Math.floor(Date.now()/3600000) % BANNER_TEMPLATES.length];
-  var res = tmpl(item.name, price, days);
   var bannerMood = days < 0 ? 'panicked' : 'worried';
+  var msgMood = days < 0 ? 'expired' : days <= 2 ? 'danger' : 'warning';
   return '<div class="warn-banner">'
-    +'<div style="display:flex;align-items:center;gap:12px">'
-    +tinyMascotSvg(bannerMood)
-    +'<div style="flex:1;min-width:0">'
-    +'<div class="warn-banner-top">'
-    +'<span class="warn-banner-title">'+res[0]+'</span>'
     +'<button class="warn-banner-close" onclick="S.bannerDismissed=true;render()">✕</button>'
+    +'<div style="display:flex;align-items:center;gap:10px">'
+    +tinyMascotSvg(bannerMood)
+    +'<div class="banner-bubble">'+getMascotMsg(msgMood, item.name)+'</div>'
     +'</div>'
-    +(price ? '<div class="warn-banner-price">-'+price+'원</div>' : '')
-    +'<div class="warn-banner-msg">'+res[1]+'</div>'
-    +'</div></div>'
     +'</div>';
 }
 
@@ -851,7 +885,6 @@ function vHome() {
   var body = S.tab==='fridge' ? vFridge() : S.tab==='list' ? vList() : vCal();
   return '<div class="view">'
     + renderBanner()
-    + renderMascot()
     + '<div class="stats">'
     + '<div class="stat"><div class="stat-n" style="color:#87ceeb">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
     + '<div class="stat"><div class="stat-n" style="color:var(--yellow)">'+wrn+'</div><div class="stat-l">임박</div></div>'
