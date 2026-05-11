@@ -599,6 +599,14 @@ function dLeft(d) {
 }
 function dlbl(d) { if (d < 0) return 'D+'+(-d); if (d === 0) return 'D-Day'; return 'D-'+d; }
 function dcls(d) { if (d < 0) return 'c-expired'; if (d <= 2) return 'c-danger'; if (d <= 5) return 'c-warning'; return 'c-safe'; }
+function searchRecipe(q) { window.open('https://www.10000recipe.com/recipe/list.html?q='+encodeURIComponent(q),'_blank'); }
+function searchRecipeById(id) { var it=S.items.filter(function(i){return i.id===id;})[0]; if(it) searchRecipe(it.name); }
+function searchRecipeUrgent() {
+  var exp=S.items.filter(function(i){return dLeft(i.exp)<0;});
+  var wrn=S.items.filter(function(i){var d=dLeft(i.exp);return d>=0&&d<=S.cfg.notifyDays;});
+  var names=exp.concat(wrn).map(function(i){return i.name;}).join(' ');
+  if(names) searchRecipe(names);
+}
 function ucol(c) {
   if (c==='c-expired') return 'var(--red)';
   if (c==='c-danger')  return 'var(--orange)';
@@ -1245,6 +1253,7 @@ function openDetail(id) {
     +(item.note?'<div class="dcell" style="margin-bottom:14px"><div class="dcell-l">메모</div><div class="dcell-v" style="font-weight:400">'+esc(item.note)+'</div></div>':'')
     +'<div class="stack">'
     +'<button class="btn-p" onclick="editItem(\''+id+'\')">수정하기</button>'
+    +'<button class="btn-s" style="background:var(--surface2)" onclick="searchRecipeById(\''+id+'\')">🍳 만개의 레시피에서 찾기</button>'
     +'<button class="btn-d" onclick="delItem(\''+id+'\')">삭제하기</button>'
     +'<button class="btn-s" onclick="closeModal()">닫기</button>'
     +'</div>';
@@ -1583,7 +1592,8 @@ function onNotifBtn() {
         +'</div>';
     }
   }
-  h += '<button class="btn-s mt8" onclick="closeModal()">닫기</button>';
+  h += '<button class="btn-p mt8" onclick="searchRecipeUrgent()" style="background:linear-gradient(135deg,#e8572a,#c43b12)">🍳 임박 재료로 레시피 찾기</button>';
+  h += '<button class="btn-s" onclick="closeModal()">닫기</button>';
   showModal(h);
 }
 async function reqNotif() {
