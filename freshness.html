@@ -818,6 +818,7 @@ function render() {
   else if (S.view === 'scan')m.innerHTML = vScan();
   else                       m.innerHTML = vSettings();
   badge();
+  startBannerCycle();
 }
 
 /* ══ Warning Banner ══ */
@@ -867,6 +868,31 @@ function tinyMascotSvg(mood) {
     + '</svg>';
 }
 
+var _bannerInterval = null;
+function startBannerCycle() {
+  if (_bannerInterval) clearInterval(_bannerInterval);
+  _bannerInterval = setInterval(function() {
+    var banner = document.getElementById('fn-banner');
+    if (!banner || S.bannerDismissed) { clearInterval(_bannerInterval); return; }
+    var expired = S.items.filter(function(i){ return dLeft(i.exp) < 0; });
+    var urgent = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; });
+    var all = urgent.concat(expired);
+    if (all.length < 2) return;
+    var item = all[Math.floor(Math.random() * all.length)];
+    var days = dLeft(item.exp);
+    var bannerMood = days < 0 ? 'panicked' : 'worried';
+    var msgMood = days < 0 ? 'expired' : days <= 2 ? 'danger' : 'warning';
+    var mascotWrap = banner.querySelector('.banner-mascot');
+    var oldBubble = banner.querySelector('.banner-bubble');
+    if (mascotWrap) mascotWrap.innerHTML = tinyMascotSvg(bannerMood);
+    if (oldBubble) {
+      var newBubble = oldBubble.cloneNode(false);
+      newBubble.innerHTML = getMascotMsg(msgMood, item.name, item.price);
+      oldBubble.parentNode.replaceChild(newBubble, oldBubble);
+    }
+  }, 4500);
+}
+
 function renderBanner() {
   if (S.bannerDismissed) return '';
   var expired = S.items.filter(function(i){ return dLeft(i.exp) < 0; });
@@ -877,11 +903,11 @@ function renderBanner() {
   var days = dLeft(item.exp);
   var bannerMood = days < 0 ? 'panicked' : 'worried';
   var msgMood = days < 0 ? 'expired' : days <= 2 ? 'danger' : 'warning';
-  return '<div class="warn-banner">'
+  return '<div class="warn-banner" id="fn-banner">'
     +'<button class="warn-banner-close" onclick="S.bannerDismissed=true;render()">✕</button>'
     +'<div style="display:flex;align-items:center;gap:10px">'
-    +tinyMascotSvg(bannerMood)
-    +'<div class="banner-bubble">'+getMascotMsg(msgMood, item.name)+'</div>'
+    +'<div class="banner-mascot">'+tinyMascotSvg(bannerMood)+'</div>'
+    +'<div class="banner-bubble">'+getMascotMsg(msgMood, item.name, item.price)+'</div>'
     +'</div>'
     +'</div>';
 }
@@ -1413,6 +1439,9 @@ var MASCOT_MSGS = {
     '🍤 {name}이/가 진화하기 전에 처리해줘.',
     '🚨 냉장고 내부에서 {name} 부패 세력이 성장 중입니다.',
     '🧊 냉장고 던전 보스 출현! 이름: {name}',
+    '💸 방금 너의 지갑에서 {price}원이 사라졌어. {name} 때문에.',
+    '🤑 {price}원짜리 {name}이/가 지금 쓰레기통으로 향하고 있어.',
+    '💰 오늘의 손실: {name} {price}원. 냉장고가 울고 있어.',
   ],
   danger:[
     '🥺 {name}: "나 오늘까지만 신선할 수 있어…"',
@@ -1430,6 +1459,8 @@ var MASCOT_MSGS = {
     '🎯 오늘의 퀘스트: {name} 소비하기',
     '⚔️ 냉장고 보스전 시작: {name} 처치!',
     '🔥 긴급 미션! {name} 소비하기. 남은 시간: 1일',
+    '🍳 {name} 어떻게 할지 모르겠으면 만개의 레시피 눌러봐!',
+    '💸 {price}원짜리 {name}이/가 사라지기 직전이야. 지금 당장!',
   ],
   warning:[
     '⏰ {name} 유통기한이 얼마 남지 않았어요.',
@@ -1440,6 +1471,8 @@ var MASCOT_MSGS = {
     '🎲 {name}으로 요리 한 번 해볼까요?',
     '🛡️ 음식물 쓰레기를 막아라! {name} 아직 살릴 수 있어요.',
     '{name}: "나 아직 먹을 수 있는데…"',
+    '🍳 {name}으로 뭐 만들지? 만개의 레시피에서 찾아봐!',
+    '📖 {name} 레시피 고민된다면 아래 버튼 눌러봐!',
   ],
   happy:[
     '✨ 냉장고 상태 완벽해요! 잘 관리하고 있어요 🎉',
@@ -1451,13 +1484,18 @@ var MASCOT_MSGS = {
   ]
 };
 
-function getMascotMsg(mood, itemName) {
+function getMascotMsg(mood, itemName, itemPrice) {
   var pool = MASCOT_MSGS[mood] || MASCOT_MSGS.happy;
-  var msg = pool[Math.floor(Math.random() * pool.length)];
+  var filtered = itemPrice ? pool : pool.filter(function(m){ return m.indexOf('{price}') === -1; });
+  if (!filtered.length) filtered = pool;
+  var msg = filtered[Math.floor(Math.random() * filtered.length)];
   if (itemName) {
     msg = msg.replace(/\{name\}이\/가/g, itemName+'이/가').replace(/\{name\}/g, itemName);
   } else {
     msg = msg.replace(/\{name\}이\/가/g, '식재료가').replace(/\{name\}/g, '식재료');
+  }
+  if (itemPrice) {
+    msg = msg.replace(/\{price\}/g, Number(itemPrice).toLocaleString());
   }
   return msg;
 }
