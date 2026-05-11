@@ -1251,9 +1251,12 @@ async function fetchNews() {
   try {
     var q = encodeURIComponent('식재료 OR 농산물 OR 제철 음식 OR 마트 가격');
     var rss = 'https://news.google.com/rss/search?q='+q+'&hl=ko&gl=KR&ceid=KR:ko';
-    var res = await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(rss));
-    var data = await res.json();
-    var xml = new DOMParser().parseFromString(data.contents, 'text/xml');
+    var ctrl = new AbortController();
+    var timer = setTimeout(function(){ ctrl.abort(); }, 8000);
+    var res = await fetch('https://corsproxy.io/?url='+encodeURIComponent(rss), {signal:ctrl.signal});
+    clearTimeout(timer);
+    var text = await res.text();
+    var xml = new DOMParser().parseFromString(text, 'text/xml');
     var nodes = xml.querySelectorAll('item');
     var items = [];
     nodes.forEach(function(node) {
@@ -1781,6 +1784,7 @@ checkExp();
 autoPopup();
 setInterval(checkExp, 30*60*1000);
 requestAnimationFrame(function(){ requestAnimationFrame(openDoor); });
+setTimeout(function(){ fetchNews(); }, 2000);
 </script>
 </body>
 </html>
