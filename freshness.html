@@ -1949,7 +1949,8 @@ function weeklyReport(){
     ? getMascotMsg('happy')
     : getMascotMsg(totalWasted>5000?'expired':'danger', wasted[0].name, wasted[0].price);
   var h = '<div class="report-overlay" id="report-overlay">'
-    +'<div class="report-card">'
+    +'<div class="report-card" style="position:relative">'
+    +'<button onclick="document.getElementById(\'report-overlay\').remove()" style="position:absolute;top:10px;right:10px;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px;line-height:1">✕</button>'
     +'<div style="text-align:center;font-size:1rem;font-weight:800;margin-bottom:16px">📊 이번 주 냉장고 리포트</div>'
     +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">'
     +mascotSvg(mood).replace('width="98" height="122"','width="70" height="85"')
