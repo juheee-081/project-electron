@@ -562,7 +562,7 @@ var S = {
   bannerDismissed:false,
   fridgeScale:1.0,
   cy:_n.getFullYear(), cm:_n.getMonth(),
-  news:{items:[],loading:false,error:null,lastFetch:0}
+  news:{tab:'all', loading:false, error:null, cache:{}}
 };
 S.form = emptyForm();
 
@@ -1214,6 +1214,12 @@ function vScan() {
 }
 
 /* ══ News ══ */
+var NEWS_TABS = [
+  {id:'all',    label:'전체',     q:'식재료 농산물 제철음식'},
+  {id:'price',  label:'#가격',    q:'농산물 가격 마트 식품 가격'},
+  {id:'season', label:'#제철',    q:'제철 식재료 제철 과일 채소 제철 음식'},
+  {id:'trend',  label:'#뜨는음식', q:'요즘 유행 음식 트렌드 핫한 음식 밥집'}
+];
 function timeAgo(dateStr) {
   var d = new Date(dateStr), now = Date.now();
   var diff = Math.floor((now - d) / 60000);
@@ -1221,34 +1227,46 @@ function timeAgo(dateStr) {
   if (diff < 1440) return Math.floor(diff/60) + '시간 전';
   return Math.floor(diff/1440) + '일 전';
 }
+function setNewsTab(id) {
+  S.news.tab = id;
+  render();
+  fetchNews();
+}
 function vNews() {
+  var cur = S.news.cache[S.news.tab] || {items:[], lastFetch:0};
   var h = '<div class="view"><div class="ptitle">📰 식재료 뉴스</div>';
+  h += '<div class="tabs" style="margin-bottom:16px">';
+  NEWS_TABS.forEach(function(tab) {
+    h += '<button class="tab '+(S.news.tab===tab.id?'on':'')+'" onclick="setNewsTab(\''+tab.id+'\')">'+tab.label+'</button>';
+  });
+  h += '</div>';
   if (S.news.loading) {
     h += '<div style="text-align:center;padding:60px 0"><div style="font-size:2rem;margin-bottom:12px">🔄</div><div style="color:var(--muted);font-size:.9rem">뉴스 불러오는 중...</div></div>';
   } else if (S.news.error) {
     h += '<div style="text-align:center;padding:60px 0"><div style="font-size:2rem;margin-bottom:12px">😢</div><div style="color:var(--muted);font-size:.9rem">'+esc(S.news.error)+'</div>'
-      +'<button class="btn-s" style="margin-top:16px" onclick="S.news.lastFetch=0;fetchNews()">다시 시도</button></div>';
-  } else if (!S.news.items.length) {
+      +'<button class="btn-s" style="margin-top:16px" onclick="S.news.cache[S.news.tab]={};fetchNews()">다시 시도</button></div>';
+  } else if (!cur.items.length) {
     h += '<div style="text-align:center;padding:60px 0"><div style="font-size:2rem;margin-bottom:12px">📭</div><div style="color:var(--muted);font-size:.9rem">뉴스가 없어요</div></div>';
   } else {
-    h += '<div style="font-size:.78rem;color:var(--muted);margin-bottom:14px">최신 식재료 · 농산물 뉴스</div>';
-    for (var i = 0; i < S.news.items.length; i++) {
-      var item = S.news.items[i];
+    for (var i = 0; i < cur.items.length; i++) {
+      var item = cur.items[i];
       h += '<a class="news-card" href="'+esc(item.link)+'" target="_blank" rel="noopener">'
         +'<div class="news-title">'+esc(item.title)+'</div>'
-        +'<div class="news-meta"><span class="news-src">'+esc(item.source)+'</span><span>·</span><span>'+esc(item.ago)+'</span></div>'
+        +'<div class="news-meta"><span class="news-src">'+esc(item.source)+'</span>'+(item.ago?'<span>·</span><span>'+esc(item.ago)+'</span>':'')+'</div>'
         +'</a>';
     }
-    h += '<div style="text-align:center;margin-top:16px"><button class="btn-s" onclick="S.news.lastFetch=0;fetchNews()">새로고침</button></div>';
+    h += '<div style="text-align:center;margin-top:16px"><button class="btn-s" onclick="S.news.cache[S.news.tab]={};fetchNews()">새로고침</button></div>';
   }
   return h + '</div>';
 }
 async function fetchNews() {
   if (S.news.loading) return;
-  if (Date.now() - S.news.lastFetch < 1800000 && S.news.items.length) return;
+  var cur = S.news.cache[S.news.tab] || {items:[], lastFetch:0};
+  if (Date.now() - (cur.lastFetch||0) < 1800000 && cur.items && cur.items.length) return;
   S.news.loading = true; S.news.error = null;
   if (S.view === 'news') render();
-  var q = encodeURIComponent('식재료 농산물 가격 제철음식');
+  var tabDef = NEWS_TABS.filter(function(t){ return t.id===S.news.tab; })[0] || NEWS_TABS[0];
+  var q = encodeURIComponent(tabDef.q);
   var rss = 'https://news.google.com/rss/search?q='+q+'&hl=ko&gl=KR&ceid=KR:ko';
   try {
     var ctrl = new AbortController();
@@ -1265,8 +1283,7 @@ async function fetchNews() {
         ago:   it.pubDate ? timeAgo(it.pubDate) : ''
       };
     }).filter(function(it){ return it.title && it.link; });
-    S.news.items = items;
-    S.news.lastFetch = Date.now();
+    S.news.cache[S.news.tab] = {items:items, lastFetch:Date.now()};
     S.news.error = items.length ? null : '관련 뉴스가 없어요.';
   } catch(e) {
     S.news.error = '뉴스를 불러오지 못했어요 😢 잠시 후 다시 시도해주세요.';
