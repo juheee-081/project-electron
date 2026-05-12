@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>&#45257;&#51109;&#44256; &#54028;&#47673;&#44592;</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
@@ -389,9 +390,10 @@ select.inp{appearance:none;
 #landing.hide{opacity:0;transform:scale(1.06);pointer-events:none;}
 .ld-mascot{animation:ldFloat 2.4s ease-in-out infinite;}
 @keyframes ldFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.ld-title{margin-top:22px;font-size:3rem;font-weight:900;letter-spacing:-.02em;
+.ld-title{margin-top:22px;font-size:3.2rem;font-weight:900;letter-spacing:.04em;font-family:'Noto Serif KR',serif;
   background:linear-gradient(135deg,#7ee8a2 0%,#80ff72 40%,#87ceeb 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 14px rgba(126,232,162,.65)) drop-shadow(0 0 32px rgba(126,232,162,.35));
   animation:ldFadeUp .8s .2s both;}
 .ld-sub{font-size:1rem;color:rgba(255,255,255,.45);letter-spacing:.22em;margin-top:6px;
   text-transform:lowercase;animation:ldFadeUp .8s .4s both;}
@@ -399,9 +401,13 @@ select.inp{appearance:none;
   letter-spacing:.08em;animation:ldPulse 2s 1s ease-in-out infinite;}
 @keyframes ldFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ldPulse{0%,100%{opacity:.28}50%{opacity:.7}}
-.ld-glow{position:absolute;width:280px;height:280px;border-radius:50%;
-  background:radial-gradient(circle,rgba(63,185,80,.12) 0%,transparent 70%);
-  pointer-events:none;}
+.ld-glow{position:absolute;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(63,185,80,.18) 0%,transparent 70%);
+  pointer-events:none;animation:ldGlowPulse 2.5s ease-in-out infinite;}
+@keyframes ldGlowPulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+.ld-sparks{position:absolute;inset:0;pointer-events:none;}
+.ld-spark{position:absolute;font-size:.9rem;animation:ldSparkAnim var(--dur,2.2s) var(--delay,0s) ease-in-out infinite;}
+@keyframes ldSparkAnim{0%,100%{opacity:0;transform:scale(.5) rotate(0deg)}50%{opacity:1;transform:scale(1.2) rotate(180deg)}}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;
   display:flex;align-items:flex-end;animation:fadein .18s;}
 .report-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;
@@ -525,6 +531,18 @@ body.light .mascot-bubble::after{border-bottom-color:#f5faff;}
 
 <div id="landing" onclick="dismissLanding()">
   <div class="ld-glow"></div>
+  <div class="ld-sparks">
+    <span class="ld-spark" style="top:12%;left:18%;--dur:2.1s;--delay:0s">✦</span>
+    <span class="ld-spark" style="top:8%;left:62%;--dur:2.6s;--delay:.4s">✧</span>
+    <span class="ld-spark" style="top:18%;right:14%;--dur:2s;--delay:.2s">✦</span>
+    <span class="ld-spark" style="top:42%;left:8%;--dur:2.4s;--delay:.7s">✧</span>
+    <span class="ld-spark" style="top:38%;right:9%;--dur:2.2s;--delay:1s">✦</span>
+    <span class="ld-spark" style="bottom:28%;left:16%;--dur:2.8s;--delay:.3s">✧</span>
+    <span class="ld-spark" style="bottom:22%;right:18%;--dur:2.3s;--delay:.8s">✦</span>
+    <span class="ld-spark" style="bottom:38%;left:50%;--dur:2.5s;--delay:.5s">✧</span>
+    <span class="ld-spark" style="top:28%;left:38%;--dur:3s;--delay:1.2s">⋆</span>
+    <span class="ld-spark" style="bottom:16%;right:35%;--dur:2.7s;--delay:.6s">⋆</span>
+  </div>
   <div class="ld-mascot" id="ld-mascot"></div>
   <div class="ld-title">신선해</div>
   <div class="ld-sub">fresh hae 🌿</div>
