@@ -383,6 +383,16 @@ select.inp{appearance:none;
 /* ── Modal ── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;
   display:flex;align-items:flex-end;animation:fadein .18s;}
+.report-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;
+  display:flex;align-items:center;justify-content:center;animation:fadein .25s;padding:16px;}
+.report-card{background:var(--surface);border-radius:20px;width:100%;max-width:380px;
+  padding:24px 20px 20px;max-height:88vh;overflow-y:auto;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.report-stat{background:var(--surface2);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.report-stat-l{font-size:.8rem;color:var(--muted);}
+.report-stat-v{font-size:1.1rem;font-weight:800;}
+.report-item{font-size:.82rem;padding:7px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
+.report-item:last-child{border-bottom:none;}
 .modal{background:var(--surface);border-radius:var(--r) var(--r) 0 0;width:100%;
   max-width:480px;margin:0 auto;padding:20px 16px 26px;animation:slideup .22s;
   max-height:88vh;overflow-y:auto;}
@@ -1753,6 +1763,44 @@ function checkExp(){
   }
   if(dirty)lset('notified',JSON.stringify(notified));
 }
+function weeklyReport(){
+  var ts = today();
+  var weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-7);
+  var weekAgoStr = weekAgo.toISOString().split('T')[0];
+  var shownKey = ls('weeklyReport');
+  if(shownKey === ts) return;
+  var bought = S.items.filter(function(i){ return i.buy && i.buy>=weekAgoStr && i.buy<=ts; });
+  var wasted = S.items.filter(function(i){ return i.exp>=weekAgoStr && i.exp<=ts && dLeft(i.exp)<0; });
+  if(!bought.length && !wasted.length) return;
+  lset('weeklyReport', ts);
+  var totalSpent = bought.reduce(function(s,i){ return s+(Number(i.price)||0); },0);
+  var totalWasted = wasted.reduce(function(s,i){ return s+(Number(i.price)||0); },0);
+  var mood = wasted.length===0 ? 'happy' : totalWasted>5000 ? 'panicked' : 'worried';
+  var mascotMsg = wasted.length===0
+    ? getMascotMsg('happy')
+    : getMascotMsg(totalWasted>5000?'expired':'danger', wasted[0].name, wasted[0].price);
+  var h = '<div class="report-overlay" id="report-overlay">'
+    +'<div class="report-card">'
+    +'<div style="text-align:center;font-size:1rem;font-weight:800;margin-bottom:16px">📊 이번 주 냉장고 리포트</div>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">'
+    +mascotSvg(mood).replace('width="98" height="122"','width="70" height="85"')
+    +'<div class="banner-bubble" style="font-size:.85rem">'+mascotMsg+'</div>'
+    +'</div>'
+    +'<div class="report-stat"><span class="report-stat-l">🛒 이번 주 구매</span><span class="report-stat-v">'+bought.length+'개</span></div>'
+    +(totalSpent?'<div class="report-stat"><span class="report-stat-l">💳 총 지출</span><span class="report-stat-v" style="color:var(--blue)">'+totalSpent.toLocaleString()+'원</span></div>':'')
+    +'<div class="report-stat"><span class="report-stat-l">🚨 만료된 음식</span><span class="report-stat-v" style="color:var(--red)">'+wasted.length+'개</span></div>'
+    +(totalWasted?'<div class="report-stat"><span class="report-stat-l">💸 버린 돈</span><span class="report-stat-v" style="color:var(--red)">-'+totalWasted.toLocaleString()+'원</span></div>':'');
+  if(wasted.length){
+    h += '<div style="font-size:.75rem;font-weight:700;color:var(--muted);margin:12px 0 6px">만료된 식재료</div>';
+    for(var i=0;i<wasted.length;i++){
+      var p=Number(wasted[i].price)||0;
+      h += '<div class="report-item"><span>'+esc(wasted[i].name)+'</span>'+(p?'<span style="color:var(--red)">-'+p.toLocaleString()+'원</span>':'')+'</div>';
+    }
+  }
+  h += '<button class="btn-p" style="margin-top:16px" onclick="document.getElementById(\'report-overlay\').remove()">이번 주 보지 않기 ✓</button>'
+    +'</div></div>';
+  document.body.insertAdjacentHTML('beforeend', h);
+}
 function autoPopup(){
   var expired = S.items.filter(function(i){ return dLeft(i.exp) < 0; });
   var warning = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0&&d<=S.cfg.notifyDays; });
@@ -1804,6 +1852,7 @@ loadTheme();
 go('home');
 checkExp();
 autoPopup();
+setTimeout(function(){ weeklyReport(); }, 2500);
 setInterval(checkExp, 30*60*1000);
 requestAnimationFrame(function(){ requestAnimationFrame(openDoor); });
 setTimeout(function(){ fetchNews(); }, 2000);
