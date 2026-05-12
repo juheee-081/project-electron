@@ -381,6 +381,27 @@ select.inp{appearance:none;
 .toggle.on::after{transform:translateX(19px);}
 
 /* ── Modal ── */
+/* ── Landing ── */
+#landing{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  background:linear-gradient(160deg,#071a2e 0%,#0d2a1a 45%,#071a2e 100%);
+  transition:opacity .65s ease,transform .65s ease;}
+#landing.hide{opacity:0;transform:scale(1.06);pointer-events:none;}
+.ld-mascot{animation:ldFloat 2.4s ease-in-out infinite;}
+@keyframes ldFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.ld-title{margin-top:22px;font-size:3rem;font-weight:900;letter-spacing:-.02em;
+  background:linear-gradient(135deg,#7ee8a2 0%,#80ff72 40%,#87ceeb 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:ldFadeUp .8s .2s both;}
+.ld-sub{font-size:1rem;color:rgba(255,255,255,.45);letter-spacing:.22em;margin-top:6px;
+  text-transform:lowercase;animation:ldFadeUp .8s .4s both;}
+.ld-hint{position:absolute;bottom:52px;font-size:.75rem;color:rgba(255,255,255,.28);
+  letter-spacing:.08em;animation:ldPulse 2s 1s ease-in-out infinite;}
+@keyframes ldFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ldPulse{0%,100%{opacity:.28}50%{opacity:.7}}
+.ld-glow{position:absolute;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(63,185,80,.12) 0%,transparent 70%);
+  pointer-events:none;}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;
   display:flex;align-items:flex-end;animation:fadein .18s;}
 .report-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;
@@ -501,6 +522,14 @@ body.light .mascot-bubble::after{border-bottom-color:#f5faff;}
 </style>
 </head>
 <body ontouchstart="">
+
+<div id="landing" onclick="dismissLanding()">
+  <div class="ld-glow"></div>
+  <div class="ld-mascot" id="ld-mascot"></div>
+  <div class="ld-title">신선해</div>
+  <div class="ld-sub">fresh hae 🌿</div>
+  <div class="ld-hint">탭하여 시작하기</div>
+</div>
 
 <header class="hdr">
   <span class="hdr-logo">&#x1F9CA; &#45257;&#51109;&#44256; &#54028;&#47673;&#44592;</span>
@@ -1852,7 +1881,17 @@ loadTheme();
 go('home');
 checkExp();
 autoPopup();
-setTimeout(function(){ weeklyReport(); }, 2500);
+document.getElementById('ld-mascot').innerHTML = mascotSvg('happy').replace('width="98" height="122"','width="110" height="138"');
+var _landingDismissed = false;
+function dismissLanding() {
+  if (_landingDismissed) return;
+  _landingDismissed = true;
+  var lp = document.getElementById('landing');
+  if (!lp) return;
+  lp.classList.add('hide');
+  setTimeout(function(){ lp.remove(); weeklyReport(); }, 700);
+}
+setTimeout(dismissLanding, 2000);
 setInterval(checkExp, 30*60*1000);
 requestAnimationFrame(function(){ requestAnimationFrame(openDoor); });
 setTimeout(function(){ fetchNews(); }, 2000);
