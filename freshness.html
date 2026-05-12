@@ -305,8 +305,8 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .cal-nav:hover{background:var(--border);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
 .cal-lbl{text-align:center;font-size:.65rem;color:var(--muted);padding:4px 0;font-weight:600;}
-.cal-day{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;
-  align-items:center;justify-content:flex-start;padding:4px 1px 2px;transition:background .12s;}
+.cal-day{min-height:54px;border-radius:7px;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;padding:4px 2px 3px;transition:background .12s;}
 .cal-day.click{cursor:pointer;}
 .cal-day.click:hover{background:var(--surface2);}
 .cal-day.today{background:rgba(88,166,255,.12);}
@@ -315,6 +315,7 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .cal-day.today .cal-dn{color:var(--blue);font-weight:800;}
 .cal-dots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px;}
 .cal-dot{width:5px;height:5px;border-radius:50%;}
+.cal-name{font-size:.55rem;line-height:1.25;text-align:center;margin-top:2px;overflow:hidden;font-weight:700;max-width:100%;word-break:break-all;}
 
 /* ── Forms ── */
 .ptitle{font-size:1.2rem;font-weight:700;margin-bottom:18px;}
@@ -1093,14 +1094,19 @@ function vCal() {
   for (var d=1;d<=nd;d++) {
     var ds = y+'-'+pad(m+1)+'-'+pad(d);
     var its = em[ds]||[];
-    var dots = '';
+    var dots = '', names = '';
     for (var j=0;j<its.length;j++) {
       var cl=dcls(dLeft(its[j].exp));
       dots += '<span class="cal-dot" style="background:'+ucol(cl)+'"></span>';
     }
+    if (its.length > 0) {
+      var cl0 = dcls(dLeft(its[0].exp));
+      var nm = its[0].name.length > 4 ? its[0].name.substring(0,4)+'…' : its[0].name;
+      names = '<div class="cal-name" style="color:'+ucol(cl0)+'">'+esc(nm)+(its.length>1?'<br><span style="color:var(--muted);font-weight:400">+'+(its.length-1)+'개</span>':'')+'</div>';
+    }
     cells += '<div class="cal-day'+(ds===ts?' today':'')+(its.length?' click':'')+'"'
       +(its.length?' onclick="openCalDay(\''+ds+'\')"':'')+' >'
-      +'<span class="cal-dn">'+d+'</span>'+(dots?'<div class="cal-dots">'+dots+'</div>':'')
+      +'<span class="cal-dn">'+d+'</span>'+(dots?'<div class="cal-dots">'+dots+'</div>':'')+names
       +'</div>';
   }
   var tot = Math.ceil((fd+nd)/7)*7;
