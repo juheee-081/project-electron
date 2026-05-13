@@ -1122,7 +1122,7 @@ function initFirebase() {
     loadFromCloud();
   } else {
     go('home');
-    showAuthScreen();
+    // 랜딩 페이지 탭 후 로그인창 표시
   }
 }
 async function cloudSave() {
@@ -1218,6 +1218,7 @@ async function authSubmit() {
     hideAuthScreen();
     go('home');
     loadFromCloud();
+    setTimeout(weeklyReport, 800);
   } catch(e) {
     if (msg) msg.textContent = e.message;
     if (btn) { btn.disabled = false; btn.textContent = isLogin ? '로그인' : '회원가입'; }
@@ -2446,9 +2447,16 @@ function dismissLanding() {
   var lp = document.getElementById('landing');
   if (!lp) return;
   lp.classList.add('hide');
-  setTimeout(function(){ lp.remove(); weeklyReport(); }, 700);
+  setTimeout(function(){
+    lp.remove();
+    if (S.auth && S.auth.loggedIn) {
+      weeklyReport();
+    } else {
+      showAuthScreen();
+    }
+  }, 700);
 }
-setTimeout(dismissLanding, 2000);
+setTimeout(dismissLanding, 3000);
 setInterval(checkExp, 30*60*1000);
 requestAnimationFrame(function(){ requestAnimationFrame(openDoor); });
 setTimeout(function(){ fetchNews(); }, 2000);
