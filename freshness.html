@@ -120,6 +120,23 @@ main{padding:16px 16px calc(var(--nh) + 16px);}
 .news-card{background:var(--surface2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;border:1px solid var(--border);transition:background .15s;text-decoration:none;display:block;}
 .news-card:hover{background:var(--border);}
 .news-title{font-size:.93rem;font-weight:700;line-height:1.45;margin-bottom:6px;color:var(--text);}
+.ai-btn{width:100%;margin-bottom:14px;background:linear-gradient(135deg,#1a3a6e,#0d2a1a);border:1.5px solid rgba(88,166,255,.4);border-radius:var(--r);color:#7ec8ff;font-size:.9rem;font-weight:700;padding:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;}
+.ai-btn:active{opacity:.8;}
+.ai-card{background:linear-gradient(135deg,rgba(88,166,255,.07),rgba(63,185,80,.05));border:1.5px solid rgba(88,166,255,.25);border-radius:var(--r);padding:16px;margin-bottom:16px;}
+.ai-card-hd{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.ai-card-ttl{font-size:.88rem;font-weight:800;color:var(--blue);}
+.ai-summary{font-size:.82rem;line-height:1.75;color:var(--text);background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:14px;white-space:pre-line;}
+.ai-guide-row{display:flex;gap:10px;margin-bottom:10px;}
+.ai-guide-col{flex:1;background:var(--surface2);border-radius:10px;padding:12px;}
+.ai-guide-col-ttl{font-size:.72rem;font-weight:800;letter-spacing:.04em;margin-bottom:8px;}
+.ai-guide-item{display:flex;flex-direction:column;gap:2px;padding:7px 0;border-bottom:1px solid var(--border);}
+.ai-guide-item:last-child{border-bottom:none;padding-bottom:0;}
+.ai-guide-name{font-size:.82rem;font-weight:700;}
+.ai-guide-reason{font-size:.72rem;color:var(--muted);line-height:1.4;}
+.ai-fridge-tip{font-size:.8rem;line-height:1.6;color:rgba(126,232,162,.85);background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.2);border-radius:10px;padding:10px 14px;margin-top:4px;}
+body.light .ai-card{background:linear-gradient(135deg,rgba(9,105,218,.06),rgba(26,127,55,.04));border-color:rgba(9,105,218,.2);}
+body.light .ai-btn{background:linear-gradient(135deg,#e8f0fe,#e6f4ea);color:#0969da;border-color:rgba(9,105,218,.3);}
+body.light .ai-fridge-tip{color:#1a7f37;background:rgba(26,127,55,.06);border-color:rgba(26,127,55,.2);}
 .news-meta{font-size:.74rem;color:var(--muted);display:flex;gap:8px;align-items:center;}
 .news-src{color:var(--blue);font-weight:600;}
 .news-section{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 8px;}
@@ -627,7 +644,7 @@ var S = {
   bannerDismissed:false,
   fridgeScale:1.0,
   cy:_n.getFullYear(), cm:_n.getMonth(),
-  news:{tab:'all', loading:false, error:null, cache:{}}
+  news:{tab:'all', loading:false, error:null, cache:{}, aiLoading:false, aiResult:null, aiError:null}
 };
 S.form = emptyForm();
 
@@ -1420,6 +1437,34 @@ function setNewsTab(id) {
   render();
   fetchNews();
 }
+function renderAiResult() {
+  var r = S.news.aiResult;
+  if (!r) return '';
+  var h = '<div class="ai-card">'
+    + '<div class="ai-card-hd"><span style="font-size:1.3rem">🤖</span><span class="ai-card-ttl">AI 구매 가이드</span></div>';
+  if (r.summary) h += '<div class="ai-summary">'+esc(r.summary)+'</div>';
+  h += '<div class="ai-guide-row">';
+  if (r.buy_now && r.buy_now.length) {
+    h += '<div class="ai-guide-col">'
+      + '<div class="ai-guide-col-ttl" style="color:var(--green)">✅ 지금 사면 이득</div>';
+    r.buy_now.forEach(function(item) {
+      h += '<div class="ai-guide-item"><span class="ai-guide-name">'+esc(item.name)+'</span><span class="ai-guide-reason">'+esc(item.reason)+'</span></div>';
+    });
+    h += '</div>';
+  }
+  if (r.buy_later && r.buy_later.length) {
+    h += '<div class="ai-guide-col">'
+      + '<div class="ai-guide-col-ttl" style="color:var(--red)">⏳ 구매 미루기</div>';
+    r.buy_later.forEach(function(item) {
+      h += '<div class="ai-guide-item"><span class="ai-guide-name">'+esc(item.name)+'</span><span class="ai-guide-reason">'+esc(item.reason)+'</span></div>';
+    });
+    h += '</div>';
+  }
+  h += '</div>';
+  if (r.fridge_tip) h += '<div class="ai-fridge-tip">🧊 '+esc(r.fridge_tip)+'</div>';
+  h += '</div>';
+  return h;
+}
 function vNews() {
   var cur = S.news.cache[S.news.tab] || {items:[], lastFetch:0};
   var h = '<div class="view"><div class="ptitle">📰 식재료 뉴스</div>';
@@ -1428,6 +1473,18 @@ function vNews() {
     h += '<button class="tab '+(S.news.tab===tab.id?'on':'')+'" onclick="setNewsTab(\''+tab.id+'\')">'+tab.label+'</button>';
   });
   h += '</div>';
+  h += '<button class="ai-btn" onclick="analyzeNews()">'
+    + (S.news.aiLoading
+        ? '<span style="animation:spin 1s linear infinite;display:inline-block">⏳</span> AI 분석 중...'
+        : '🤖 AI 구매 가이드 분석')
+    + '</button>';
+  if (S.news.aiLoading) {
+    h += '<div style="text-align:center;padding:16px 0;color:var(--muted);font-size:.85rem">뉴스를 읽고 구매 가이드를 작성하는 중이에요...</div>';
+  } else if (S.news.aiError) {
+    h += '<div style="text-align:center;color:var(--red);font-size:.82rem;margin-bottom:12px">'+esc(S.news.aiError)+'</div>';
+  } else if (S.news.aiResult) {
+    h += renderAiResult();
+  }
   if (S.news.loading) {
     h += '<div style="text-align:center;padding:60px 0"><div style="font-size:2rem;margin-bottom:12px">🔄</div><div style="color:var(--muted);font-size:.9rem">뉴스 불러오는 중...</div></div>';
   } else if (S.news.error) {
@@ -1446,6 +1503,50 @@ function vNews() {
     h += '<div style="text-align:center;margin-top:16px"><button class="btn-s" onclick="S.news.cache[S.news.tab]={};fetchNews()">새로고침</button></div>';
   }
   return h + '</div>';
+}
+async function analyzeNews() {
+  if (S.news.aiLoading) return;
+  var cur = S.news.cache[S.news.tab] || {items:[]};
+  if (!cur.items.length) { alert('먼저 뉴스를 불러와주세요'); return; }
+  S.news.aiLoading = true; S.news.aiResult = null; S.news.aiError = null;
+  if (S.view === 'news') render();
+  var newsText = cur.items.slice(0, 10).map(function(it, i) {
+    return (i+1)+'. '+it.title;
+  }).join('\n');
+  var fridgeItems = S.items.slice().sort(function(a,b){ return dLeft(a.exp)-dLeft(b.exp); })
+    .slice(0, 15).map(function(it) {
+      var d = dLeft(it.exp);
+      return it.name+'(D'+(d>=0?'-':'+')+Math.abs(d)+')';
+    }).join(', ');
+  var prompt = '다음은 최근 식재료 관련 뉴스 제목들이야:\n\n'+newsText
+    +'\n\n내 냉장고 현황: '+(fridgeItems||'없음')
+    +'\n\n아래 JSON 형식으로만 답해줘 (설명 없이 JSON만):\n'
+    +'{"summary":"핵심 뉴스 3줄 요약 (줄바꿈으로 구분)","buy_now":[{"name":"재료명","reason":"이유 한 줄"}],"buy_later":[{"name":"재료명","reason":"이유 한 줄"}],"fridge_tip":"내 냉장고 재료와 연결된 팁 한 줄"}';
+  try {
+    var ctrl = new AbortController();
+    var t = setTimeout(function(){ ctrl.abort(); }, 25000);
+    var res = await fetch(WORKER+'/ai', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:900,
+        messages:[{role:'user', content:prompt}]
+      }),
+      signal:ctrl.signal
+    });
+    clearTimeout(t);
+    if (!res.ok) throw new Error('status '+res.status);
+    var data = await res.json();
+    var text = data.content && data.content[0] && data.content[0].text;
+    if (!text) throw new Error('empty');
+    var json = text.replace(/```json\n?|\n?```/g,'').trim();
+    S.news.aiResult = JSON.parse(json);
+  } catch(e) {
+    S.news.aiError = 'AI 분석에 실패했어요 😢 워커 설정을 확인하거나 잠시 후 다시 시도해주세요.';
+  }
+  S.news.aiLoading = false;
+  if (S.view === 'news') render();
 }
 async function fetchNews() {
   if (S.news.loading) return;
