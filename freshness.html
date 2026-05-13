@@ -1528,15 +1528,17 @@ async function analyzeNews() {
     var res = await fetch(WORKER+'/ai', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{parts:[{text:prompt}]}]}),
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        max_tokens:900,
+        messages:[{role:'user', content:prompt}]
+      }),
       signal:ctrl.signal
     });
     clearTimeout(t);
     var data = await res.json();
     if (!res.ok) throw new Error('HTTP '+res.status+': '+(data.error&&data.error.message||JSON.stringify(data)));
-    var text = data.candidates && data.candidates[0] && data.candidates[0].content
-      && data.candidates[0].content.parts && data.candidates[0].content.parts[0]
-      && data.candidates[0].content.parts[0].text;
+    var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
     if (!text) throw new Error('응답없음: '+JSON.stringify(data));
     var json = text.replace(/```json\n?|\n?```/g,'').trim();
     S.news.aiResult = JSON.parse(json);
