@@ -1958,15 +1958,22 @@ function editItem(id) {
 
 /* ══ OCR via Google Vision / Cloudflare Worker ══ */
 async function gVision(imgData) {
-  var b64 = imgData.split(',')[1];
+  var compressed = await compressImg(imgData);
+  var b64 = compressed.split(',')[1];
   var res = await fetch(WORKER, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({requests:[{image:{content:b64},features:[{type:'DOCUMENT_TEXT_DETECTION'}]}]})
   });
-  if (!res.ok) throw new Error('Vision API 오류 ('+res.status+')');
+  if (!res.ok) {
+    var errBody = '';
+    try { errBody = await res.text(); } catch(e) {}
+    throw new Error('Worker 오류 ('+res.status+'): '+errBody.slice(0,200));
+  }
   var data = await res.json();
-  if (data.responses && data.responses[0] && data.responses[0].error) throw new Error(data.responses[0].error.message);
+  if (data.responses && data.responses[0] && data.responses[0].error) {
+    throw new Error('Vision 오류: '+data.responses[0].error.message+' (code '+data.responses[0].error.code+')');
+  }
   return (data.responses && data.responses[0] && data.responses[0].fullTextAnnotation && data.responses[0].fullTextAnnotation.text) || '';
 }
 
