@@ -1538,7 +1538,7 @@ async function analyzeNews() {
         'Authorization':'Bearer '+GROQ_KEY
       },
       body:JSON.stringify({
-        model:'gemma2-9b-it',
+        model:'llama-3.3-70b-versatile',
         max_tokens:900,
         messages:[{role:'user', content:prompt}]
       }),
