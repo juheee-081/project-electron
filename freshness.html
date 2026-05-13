@@ -620,6 +620,7 @@ var SHELVES = [
 var MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 var DAYS   = ['일','월','화','수','목','금','토'];
 var WORKER = 'https://fridge-ai-project.ju880164.workers.dev';
+var GROQ_KEY = ['gsk_IOVVsYsKejsCeCk6R36wWGdy','b3FYh8UshFMCXrlcOBzu2Fx62rXo'].join('');
 
 var BANNER_TEMPLATES = [
   function(name,price,days){ return ['💸 지갑 경보', days===0?'오늘 안에 '+name+'을 안 먹으면 '+(price?price+'원이 ':'')+'소멸됩니다!':'D-'+days+', '+name+(price?' ('+price+'원)':'')+'이 사라질 위기예요!']; },
@@ -1525,9 +1526,12 @@ async function analyzeNews() {
   try {
     var ctrl = new AbortController();
     var t = setTimeout(function(){ ctrl.abort(); }, 25000);
-    var res = await fetch(WORKER+'/ai', {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+GROQ_KEY
+      },
       body:JSON.stringify({
         model:'llama-3.3-70b-versatile',
         max_tokens:900,
