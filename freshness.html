@@ -34,14 +34,14 @@ body.light .warn-banner-title{color:#e65100;}
 
 /* ── Warning Banner ── */
 .warn-banner{margin-bottom:16px;position:relative;
-  background:linear-gradient(135deg,#7ee8a2 0%,#80ff72 40%,#87ceeb 100%);
+  background:linear-gradient(135deg,#0a2018 0%,#071a2e 100%);
   border:none;border-radius:var(--r);
   padding:14px 14px 14px 12px;animation:slideDown .35s ease;
-  box-shadow:0 4px 28px rgba(126,232,162,.45),0 8px 32px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.3);}
+  box-shadow:0 4px 28px rgba(52,211,153,.18),0 8px 32px rgba(0,0,0,.22),inset 0 1px 0 rgba(126,232,162,.1);}
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 .warn-banner-close{position:absolute;top:10px;right:10px;background:none;border:none;
-  color:rgba(0,60,30,.4);font-size:.95rem;cursor:pointer;padding:4px;line-height:1;}
-.warn-banner-close:hover{color:rgba(0,60,30,.8);}
+  color:rgba(255,255,255,.35);font-size:.95rem;cursor:pointer;padding:4px;line-height:1;}
+.warn-banner-close:hover{color:rgba(255,255,255,.75);}
 /* 배너 안 말풍선 — 왼쪽 꼬리 */
 .banner-bubble{
   position:relative;flex:1;min-width:0;
@@ -297,7 +297,7 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .tab,.vtab{padding:7px 15px;border-radius:20px;border:none;
   background:var(--surface2);color:var(--muted);font-size:.8rem;cursor:pointer;
   transition:all .18s;white-space:nowrap;font-weight:600;}
-.tab.on,.vtab.on{background:linear-gradient(135deg,#0a2018,#071a2e);color:#7ee8a2;box-shadow:0 4px 14px rgba(0,0,0,.28);}
+.tab.on,.vtab.on{background:linear-gradient(135deg,#7ee8a2,#80ff72 50%,#87ceeb);color:#071a2e;box-shadow:0 4px 14px rgba(126,232,162,.4);}
 
 /* ── Food cards ── */
 .food-list{display:flex;flex-direction:column;gap:10px;}
