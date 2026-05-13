@@ -1140,15 +1140,16 @@ async function initFirebase() {
   var token = sessionStorage.getItem('fbToken');
   var uid = sessionStorage.getItem('fbUid');
   var name = sessionStorage.getItem('fbName');
-  go('home');
   if (token && uid) {
     _fbToken = token;
     _fbUid = uid;
     S.auth = {loggedIn: true, uid: uid, name: name || null, avatar: null};
+    go('home');
     loadFromCloud();
   } else {
     var ok = await tryAutoLogin();
-    if (ok) loadFromCloud();
+    if (ok) { go('home'); loadFromCloud(); }
+    // 로그인 안 됐으면 메인 렌더링 안 함 — 랜딩→로그인창이 처리
   }
 }
 async function cloudSave() {
