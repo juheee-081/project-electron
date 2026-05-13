@@ -25,8 +25,8 @@ body.light .hdr{background:rgba(245,247,250,.95);}
 body.light .bnav{background:#ffffff;box-shadow:0 -6px 24px rgba(100,120,200,.1);}
 body.light select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2357606a' d='M6 8L0 0h12z'/%3E%3C/svg%3E");}
 body.light .hdr-logo{background:linear-gradient(135deg,#0969da,#1a7f37);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-body.light .fridge-body{border:2px solid #87ceeb;box-shadow:0 8px 32px rgba(135,206,235,.3),0 0 0 4px rgba(135,206,235,.15),inset 0 1px 0 rgba(255,255,255,.9);}
-body.light .door-face{border:2px solid #87ceeb;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),4px 0 20px rgba(135,206,235,.2);}
+body.light .fridge-body{border:none;box-shadow:0 8px 32px rgba(135,206,235,.3),0 0 0 4px rgba(135,206,235,.15),inset 0 1px 0 rgba(255,255,255,.9);}
+body.light .door-face{border:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),4px 0 20px rgba(135,206,235,.2);}
 body.light .fridge-wrap{filter:drop-shadow(0 0 12px rgba(135,206,235,.4));}
 body.light .warn-banner{background:linear-gradient(135deg,#fff0f0,#ffe8e0);border-color:rgba(248,81,73,.35);box-shadow:0 4px 20px rgba(248,81,73,.1);}
 body.light .warn-banner-price{color:#d32f2f;}
@@ -161,7 +161,7 @@ body.light .ai-fridge-tip{color:#1a7f37;background:rgba(26,127,55,.06);border-co
   position:relative;
   border-radius:20px;
   background:linear-gradient(160deg,#f0f8ff,#ffffff);
-  border:2px solid #87ceeb;
+  border:none;
   min-height:380px;
   overflow:hidden;
   box-shadow:0 8px 32px rgba(135,206,235,.3),0 0 0 4px rgba(135,206,235,.15),inset 0 1px 0 rgba(255,255,255,.9);
@@ -184,7 +184,7 @@ body.light .ai-fridge-tip{color:#1a7f37;background:rgba(26,127,55,.06);border-co
   justify-content:flex-start;gap:3px;padding:7px 4px 6px;border-radius:10px;
   cursor:pointer;transition:all .18s;position:relative;min-height:96px;
   background:rgba(50,90,130,.12);
-  border:1px solid rgba(90,140,180,.2);
+  border:none;
   box-shadow:inset 0 3px 6px rgba(0,0,0,.1),inset 0 1px 2px rgba(0,0,0,.07),
              inset 2px 0 3px rgba(0,0,0,.05),inset -2px 0 3px rgba(0,0,0,.05),
              inset 0 -1px 0 rgba(255,255,255,.12),0 1px 0 rgba(255,255,255,.06);}
@@ -228,7 +228,7 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
   position:absolute;inset:0;
   background:linear-gradient(160deg,#ddeeff 0%,#eef5ff 45%,#f5faff 100%);
   border-radius:20px;
-  border:2px solid #87ceeb;
+  border:none;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 0 24px rgba(135,206,235,.55),0 8px 32px rgba(135,206,235,.3);
   backface-visibility:hidden;-webkit-backface-visibility:hidden;
@@ -248,7 +248,7 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
   backface-visibility:hidden;-webkit-backface-visibility:hidden;
   border-radius:20px;
   background:linear-gradient(160deg,#e4eff8 0%,#eef5ff 60%,#f5faff 100%);
-  border:1.5px solid #aaccee;
+  border:none;
   padding:12px 10px;
   display:flex;flex-direction:column;gap:7px;
   box-shadow:inset 4px 0 16px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.8);
@@ -256,7 +256,7 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .door-bin{
   flex:1;
   background:linear-gradient(180deg,rgba(210,232,250,.35),rgba(190,220,245,.5));
-  border:1px solid rgba(150,200,232,.45);
+  border:none;
   border-radius:8px;
   box-shadow:inset 0 3px 6px rgba(0,0,0,.07),inset 0 -2px 0 rgba(255,255,255,.6),
              0 1px 0 rgba(255,255,255,.4);
@@ -382,13 +382,13 @@ select.inp{appearance:none;
   border-radius:16px;color:var(--red);font-size:.88rem;font-weight:600;
   cursor:pointer;transition:background .15s;font-family:inherit;}
 .btn-d:hover{background:rgba(248,113,113,.22);}
-.ocr-btn{padding:11px 12px;background:var(--surface2);border:1px solid var(--border);
+.ocr-btn{padding:11px 12px;background:var(--surface2);border:none;
   border-radius:var(--r);color:var(--text);cursor:pointer;font-size:.8rem;white-space:nowrap;transition:all .15s;font-family:inherit;}
 .ocr-btn:hover{border-color:var(--blue);color:var(--blue);}
 .stack{display:flex;flex-direction:column;gap:8px;}
 
 /* ── Scan ── */
-.drop-area{background:var(--surface);border:2px dashed var(--border);border-radius:var(--r);
+.drop-area{background:var(--surface);border:2px dashed rgba(96,165,250,.3);border-radius:var(--r);
   padding:42px 18px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:13px;}
 .drop-area:hover{border-color:var(--blue);}
 .drop-area .di{font-size:2.6rem;margin-bottom:9px;}
@@ -502,7 +502,7 @@ select.inp{appearance:none;
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   filter:drop-shadow(0 0 14px rgba(126,232,162,.65));}
 .auth-hero-sub{font-size:.88rem;color:rgba(255,255,255,.45);margin-top:6px;letter-spacing:.08em;}
-.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px 20px;}
+.auth-card{background:var(--surface);border:none;border-radius:20px;padding:24px 20px;box-shadow:var(--shadow);}
 .auth-toggle-wrap{display:flex;gap:4px;margin-bottom:20px;background:var(--surface2);border-radius:12px;padding:4px;}
 .auth-toggle{flex:1;padding:9px;border:none;background:transparent;color:var(--muted);
   font-size:.88rem;font-weight:600;cursor:pointer;border-radius:9px;transition:all .15s;font-family:inherit;}
@@ -516,7 +516,7 @@ select.inp{appearance:none;
 .auth-btn:hover{opacity:.88;}
 .auth-btn:disabled{opacity:.5;cursor:not-allowed;}
 .auth-user-row{display:flex;align-items:center;gap:10px;padding:12px 13px;
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;}
+  background:var(--surface);border:none;border-radius:var(--r);margin-bottom:6px;box-shadow:var(--shadow-sm);}
 .auth-avatar-def{width:36px;height:36px;border-radius:50%;
   background:linear-gradient(135deg,#58a6ff,#3fb950);
   display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
@@ -535,9 +535,7 @@ select.inp{appearance:none;
   position:relative;
   /* 빛이 왼쪽 위에서 오는 느낌의 그라디언트 */
   background:linear-gradient(145deg,#263c52 0%,#1a2d40 55%,#142234 100%);
-  border:1.5px solid #3a6680;
-  border-top-color:#4a80a0;
-  border-left-color:#4a80a0;
+  border:none;
   border-radius:20px;
   padding:13px 20px;
   font-size:.88rem;
@@ -559,9 +557,7 @@ select.inp{appearance:none;
 }
 body.light .mascot-bubble{
   background:linear-gradient(145deg,#f5faff 0%,#e0effa 50%,#cce3f5 100%);
-  border:1.5px solid #87ceeb;
-  border-top-color:#aaddee;
-  border-left-color:#aaddee;
+  border:none;
   color:#1a3a5c;
   box-shadow:
     3px 5px 0 rgba(74,140,180,.55),
