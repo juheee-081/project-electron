@@ -1532,16 +1532,16 @@ async function analyzeNews() {
       signal:ctrl.signal
     });
     clearTimeout(t);
-    if (!res.ok) throw new Error('status '+res.status);
     var data = await res.json();
+    if (!res.ok) throw new Error('HTTP '+res.status+': '+(data.error&&data.error.message||JSON.stringify(data)));
     var text = data.candidates && data.candidates[0] && data.candidates[0].content
       && data.candidates[0].content.parts && data.candidates[0].content.parts[0]
       && data.candidates[0].content.parts[0].text;
-    if (!text) throw new Error('empty');
+    if (!text) throw new Error('응답없음: '+JSON.stringify(data));
     var json = text.replace(/```json\n?|\n?```/g,'').trim();
     S.news.aiResult = JSON.parse(json);
   } catch(e) {
-    S.news.aiError = 'AI 분석에 실패했어요 😢 잠시 후 다시 시도해주세요.';
+    S.news.aiError = '오류: '+e.message;
   }
   S.news.aiLoading = false;
   if (S.view === 'news') render();
