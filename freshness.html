@@ -1519,10 +1519,10 @@ async function analyzeNews() {
       var d = dLeft(it.exp);
       return it.name+'(D'+(d>=0?'-':'+')+Math.abs(d)+')';
     }).join(', ');
-  var prompt = '다음은 최근 식재료 관련 뉴스 제목들이야:\n\n'+newsText
-    +'\n\n내 냉장고 현황: '+(fridgeItems||'없음')
-    +'\n\n아래 JSON 형식으로만 답해줘 (설명 없이 JSON만):\n'
-    +'{"summary":"핵심 뉴스 3줄 요약 (줄바꿈으로 구분)","buy_now":[{"name":"재료명","reason":"이유 한 줄"}],"buy_later":[{"name":"재료명","reason":"이유 한 줄"}],"fridge_tip":"내 냉장고 재료와 연결된 팁 한 줄"}';
+  var prompt = '너는 친근한 식재료 전문가야. 반말로 짧고 재밌게 말해줘.\n\n최근 식재료 뉴스:\n'+newsText
+    +'\n\n내 냉장고: '+(fridgeItems||'없음')
+    +'\n\n아래 JSON 형식으로만 답해줘 (설명 없이 JSON만, 말투는 친근한 반말로):\n'
+    +'{"summary":"핵심 뉴스 3줄 요약, 각 줄은 ~임, ~대, ~래 같은 반말 종결어미로 끝내기 (줄바꿈 구분)","buy_now":[{"name":"재료명","reason":"짧고 친근한 이유"}],"buy_later":[{"name":"재료명","reason":"짧고 친근한 이유"}],"fridge_tip":"냉장고 재료와 연결된 꿀팁 한 줄, 반말로"}';
   try {
     var ctrl = new AbortController();
     var t = setTimeout(function(){ ctrl.abort(); }, 25000);
