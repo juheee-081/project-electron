@@ -2004,14 +2004,23 @@ async function analyzeReceipt() {
   S.scan.loading=true; render();
   try {
     var txt=await gVision(S.scan.img);
+    S.scan._rawTxt = txt;
     var parsed=parseReceipt(txt);
     S.scan.items=parsed.map(function(i){ return Object.assign({},i,{sel:true}); });
-    if(!S.scan.items.length) alert('식재료를 찾지 못했어요. 영수증이 잘 보이게 다시 촬영해보세요.');
+    if(!S.scan.items.length) {
+      showModal('<div class="mhandle"></div>'
+        +'<div style="font-size:1rem;font-weight:700;margin-bottom:10px">😢 식재료를 찾지 못했어요</div>'
+        +'<p class="muted sm" style="margin-bottom:10px">OCR이 읽은 텍스트:</p>'
+        +'<div style="background:var(--surface2);border-radius:10px;padding:12px;font-size:.72rem;color:var(--muted);white-space:pre-wrap;max-height:200px;overflow-y:auto;word-break:break-all">'
+        +esc(txt||'(텍스트 없음)')+'</div>'
+        +'<p class="muted sm" style="margin-top:10px">영수증이 잘 보이게 다시 촬영하거나, 텍스트가 읽혔다면 직접 추가해주세요.</p>'
+        +'<button class="btn-s mt8" onclick="closeModal()">닫기</button>');
+    }
   } catch(err) { alert('분석 실패: '+err.message); }
   S.scan.loading=false; render();
 }
 function parseReceipt(txt) {
-  var SKIP=['합계','소계','부가세','vat','카드','현금','거스름','영수증','가맹점','사업자','전화','주소','tel','승인','할인','포인트','적립','잔액','결제','매출','점포','면세','과세','봉사료','총액','수량','단가','금액'];
+  var SKIP=['합계','소계','부가세','vat','카드','현금','거스름','영수증','가맹점','사업자','전화','주소','tel','승인','할인','포인트','적립','잔액','결제','매출','점포','면세','과세','봉사료','총액','수량','단가','금액','이용','고객','점장','날짜','시간','번호','receipt','store','total','cash'];
   var lines=txt.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return !!l; });
   var items=[];
   for (var i=0;i<lines.length;i++) {
@@ -2019,8 +2028,8 @@ function parseReceipt(txt) {
     for (var j=0;j<SKIP.length;j++) { if(low.indexOf(SKIP[j])>=0){skip=true;break;} }
     if (skip) continue;
     var kor=(line.match(/[가-힣]/g)||[]).length;
-    if (kor<2||line.length>40) continue;
-    var qm=line.match(/(\d+)\s*(개|팩|봉|병|캔|g|kg|ml|l|묶음)/i);
+    if (kor<1||line.length>60) continue;
+    var qm=line.match(/(\d+)\s*(개|팩|봉|병|캔|g|kg|ml|l|묶음|ea)/i);
     var qty=qm?qm[1]+qm[2]:'';
     var price='';
     var pm=line.match(/([\d,]{3,})\s*원?\s*$/);
@@ -2029,12 +2038,13 @@ function parseReceipt(txt) {
     } else {
       for (var j2=i+1;j2<=Math.min(i+2,lines.length-1);j2++) {
         var next=lines[j2];
-        if ((next.match(/[가-힣]/g)||[]).length>=2) break;
+        if ((next.match(/[가-힣]/g)||[]).length>=1) break;
         var nums=(next.match(/([\d,]{3,})/g)||[]).map(function(p){ return parseInt(p.replace(/,/g,'')); });
         if (nums.length) { price=String(Math.max.apply(null,nums)); break; }
       }
     }
     var name=line.replace(/[\d,]+\s*원?\s*$/,'').replace(/^\s*[\d,]+\s*/,'').replace(/\s{2,}/g,' ').trim();
+    name=name.replace(/^[A-Z0-9\-_]{4,}\s*/,'').trim();
     if (name.length>=2) items.push({name:name, qty:qty, price:price, cat:'기타'});
   }
   return items;
