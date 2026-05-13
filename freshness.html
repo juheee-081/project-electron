@@ -28,7 +28,7 @@ body.light .hdr-logo{background:linear-gradient(135deg,#0969da,#1a7f37);-webkit-
 body.light .fridge-body{border:2px solid #87ceeb;box-shadow:0 8px 32px rgba(135,206,235,.3),0 0 0 4px rgba(135,206,235,.15),inset 0 1px 0 rgba(255,255,255,.9);}
 body.light .door-face{border:2px solid #87ceeb;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),4px 0 20px rgba(135,206,235,.2);}
 body.light .fridge-wrap{filter:drop-shadow(0 0 12px rgba(135,206,235,.4));}
-body.light .warn-banner{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);box-shadow:0 4px 28px rgba(102,126,234,.35),0 8px 24px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.25);}
+body.light .warn-banner{background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.75);box-shadow:0 8px 32px rgba(100,120,200,.15),0 2px 8px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.9);}
 body.light .warn-banner-close{color:rgba(0,50,20,.4);}
 body.light .warn-banner-close:hover{color:rgba(0,50,20,.8);}
 body.light .warn-banner-price{color:#d32f2f;}
@@ -36,10 +36,11 @@ body.light .warn-banner-title{color:#e65100;}
 
 /* ── Warning Banner ── */
 .warn-banner{margin-bottom:16px;position:relative;
-  background:linear-gradient(135deg,#0a2018 0%,#071a2e 100%);
-  border:none;border-radius:var(--r);
+  background:linear-gradient(135deg,rgba(52,211,153,.1) 0%,rgba(96,165,250,.07) 100%);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.12);border-radius:var(--r);
   padding:14px 14px 14px 12px;animation:slideDown .35s ease;
-  box-shadow:0 4px 28px rgba(52,211,153,.18),0 8px 32px rgba(0,0,0,.22),inset 0 1px 0 rgba(126,232,162,.1);}
+  box-shadow:0 8px 32px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08);}
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 .warn-banner-close{position:absolute;top:10px;right:10px;background:none;border:none;
   color:rgba(255,255,255,.35);font-size:.95rem;cursor:pointer;padding:4px;line-height:1;}
@@ -77,8 +78,8 @@ body.light .warn-banner-title{color:#e65100;}
   border-right-color:#f0fff8;
   border-left:none;
 }
-body.light .warn-banner-close{color:rgba(255,255,255,.35);}
-body.light .warn-banner-close:hover{color:rgba(255,255,255,.75);}
+body.light .warn-banner-close{color:rgba(30,40,80,.35);}
+body.light .warn-banner-close:hover{color:rgba(30,40,80,.75);}
 body.light .banner-bubble{
   background:linear-gradient(160deg,#eafff4 0%,#ffffff 50%,#edf5ff 100%);
   color:#0a2a18;
