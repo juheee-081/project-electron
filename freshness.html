@@ -1550,7 +1550,19 @@ async function analyzeNews() {
     var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
     if (!text) throw new Error('응답없음: '+JSON.stringify(data));
     var json = text.replace(/```json\n?|\n?```/g,'').trim();
-    S.news.aiResult = JSON.parse(json);
+    var parsed = JSON.parse(json);
+    function stripForeign(s) {
+      if (!s) return s;
+      return s.replace(/[぀-ヿ㐀-䶿一-鿿豈-﫿]/g, '').replace(/\s{2,}/g,' ').trim();
+    }
+    function cleanItem(obj) {
+      return {name: stripForeign(obj.name), reason: stripForeign(obj.reason)};
+    }
+    parsed.summary = stripForeign(parsed.summary);
+    parsed.fridge_tip = stripForeign(parsed.fridge_tip);
+    if (parsed.buy_now) parsed.buy_now = parsed.buy_now.map(cleanItem);
+    if (parsed.buy_later) parsed.buy_later = parsed.buy_later.map(cleanItem);
+    S.news.aiResult = parsed;
   } catch(e) {
     S.news.aiError = '오류: '+e.message;
   }
