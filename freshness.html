@@ -1506,6 +1506,12 @@ function vNews() {
 }
 async function analyzeNews() {
   if (S.news.aiLoading) return;
+  var apiKey = ls('geminiKey');
+  if (!apiKey) {
+    go('settings');
+    alert('설정에서 Gemini API 키를 먼저 입력해주세요!');
+    return;
+  }
   var cur = S.news.cache[S.news.tab] || {items:[]};
   if (!cur.items.length) { alert('먼저 뉴스를 불러와주세요'); return; }
   S.news.aiLoading = true; S.news.aiResult = null; S.news.aiError = null;
@@ -1525,25 +1531,24 @@ async function analyzeNews() {
   try {
     var ctrl = new AbortController();
     var t = setTimeout(function(){ ctrl.abort(); }, 25000);
-    var res = await fetch(WORKER+'/ai', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:900,
-        messages:[{role:'user', content:prompt}]
-      }),
-      signal:ctrl.signal
-    });
+    var res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+apiKey,
+      {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}]}),
+        signal:ctrl.signal
+      }
+    );
     clearTimeout(t);
     if (!res.ok) throw new Error('status '+res.status);
     var data = await res.json();
-    var text = data.content && data.content[0] && data.content[0].text;
+    var text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
     if (!text) throw new Error('empty');
     var json = text.replace(/```json\n?|\n?```/g,'').trim();
     S.news.aiResult = JSON.parse(json);
   } catch(e) {
-    S.news.aiError = 'AI 분석에 실패했어요 😢 워커 설정을 확인하거나 잠시 후 다시 시도해주세요.';
+    S.news.aiError = 'AI 분석에 실패했어요 😢 API 키를 확인하거나 잠시 후 다시 시도해주세요.';
   }
   S.news.aiLoading = false;
   if (S.view === 'news') render();
@@ -1589,12 +1594,23 @@ function vSettings() {
   for (var i=0;i<dv.length;i++) dopts += '<option value="'+dv[i]+'"'+(s.notifyDays===dv[i]?' selected':'')+'>'+dv[i]+'일 전</option>';
   return '<div class="view"><div class="ptitle">설정</div>'
     +'<div class="ss"><div class="ss-ttl">AI 기능</div>'
-    +'<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px;">'
+    +'<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px;margin-bottom:8px">'
     +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">'
     +'<span>📷</span><span style="font-weight:600;font-size:.88rem">Google Vision AI</span>'
     +'<span style="margin-left:auto;font-size:.76rem;background:var(--green);color:#000;padding:2px 8px;border-radius:20px;font-weight:700">활성</span>'
     +'</div>'
     +'<p class="muted sm" style="line-height:1.5">Cloudflare Worker 경유로 처리돼요.<br>API 키 설정 불필요.</p>'
+    +'</div>'
+    +'<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px">'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
+    +'<span>🤖</span><span style="font-weight:600;font-size:.88rem">Gemini AI (뉴스 분석)</span>'
+    +'<span style="margin-left:auto;font-size:.76rem;background:'+(ls('geminiKey')?'var(--green)':'var(--surface2)')+';color:'+(ls('geminiKey')?'#000':'var(--muted)')+';padding:2px 8px;border-radius:20px;font-weight:700">'+(ls('geminiKey')?'활성':'미설정')+'</span>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<input id="gemini-key-inp" type="password" placeholder="AIza... 키 붙여넣기" value="'+(ls('geminiKey')||'')+'" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:.85rem;outline:none">'
+    +'<button onclick="var v=document.getElementById(\'gemini-key-inp\').value.trim();if(v){lset(\'geminiKey\',v);render();}" style="border:none;background:var(--blue);color:#fff;border-radius:8px;padding:8px 14px;font-size:.85rem;cursor:pointer;font-weight:600">저장</button>'
+    +'</div>'
+    +'<p class="muted sm" style="margin-top:8px;line-height:1.5">aistudio.google.com에서 무료 발급.<br>기기에만 저장되며 외부로 전송되지 않아요.</p>'
     +'</div></div>'
     +'<div class="ss"><div class="ss-ttl">알림</div>'
     +'<div class="srow"><span class="srow-l">유통기한 알림</span><div class="toggle'+(s.notifOn?' on':'')+'" onclick="togNotif()"></div></div>'
