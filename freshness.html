@@ -1075,7 +1075,7 @@ function startBannerCycle() {
     if (mascotWrap) mascotWrap.innerHTML = tinyMascotSvg(bannerMood);
     if (oldBubble) {
       var newBubble = oldBubble.cloneNode(false);
-      newBubble.innerHTML = getMascotMsg(msgMood, item.name, item.price);
+      newBubble.innerHTML = wildMsg(getMascotMsg(msgMood, item.name, item.price));
       oldBubble.parentNode.replaceChild(newBubble, oldBubble);
     }
   }, 4500);
@@ -1095,7 +1095,7 @@ function renderBanner() {
     +'<button class="warn-banner-close" onclick="S.bannerDismissed=true;render()">✕</button>'
     +'<div style="display:flex;align-items:center;gap:10px">'
     +'<div class="banner-mascot">'+tinyMascotSvg(bannerMood)+'</div>'
-    +'<div class="banner-bubble">'+getMascotMsg(msgMood, item.name, item.price)+'</div>'
+    +'<div class="banner-bubble">'+wildMsg(getMascotMsg(msgMood, item.name, item.price))+'</div>'
     +'</div>'
     +'</div>';
 }
@@ -1759,6 +1759,18 @@ var MASCOT_MSGS = {
   ]
 };
 
+function wildMsg(msg) {
+  var sizes = ['0.72rem','0.78rem','0.85rem','0.9rem','0.95rem','1.02rem','1.08rem'];
+  var weights = ['400','500','600','700','800','900'];
+  var parts = msg.split(/(\s+)/);
+  return parts.map(function(part) {
+    if (!part.trim()) return part;
+    var sz = sizes[Math.floor(Math.random() * sizes.length)];
+    var fw = weights[Math.floor(Math.random() * weights.length)];
+    var fi = Math.random() < 0.2 ? 'italic' : 'normal';
+    return '<span style="font-size:'+sz+';font-weight:'+fw+';font-style:'+fi+';line-height:1.4;display:inline-block">'+part+'</span>';
+  }).join('');
+}
 function getMascotMsg(mood, itemName, itemPrice) {
   var pool = MASCOT_MSGS[mood] || MASCOT_MSGS.happy;
   var filtered = itemPrice ? pool : pool.filter(function(m){ return m.indexOf('{price}') === -1; });
