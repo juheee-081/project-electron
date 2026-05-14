@@ -288,25 +288,23 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .door-brand{font-size:.68rem;font-weight:800;color:rgba(255,255,255,.5);letter-spacing:.22em;text-transform:uppercase;}
 .door-sub{font-size:.56rem;color:rgba(255,255,255,.32);letter-spacing:.07em;}
 /* ── 냉장고 캐러셀 ── */
-.fridge-carousel{position:relative;padding:0 28px;}
+.fridge-nav-row{display:flex;align-items:center;justify-content:space-between;padding:8px 4px 0;}
 .fridge-nav-arrow{
-  position:absolute;top:50%;transform:translateY(-50%);
-  width:30px;height:30px;border-radius:50%;
+  width:36px;height:36px;border-radius:50%;
   background:var(--surface2);border:1.5px solid var(--border);
-  color:var(--text);font-size:1.1rem;line-height:1;
+  color:var(--text);font-size:1.2rem;line-height:1;
   cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:all .15s;z-index:5;
+  transition:all .15s;
 }
 .fridge-nav-arrow:active{background:rgba(74,222,128,.25);border-color:#4ade80;color:#4ade80;}
-.fridge-nav-prev{left:0;}
-.fridge-nav-next{right:0;}
+.fridge-nav-arrow.hidden{visibility:hidden;pointer-events:none;}
 .fridge-close-btn{
   height:30px;padding:0 12px;border:1.5px solid rgba(46,153,144,.45);border-radius:8px;
   background:rgba(46,153,144,.12);color:#4ade80;font-size:.72rem;font-weight:700;
   cursor:pointer;white-space:nowrap;transition:background .15s;
 }
 .fridge-close-btn:active{background:rgba(46,153,144,.3);}
-.fridge-page-dots{display:flex;gap:6px;justify-content:center;margin-top:10px;}
+.fridge-page-dots{display:flex;gap:6px;}
 .fridge-page-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:all .2s;}
 .fridge-page-dot.on{background:#4ade80;box-shadow:0 0 6px rgba(74,222,128,.5);}
 .door-bin{
@@ -1620,12 +1618,6 @@ function vFridge() {
   );
   var freezeLbl = isDoor ? '🚪 문 수납칸' : '❄️ <span class="freeze-lbl">냉동 / 냉장실</span>';
 
-  var prevArrow = isDoor
-    ? '<button class="fridge-nav-arrow fridge-nav-prev" onclick="ev();setFridgeTab(\'interior\')">‹</button>'
-    : '';
-  var nextArrow = isDoor
-    ? ''
-    : '<button class="fridge-nav-arrow fridge-nav-next" onclick="ev();setFridgeTab(\'door\')">›</button>';
 
   var closeBtnEl = (!isDoor && S.door)
     ? '<button class="fridge-close-btn" onclick="ev();toggleDoor()">✕ 닫기</button>'
@@ -1640,14 +1632,24 @@ function vFridge() {
     ? '<div class="empty" onclick="ev()"><div class="ei">🛒</div><div class="et">냉장고가 비어있어요!<br><span class="link" onclick="go(\'add\')">+ 식재료 추가하기</span></div></div>'
     : '';
 
+  var navRow = '<div class="fridge-nav-row">'
+    + (isDoor
+        ? '<button class="fridge-nav-arrow" onclick="ev();setFridgeTab(\'interior\')">‹</button>'
+        : '<button class="fridge-nav-arrow hidden">‹</button>')
+    + '<div style="display:flex;align-items:center;gap:6px">'
+    + dots
+    + '</div>'
+    + (isDoor
+        ? '<button class="fridge-nav-arrow hidden">›</button>'
+        : '<button class="fridge-nav-arrow" onclick="ev();setFridgeTab(\'door\')">›</button>')
+    + '</div>';
+
   return '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">'
     + '<button onclick="setFridgeScale(-0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>'
     + '<span style="font-size:.72rem;color:var(--muted);min-width:38px;text-align:center">'+Math.round(sc*100)+'%</span>'
     + '<button onclick="setFridgeScale(0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>'
     + closeBtnEl
     + '</div>'
-    + '<div class="fridge-carousel">'
-    + prevArrow + nextArrow
     + '<div class="fridge-wrap" style="'+wrapStyle+'">'
     + '<div class="fridge-scene">'
     + '<div class="fridge-body">'
@@ -1657,8 +1659,7 @@ function vFridge() {
     + '</div>'
     + doorEl
     + '</div></div>'
-    + dots
-    + '</div>'
+    + navRow
     + empty;
 }
 function ev() { event && event.stopPropagation && event.stopPropagation(); }
