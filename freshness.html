@@ -342,6 +342,8 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .sauce-btl-body{width:16px;height:34px;border-radius:3px 3px 5px 5px;box-shadow:inset 3px 0 0 rgba(255,255,255,.18),0 1px 4px rgba(0,0,0,.25);}
 .door-bin-frozen{cursor:pointer;transition:background .15s;}
 .door-bin-frozen:active{transform:scale(.97);}
+.fridge-door-shelf{display:flex;flex-direction:column;gap:8px;padding:8px 10px 12px;flex:1;}
+.fridge-door-shelf .door-bin{flex:1;min-height:80px;}
 /* ── Dashboard ── */
 .dash-header{padding:24px 20px 4px;}
 .dash-greeting{font-size:1.6rem;font-weight:900;color:var(--text);margin-bottom:5px;letter-spacing:-.01em;}
@@ -1597,24 +1599,11 @@ function vFridge() {
     shelves += '</div>';
   }
 
-  /* ── 문 수납 선반 (같은 cat-slot 스타일) ── */
-  function doorSlot(emo, lbl, cnt, urg, onclick) {
-    var s = '<div class="cat-slot'+(cnt===0?' empty':'')+'" onclick="ev();'+onclick+'">';
-    if (urg) s += '<span class="udot u-warn"></span>';
-    s += '<span class="cs-emo">'+emo+'</span><span class="cs-lbl">'+lbl+'</span>';
-    if (cnt > 0) s += '<div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:2px;width:100%"><span class="cs-cnt">'+cnt+'개</span></div>';
-    s += '</div>';
-    return s;
-  }
-  var frozenCnt = S.frozen.length;
-  var sauceCnt  = S.sauces.length;
-  var eggCnt    = S.eggs;
-  var doorShelves = '<div class="fridge-shelf">'
-    + doorSlot('🥚','계란', eggCnt, false, 'openEggModal()')
-    + doorSlot('🫙','소스', sauceCnt, false, 'openSauceModal()')
-    + '</div>'
-    + '<div class="fridge-shelf">'
-    + doorSlot('🧊','얼린음식', frozenCnt, false, 'openFrozenModal()')
+  /* ── 문 수납 (원래 door-bin 디자인 그대로) ── */
+  var doorShelves = '<div class="fridge-door-shelf">'
+    + '<div class="door-bin door-bin-frozen" onclick="ev();openFrozenModal()">'+frozenBinHtml()+'</div>'
+    + '<div class="door-bin door-bin-egg"    onclick="ev();openEggModal()">'+eggTrayHtml()+'</div>'
+    + '<div class="door-bin door-bin-sauce"  onclick="ev();openSauceModal()">'+sauceBinHtml()+'</div>'
     + '</div>';
 
   var da = S.door ? 'class="fridge-door open" style="transition:none"' : 'class="fridge-door"';
