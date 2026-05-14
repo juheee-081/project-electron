@@ -1514,6 +1514,11 @@ function vHome() {
   return '<div class="view">'
     + renderBanner()
     + '<button class="dash-back" onclick="setTab(\'dashboard\')">← 홈으로</button>'
+    + '<div class="stats">'
+    + '<div class="stat"><div class="stat-n" style="color:#87ceeb">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
+    + '<div class="stat"><div class="stat-n" style="color:var(--yellow)">'+wrn+'</div><div class="stat-l">임박</div></div>'
+    + '<div class="stat"><div class="stat-n" style="color:var(--red)">'+exp+'</div><div class="stat-l">만료됨</div></div>'
+    + '</div>'
     + '<div class="vtabs">'
     + '<button class="vtab '+(S.tab==='fridge'?'on':'')+'" onclick="setTab(\'fridge\')">🧊 냉장고</button>'
     + '<button class="vtab '+(S.tab==='list'?'on':'')+'" onclick="setTab(\'list\')">📋 목록</button>'
