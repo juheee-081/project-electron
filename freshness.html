@@ -25,9 +25,9 @@ body.light .hdr{background:rgba(255,255,255,.92);border-bottom:1px solid rgba(74
 body.light .bnav{background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 -6px 32px rgba(20,100,50,.12);}
 body.light select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%234a7a56' d='M6 8L0 0h12z'/%3E%3C/svg%3E");}
 body.light .hdr-logo{background:linear-gradient(135deg,#22c55e,#16a34a,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 6px rgba(34,197,94,.4));}
-body.light .fridge-body{border:2px solid #87ceeb;box-shadow:0 8px 32px rgba(135,206,235,.3),0 0 0 4px rgba(135,206,235,.15),inset 0 1px 0 rgba(255,255,255,.9);}
-body.light .door-face{border:2px solid #87ceeb;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),4px 0 20px rgba(135,206,235,.2);}
-body.light .fridge-wrap{filter:drop-shadow(0 0 12px rgba(135,206,235,.4));}
+body.light .fridge-body{border:3px solid #2e9990;box-shadow:0 8px 32px rgba(46,153,144,.2),0 0 0 3px rgba(109,203,196,.15),inset 0 1px 0 rgba(255,255,255,.9);}
+body.light .door-face{background:#7dd4cd;border:3px solid #2e9990;box-shadow:inset 7px 9px 0 rgba(255,255,255,.25),inset -3px -4px 0 rgba(0,0,0,.06);}
+body.light .fridge-wrap{filter:drop-shadow(0 6px 20px rgba(46,153,144,.3));}
 body.light .warn-banner{background:rgba(255,255,255,.65);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.75);box-shadow:0 8px 32px rgba(20,100,50,.12),0 2px 8px rgba(0,0,0,.04),inset 0 1px 0 rgba(255,255,255,.95);}
 body.light .warn-banner-close{color:rgba(0,50,20,.4);}
 body.light .warn-banner-close:hover{color:rgba(0,50,20,.8);}
@@ -250,22 +250,48 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 }
 .door-face{
   position:absolute;inset:0;
-  background:linear-gradient(160deg,#ddeeff 0%,#eef5ff 45%,#f5faff 100%);
+  background:#6dcbc4;
   border-radius:20px;
-  border:2px solid #87ceeb;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 0 24px rgba(135,206,235,.55),0 8px 32px rgba(135,206,235,.3);
+  border:3px solid #2e9990;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  box-shadow:inset 7px 9px 0 rgba(255,255,255,.22),inset -3px -4px 0 rgba(0,0,0,.08);
   backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  overflow:hidden;
+}
+/* 냉동/냉장 구분선 */
+.door-face::before{
+  content:'';position:absolute;
+  left:-3px;right:-3px;top:30%;
+  height:5px;background:#2e9990;z-index:2;
+}
+/* 상단 광택 하이라이트 */
+.door-face::after{
+  content:'';position:absolute;
+  top:3%;left:7%;
+  width:16%;height:22%;
+  background:rgba(255,255,255,.28);
+  border-radius:50%;
+  transform:rotate(-12deg);
+  pointer-events:none;
 }
 .door-handle{
-  position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  width:8px;height:100px;border-radius:4px;
-  background:linear-gradient(to right,#4a5568,#c8d6e5,#7a8fa8,#4a5568);
-  box-shadow:2px 0 8px rgba(0,0,0,.5),inset 1px 0 0 rgba(255,255,255,.25);
+  position:absolute;right:16px;
+  top:54%;transform:translateY(-50%);
+  width:11px;height:80px;border-radius:6px;
+  background:linear-gradient(to right,#8fa8a0,#e8f2ef,#c0d4ce,#8fa8a0);
+  box-shadow:2px 0 6px rgba(0,0,0,.35),inset 1px 0 0 rgba(255,255,255,.4);
 }
-.door-emo{font-size:3.4rem;opacity:.5;}
-.door-brand{font-size:.7rem;font-weight:700;color:rgba(80,130,200,.35);letter-spacing:.2em;text-transform:uppercase;}
-.door-sub{font-size:.58rem;color:rgba(80,130,200,.22);letter-spacing:.06em;}
+/* 냉동칸 핸들 */
+.door-handle::after{
+  content:'';position:absolute;
+  left:0;top:-120px;
+  width:11px;height:52px;border-radius:6px;
+  background:linear-gradient(to right,#8fa8a0,#e8f2ef,#c0d4ce,#8fa8a0);
+  box-shadow:2px 0 6px rgba(0,0,0,.35),inset 1px 0 0 rgba(255,255,255,.4);
+}
+.door-emo{font-size:2rem;opacity:.45;position:absolute;top:9%;left:18px;}
+.door-brand{font-size:.68rem;font-weight:800;color:rgba(255,255,255,.5);letter-spacing:.22em;text-transform:uppercase;}
+.door-sub{font-size:.56rem;color:rgba(255,255,255,.32);letter-spacing:.07em;}
 .door-back{
   position:absolute;inset:0;
   transform:rotateY(180deg);
