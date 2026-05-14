@@ -287,28 +287,29 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .door-emo{font-size:2rem;opacity:.45;position:absolute;top:9%;left:18px;}
 .door-brand{font-size:.68rem;font-weight:800;color:rgba(255,255,255,.5);letter-spacing:.22em;text-transform:uppercase;}
 .door-sub{font-size:.56rem;color:rgba(255,255,255,.32);letter-spacing:.07em;}
-/* ── 문 열림 패널 ── */
-.fridge-open-panel{margin-top:10px;padding:0 4px;}
+/* ── 냉장고 캐러셀 ── */
+.fridge-carousel{position:relative;padding:0 28px;}
+.fridge-nav-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:30px;height:30px;border-radius:50%;
+  background:var(--surface2);border:1.5px solid var(--border);
+  color:var(--text);font-size:1.1rem;line-height:1;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;z-index:5;
+}
+.fridge-nav-arrow:active{background:rgba(74,222,128,.25);border-color:#4ade80;color:#4ade80;}
+.fridge-nav-prev{left:0;}
+.fridge-nav-next{right:0;}
 .fridge-close-btn{
   display:block;width:100%;border:none;border-radius:12px;
-  background:rgba(46,153,144,.18);backdrop-filter:blur(8px);
-  color:#4ade80;font-size:.78rem;font-weight:700;padding:10px 16px;cursor:pointer;
-  border:1px solid rgba(46,153,144,.35);transition:background .15s;
+  background:rgba(46,153,144,.12);
+  color:#4ade80;font-size:.76rem;font-weight:700;padding:9px 16px;cursor:pointer;
+  border:1px solid rgba(46,153,144,.3);transition:background .15s;margin-top:8px;
 }
-.fridge-close-btn:active{background:rgba(46,153,144,.32);}
-.fridge-inner-tabs{display:flex;gap:8px;margin:10px 0;}
-.fridge-inner-tab{
-  flex:1;padding:9px 10px;border-radius:12px;border:2px solid var(--border);
-  background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:700;
-  cursor:pointer;text-align:center;transition:all .15s;
-}
-.fridge-inner-tab.on{
-  border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,.1);
-  box-shadow:0 0 10px rgba(74,222,128,.18);
-}
-.fridge-tab-panel{padding:4px 0 8px;}
-.fridge-door-bins-lbl{font-size:.72rem;font-weight:800;color:#4ade80;letter-spacing:.06em;padding:4px 2px 10px;display:flex;align-items:center;gap:4px;}
-.fridge-door-bins-row{display:flex;gap:8px;}
+.fridge-close-btn:active{background:rgba(46,153,144,.28);}
+.fridge-page-dots{display:flex;gap:6px;justify-content:center;margin-top:10px;}
+.fridge-page-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:all .2s;}
+.fridge-page-dot.on{background:#4ade80;box-shadow:0 0 6px rgba(74,222,128,.5);}
 .door-bin{
   flex:1;
   background:linear-gradient(180deg,rgba(210,232,250,.35),rgba(190,220,245,.5));
@@ -1553,7 +1554,12 @@ function vHome() {
 
 /* ══ Fridge ══ */
 function vFridge() {
-  var da = S.door ? 'class="fridge-door open" style="transition:none"' : 'class="fridge-door"';
+  var sc = S.fridgeScale;
+  var shrink = sc < 1 ? Math.round(440 * (1 - sc)) : 0;
+  var wrapStyle = 'transform:scale('+sc+');transform-origin:top center;'+(shrink?'margin-bottom:-'+shrink+'px':'');
+  var isDoor = S.fridgeTab === 'door';
+
+  /* ── 냉장고 내부 선반 ── */
   var shelves = '';
   for (var r = 0; r < SHELVES.length; r++) {
     shelves += '<div class="fridge-shelf">';
@@ -1590,57 +1596,79 @@ function vFridge() {
     }
     shelves += '</div>';
   }
-  var empty = S.items.length === 0
-    ? '<div class="empty" onclick="ev()"><div class="ei">🛒</div><div class="et">냉장고가 비어있어요!<br><span class="link" onclick="go(\'add\')">+ 식재료 추가하기</span></div></div>'
-    : '';
-  var sc = S.fridgeScale;
-  var shrink = sc < 1 ? Math.round(440 * (1 - sc)) : 0;
-  var wrapStyle = 'transform:scale('+sc+');transform-origin:top center;'+(shrink?'margin-bottom:-'+shrink+'px':'');
-  var da = S.door ? 'class="fridge-door open" style="transition:none"' : 'class="fridge-door"';
-  var openPanel = '';
-  if (S.door) {
-    var isInterior = S.fridgeTab !== 'door';
-    var tabContent = isInterior
-      ? '<div class="fridge-tab-panel" style="color:var(--muted);font-size:.8rem;text-align:center;padding:14px 0">냉장고 내부를 확인하세요 ☝️</div>'
-      : '<div class="fridge-tab-panel">'
-        + '<div class="fridge-door-bins-lbl">🚪 문 수납칸</div>'
-        + '<div class="fridge-door-bins-row">'
-        + '<div class="door-bin door-bin-frozen" onclick="ev();openFrozenModal()">'+frozenBinHtml()+'</div>'
-        + '<div class="door-bin door-bin-egg" onclick="ev();openEggModal()">'+eggTrayHtml()+'</div>'
-        + '<div class="door-bin door-bin-sauce" onclick="ev();openSauceModal()">'+sauceBinHtml()+'</div>'
-        + '</div></div>';
-    openPanel = '<div class="fridge-open-panel">'
-      + '<button class="fridge-close-btn" onclick="ev();toggleDoor()">✕ 문 닫기</button>'
-      + '<div class="fridge-inner-tabs">'
-      + '<button class="fridge-inner-tab'+(isInterior?' on':'')+'" onclick="ev();setFridgeTab(\'interior\')">🧊 냉장고 내부</button>'
-      + '<button class="fridge-inner-tab'+(!isInterior?' on':'')+'" onclick="ev();setFridgeTab(\'door\')">🚪 문 수납</button>'
-      + '</div>'
-      + tabContent
-      + '</div>';
+
+  /* ── 문 수납 선반 (같은 cat-slot 스타일) ── */
+  function doorSlot(emo, lbl, cnt, urg, onclick) {
+    var s = '<div class="cat-slot'+(cnt===0?' empty':'')+'" onclick="ev();'+onclick+'">';
+    if (urg) s += '<span class="udot u-warn"></span>';
+    s += '<span class="cs-emo">'+emo+'</span><span class="cs-lbl">'+lbl+'</span>';
+    if (cnt > 0) s += '<div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:2px;width:100%"><span class="cs-cnt">'+cnt+'개</span></div>';
+    s += '</div>';
+    return s;
   }
-  return '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px">'
-    + '<button onclick="setFridgeScale(-0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>'
-    + '<span style="font-size:.72rem;color:var(--muted);min-width:38px;text-align:center">'+Math.round(sc*100)+'%</span>'
-    + '<button onclick="setFridgeScale(0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>'
+  var frozenCnt = S.frozen.length;
+  var sauceCnt  = S.sauces.length;
+  var eggCnt    = S.eggs;
+  var doorShelves = '<div class="fridge-shelf">'
+    + doorSlot('🥚','계란', eggCnt, false, 'openEggModal()')
+    + doorSlot('🫙','소스', sauceCnt, false, 'openSauceModal()')
     + '</div>'
-    + '<div class="fridge-wrap" style="'+wrapStyle+'">'
-    + '<div class="fridge-scene">'
-    + '<div class="fridge-body">'
-    + '<div class="fridge-led"></div>'
-    + '<div class="fridge-freeze"><span>❄️ </span><span class="freeze-lbl">냉동 / 냉장실</span></div>'
-    + shelves
-    + '</div>'
-    + '<div '+da+' onclick="ev();toggleDoor()">'
+    + '<div class="fridge-shelf">'
+    + doorSlot('🧊','얼린음식', frozenCnt, false, 'openFrozenModal()')
+    + '</div>';
+
+  var da = S.door ? 'class="fridge-door open" style="transition:none"' : 'class="fridge-door"';
+  var doorEl = isDoor ? '' : (
+    '<div '+da+' onclick="ev();toggleDoor()">'
     + '<div class="door-face">'
     + '<div class="door-handle"></div>'
     + '<div class="door-handle-freeze"></div>'
     + '<div class="door-emo">🧊</div>'
     + '<div class="door-brand">Freshness</div>'
     + '<div class="door-sub">유통기한 세이퍼</div>'
-    + '</div>'
-    + '</div>'
     + '</div></div>'
-    + openPanel
+  );
+  var freezeLbl = isDoor ? '🚪 문 수납칸' : '❄️ <span class="freeze-lbl">냉동 / 냉장실</span>';
+
+  var prevArrow = isDoor
+    ? '<button class="fridge-nav-arrow fridge-nav-prev" onclick="ev();setFridgeTab(\'interior\')">‹</button>'
+    : '';
+  var nextArrow = isDoor
+    ? ''
+    : '<button class="fridge-nav-arrow fridge-nav-next" onclick="ev();setFridgeTab(\'door\')">›</button>';
+
+  var closeBtn = (!isDoor && S.door)
+    ? '<button class="fridge-close-btn" onclick="ev();toggleDoor()">✕ 문 닫기</button>'
+    : '';
+
+  var dots = '<div class="fridge-page-dots">'
+    + '<div class="fridge-page-dot'+(isDoor?'':' on')+'"></div>'
+    + '<div class="fridge-page-dot'+(isDoor?' on':'')+'"></div>'
+    + '</div>';
+
+  var empty = (!isDoor && S.items.length === 0)
+    ? '<div class="empty" onclick="ev()"><div class="ei">🛒</div><div class="et">냉장고가 비어있어요!<br><span class="link" onclick="go(\'add\')">+ 식재료 추가하기</span></div></div>'
+    : '';
+
+  return '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px">'
+    + '<button onclick="setFridgeScale(-0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>'
+    + '<span style="font-size:.72rem;color:var(--muted);min-width:38px;text-align:center">'+Math.round(sc*100)+'%</span>'
+    + '<button onclick="setFridgeScale(0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>'
+    + '</div>'
+    + '<div class="fridge-carousel">'
+    + prevArrow + nextArrow
+    + '<div class="fridge-wrap" style="'+wrapStyle+'">'
+    + '<div class="fridge-scene">'
+    + '<div class="fridge-body">'
+    + '<div class="fridge-led"></div>'
+    + '<div class="fridge-freeze">'+freezeLbl+'</div>'
+    + (isDoor ? doorShelves : shelves)
+    + '</div>'
+    + doorEl
+    + '</div></div>'
+    + dots
+    + closeBtn
+    + '</div>'
     + empty;
 }
 function ev() { event && event.stopPropagation && event.stopPropagation(); }
