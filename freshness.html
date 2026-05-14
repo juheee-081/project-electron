@@ -317,25 +317,28 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .dash-bento{display:flex;flex-direction:column;gap:12px;padding:10px 20px 20px;}
 .dash-card{border-radius:24px;cursor:pointer;position:relative;overflow:hidden;transition:transform .14s;}
 .dash-card:active{transform:scale(.97);}
-.dash-card-inner{display:flex;align-items:flex-end;justify-content:space-between;padding:22px 20px;height:100%;}
-.dash-card-icon{font-size:2.8rem;line-height:1;position:absolute;top:18px;left:20px;}
+.dash-card-inner{display:flex;align-items:flex-end;justify-content:space-between;padding:18px 18px;height:100%;position:relative;z-index:1;}
+.dash-card-icon{position:absolute;bottom:-14px;right:-8px;font-size:6rem;line-height:1;
+  opacity:.18;pointer-events:none;z-index:0;user-select:none;}
 .dash-card-title{font-size:1.15rem;font-weight:900;color:#000;margin-bottom:2px;}
 .dash-card-sub{font-size:.74rem;color:rgba(0,0,0,.48);font-weight:500;}
-.dash-card-arr{font-size:1.5rem;color:rgba(0,0,0,.3);font-weight:700;line-height:1;flex-shrink:0;}
-.dc-fridge{background:#00E5FF;height:130px;}
-.dc-fridge .dash-card-title{font-size:1.35rem;}
-.dc-fridge .dash-card-icon{font-size:3.2rem;}
-.dash-bento-row{display:flex;gap:12px;height:210px;}
+.dash-card-arr{font-size:1.4rem;color:rgba(0,0,0,.28);font-weight:700;line-height:1;flex-shrink:0;}
+.dc-fridge{background:#00E5FF;height:120px;}
+.dc-fridge .dash-card-title{font-size:1.3rem;}
+.dc-fridge .dash-card-icon{font-size:7rem;bottom:-16px;right:-10px;}
+.dash-bento-row{display:flex;gap:12px;height:200px;}
 .dc-news{background:#FF2D7C;flex:1.15;}
 .dc-news .dash-card-title{color:#fff;}
-.dc-news .dash-card-sub{color:rgba(255,255,255,.65);}
-.dc-news .dash-card-arr{color:rgba(255,255,255,.45);}
+.dc-news .dash-card-sub{color:rgba(255,255,255,.6);}
+.dc-news .dash-card-arr{color:rgba(255,255,255,.35);}
+.dc-news .dash-card-icon{font-size:7rem;bottom:-16px;right:-10px;}
 .dash-bento-col{display:flex;flex-direction:column;gap:12px;flex:1;}
 .dc-receipt{background:#C8FF00;flex:1;}
-.dc-add{background:rgba(255,255,255,.07);border:2px dashed rgba(255,255,255,.2);flex:1;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
-.dc-add .dash-card-icon{position:static;font-size:1.6rem;}
-.dc-add .dash-card-title{font-size:.88rem;color:var(--muted);text-align:center;}
+.dc-receipt .dash-card-icon{font-size:4.5rem;bottom:-10px;right:-6px;}
+.dc-add{background:rgba(255,255,255,.07);border:2px dashed rgba(255,255,255,.18);flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.dc-add .dash-card-icon{position:static;font-size:1.5rem;opacity:.6;bottom:auto;right:auto;}
+.dc-add .dash-card-title{font-size:.85rem;color:var(--muted);text-align:center;font-weight:700;}
 .dash-back{background:none;border:none;color:var(--blue);font-size:.85rem;cursor:pointer;
   padding:10px 20px 4px;font-weight:700;display:flex;align-items:center;gap:4px;letter-spacing:.01em;}
 /* ── Stats ── */
@@ -1491,17 +1494,17 @@ function vHome() {
       + '<div class="dash-bento">'
       + '<div class="dash-card dc-fridge" onclick="setTab(\'fridge\')">'
       + '<span class="dash-card-icon">🧊</span>'
-      + '<div class="dash-card-inner"><div style="margin-top:52px"><div class="dash-card-title">냉장고</div><div class="dash-card-sub">식재료 '+S.items.length+'개 보관 중</div></div><span class="dash-card-arr">›</span></div>'
+      + '<div class="dash-card-inner"><div><div class="dash-card-title">냉장고</div><div class="dash-card-sub">식재료 '+S.items.length+'개 보관 중</div></div><span class="dash-card-arr">›</span></div>'
       + '</div>'
       + '<div class="dash-bento-row">'
       + '<div class="dash-card dc-news" onclick="go(\'news\')">'
       + '<span class="dash-card-icon">📰</span>'
-      + '<div class="dash-card-inner"><div style="margin-top:80px"><div class="dash-card-title">뉴스</div><div class="dash-card-sub">식품 안전 정보</div></div><span class="dash-card-arr" style="color:rgba(255,255,255,.4)">›</span></div>'
+      + '<div class="dash-card-inner"><div><div class="dash-card-title">뉴스</div><div class="dash-card-sub">식품 안전 정보</div></div><span class="dash-card-arr">›</span></div>'
       + '</div>'
       + '<div class="dash-bento-col">'
       + '<div class="dash-card dc-receipt" onclick="go(\'scan\')">'
-      + '<span class="dash-card-icon" style="font-size:1.8rem;top:14px;left:16px">🧾</span>'
-      + '<div class="dash-card-inner"><div style="margin-top:48px"><div class="dash-card-title" style="font-size:.95rem">영수증</div></div><span class="dash-card-arr" style="font-size:1.1rem">›</span></div>'
+      + '<span class="dash-card-icon">🧾</span>'
+      + '<div class="dash-card-inner"><div><div class="dash-card-title" style="font-size:.95rem">영수증</div></div><span class="dash-card-arr" style="font-size:1.1rem">›</span></div>'
       + '</div>'
       + '<div class="dash-card dc-add" onclick="go(\'add\')">'
       + '<span class="dash-card-icon">＋</span>'
