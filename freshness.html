@@ -819,6 +819,7 @@ var S = {
   bannerDismissed:false,
   fridgeScale:1.0,
   fridgeTab:'interior',
+  fridgeBodyHeight:0,
   cy:_n.getFullYear(), cm:_n.getMonth(),
   news:{tab:'all', loading:false, error:null, cache:{}, aiLoading:false, aiResult:null, aiError:null}
 };
@@ -902,7 +903,14 @@ function toggleDoor() {
   if (!S.door) S.fridgeTab = 'interior';
   render();
 }
-function setFridgeTab(t) { S.fridgeTab = t; render(); }
+function setFridgeTab(t) {
+  if (t === 'door') {
+    var el = document.querySelector('.fridge-body');
+    if (el) S.fridgeBodyHeight = el.offsetHeight;
+  }
+  S.fridgeTab = t;
+  render();
+}
 function openDoor() {
   if (openDoor._done) return;
   openDoor._done = true;
@@ -1652,7 +1660,7 @@ function vFridge() {
     + '</div>'
     + '<div class="fridge-wrap" style="'+wrapStyle+'">'
     + '<div class="fridge-scene">'
-    + '<div class="fridge-body">'
+    + '<div class="fridge-body"'+(isDoor && S.fridgeBodyHeight ? ' style="height:'+S.fridgeBodyHeight+'px"' : '')+'>'
     + '<div class="fridge-led"></div>'
     + '<div class="fridge-freeze">'+freezeLbl+'</div>'
     + (isDoor ? doorShelves : shelves)
