@@ -341,8 +341,6 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .sauce-btl-body{width:16px;height:34px;border-radius:3px 3px 5px 5px;box-shadow:inset 3px 0 0 rgba(255,255,255,.18),0 1px 4px rgba(0,0,0,.25);}
 .door-bin-frozen{cursor:pointer;transition:background .15s;}
 .door-bin-frozen:active{transform:scale(.97);}
-.fridge-door-shelf{display:flex;flex-direction:column;gap:8px;padding:8px 10px 12px;min-height:348px;}
-.fridge-door-shelf .door-bin{flex:1;}
 /* ── Dashboard ── */
 .dash-header{padding:24px 20px 4px;}
 .dash-greeting{font-size:1.6rem;font-weight:900;color:var(--text);margin-bottom:5px;letter-spacing:-.01em;}
@@ -1598,11 +1596,15 @@ function vFridge() {
     shelves += '</div>';
   }
 
-  /* ── 문 수납 (원래 door-bin 디자인 그대로) ── */
-  var doorShelves = '<div class="fridge-door-shelf">'
-    + '<div class="door-bin door-bin-frozen" onclick="ev();openFrozenModal()">'+frozenBinHtml()+'</div>'
-    + '<div class="door-bin door-bin-egg"    onclick="ev();openEggModal()">'+eggTrayHtml()+'</div>'
-    + '<div class="door-bin door-bin-sauce"  onclick="ev();openSauceModal()">'+sauceBinHtml()+'</div>'
+  /* ── 문 수납 (fridge-shelf 구조 그대로 — 내부와 동일 높이 보장) ── */
+  var doorShelves = '<div class="fridge-shelf">'
+    + '<div class="door-bin door-bin-frozen" style="flex:1;min-height:96px" onclick="ev();openFrozenModal()">'+frozenBinHtml()+'</div>'
+    + '</div>'
+    + '<div class="fridge-shelf">'
+    + '<div class="door-bin door-bin-egg" style="flex:1;min-height:96px" onclick="ev();openEggModal()">'+eggTrayHtml()+'</div>'
+    + '</div>'
+    + '<div class="fridge-shelf">'
+    + '<div class="door-bin door-bin-sauce" style="flex:1;min-height:96px" onclick="ev();openSauceModal()">'+sauceBinHtml()+'</div>'
     + '</div>';
 
   var da = S.door ? 'class="fridge-door open" style="transition:none"' : 'class="fridge-door"';
