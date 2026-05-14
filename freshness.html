@@ -313,23 +313,28 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .dp-all{background:rgba(135,206,235,.14);color:#87ceeb;}
 .dp-wrn{background:rgba(251,191,36,.14);color:#fbbf24;}
 .dp-exp{background:rgba(248,113,113,.14);color:#f87171;}
-.dash-cards{display:flex;flex-direction:column;gap:14px;padding:10px 20px 16px;}
-.dash-card{border-radius:24px;padding:26px 22px;cursor:pointer;
-  display:flex;align-items:center;gap:18px;position:relative;overflow:hidden;
-  transition:transform .14s;}
+.dash-bento{display:flex;flex-direction:column;gap:12px;padding:10px 20px 20px;}
+.dash-card{border-radius:24px;cursor:pointer;position:relative;overflow:hidden;transition:transform .14s;}
 .dash-card:active{transform:scale(.97);}
-.dash-card-icon{font-size:2.6rem;line-height:1;flex-shrink:0;}
-.dash-card-title{font-size:1.15rem;font-weight:900;color:#000;margin-bottom:4px;}
-.dash-card-sub{font-size:.78rem;color:rgba(0,0,0,.5);font-weight:500;}
-.dash-card-arr{position:absolute;right:22px;font-size:1.3rem;color:rgba(0,0,0,.35);font-weight:700;}
-.dc-fridge{background:#00E5FF;}
-.dc-news{background:#FF2D7C;}
-.dc-receipt{background:#C8FF00;}
-.dash-quick{display:flex;gap:10px;padding:0 20px 24px;}
-.dash-quick-btn{flex:1;padding:14px 10px;border-radius:18px;border:2px dashed rgba(255,255,255,.18);
-  background:rgba(255,255,255,.04);text-align:center;cursor:pointer;font-size:.82rem;
-  color:var(--muted);font-weight:700;transition:all .15s;}
-.dash-quick-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3);}
+.dash-card-inner{display:flex;align-items:flex-end;justify-content:space-between;padding:22px 20px;height:100%;}
+.dash-card-icon{font-size:2.8rem;line-height:1;position:absolute;top:18px;left:20px;}
+.dash-card-title{font-size:1.15rem;font-weight:900;color:#000;margin-bottom:2px;}
+.dash-card-sub{font-size:.74rem;color:rgba(0,0,0,.48);font-weight:500;}
+.dash-card-arr{font-size:1.5rem;color:rgba(0,0,0,.3);font-weight:700;line-height:1;flex-shrink:0;}
+.dc-fridge{background:#00E5FF;height:130px;}
+.dc-fridge .dash-card-title{font-size:1.35rem;}
+.dc-fridge .dash-card-icon{font-size:3.2rem;}
+.dash-bento-row{display:flex;gap:12px;height:210px;}
+.dc-news{background:#FF2D7C;flex:1.15;}
+.dc-news .dash-card-title{color:#fff;}
+.dc-news .dash-card-sub{color:rgba(255,255,255,.65);}
+.dc-news .dash-card-arr{color:rgba(255,255,255,.45);}
+.dash-bento-col{display:flex;flex-direction:column;gap:12px;flex:1;}
+.dc-receipt{background:#C8FF00;flex:1;}
+.dc-add{background:rgba(255,255,255,.07);border:2px dashed rgba(255,255,255,.2);flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+.dc-add .dash-card-icon{position:static;font-size:1.6rem;}
+.dc-add .dash-card-title{font-size:.88rem;color:var(--muted);text-align:center;}
 .dash-back{background:none;border:none;color:var(--blue);font-size:.85rem;cursor:pointer;
   padding:10px 20px 4px;font-weight:700;display:flex;align-items:center;gap:4px;letter-spacing:.01em;}
 /* ── Stats ── */
@@ -1482,27 +1487,26 @@ function vHome() {
       + '<span class="dash-pill dp-wrn">⚠️ 임박 '+wrn+'개</span>'
       + (exp ? '<span class="dash-pill dp-exp">🚨 만료 '+exp+'개</span>' : '')
       + '</div>'
-      + '<div class="dash-cards">'
+      + '<div class="dash-bento">'
       + '<div class="dash-card dc-fridge" onclick="setTab(\'fridge\')">'
       + '<span class="dash-card-icon">🧊</span>'
-      + '<div><div class="dash-card-title">냉장고</div><div class="dash-card-sub">식재료 '+S.items.length+'개 보관 중</div></div>'
-      + '<span class="dash-card-arr">›</span>'
+      + '<div class="dash-card-inner"><div style="margin-top:52px"><div class="dash-card-title">냉장고</div><div class="dash-card-sub">식재료 '+S.items.length+'개 보관 중</div></div><span class="dash-card-arr">›</span></div>'
       + '</div>'
+      + '<div class="dash-bento-row">'
       + '<div class="dash-card dc-news" onclick="go(\'news\')">'
       + '<span class="dash-card-icon">📰</span>'
-      + '<div><div class="dash-card-title">뉴스</div><div class="dash-card-sub">오늘의 식품 안전 정보</div></div>'
-      + '<span class="dash-card-arr">›</span>'
+      + '<div class="dash-card-inner"><div style="margin-top:80px"><div class="dash-card-title">뉴스</div><div class="dash-card-sub">식품 안전 정보</div></div><span class="dash-card-arr" style="color:rgba(255,255,255,.4)">›</span></div>'
       + '</div>'
+      + '<div class="dash-bento-col">'
       + '<div class="dash-card dc-receipt" onclick="go(\'scan\')">'
-      + '<span class="dash-card-icon">🧾</span>'
-      + '<div><div class="dash-card-title">영수증</div><div class="dash-card-sub">영수증 촬영으로 자동 추가</div></div>'
-      + '<span class="dash-card-arr">›</span>'
+      + '<span class="dash-card-icon" style="font-size:1.8rem;top:14px;left:16px">🧾</span>'
+      + '<div class="dash-card-inner"><div style="margin-top:48px"><div class="dash-card-title" style="font-size:.95rem">영수증</div></div><span class="dash-card-arr" style="font-size:1.1rem">›</span></div>'
+      + '</div>'
+      + '<div class="dash-card dc-add" onclick="go(\'add\')">'
+      + '<span class="dash-card-icon">＋</span>'
+      + '<div class="dash-card-title">식재료 추가</div>'
       + '</div>'
       + '</div>'
-      + '<div class="dash-quick">'
-      + '<div class="dash-quick-btn" onclick="go(\'add\')">＋ 식재료 추가</div>'
-      + '<div class="dash-quick-btn" onclick="setTab(\'list\')">📋 목록 보기</div>'
-      + '<div class="dash-quick-btn" onclick="setTab(\'cal\')">📅 캘린더</div>'
       + '</div>'
       + '</div>';
   }
