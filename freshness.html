@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0d0818;--surface:rgba(255,255,255,.06);--surface2:rgba(255,255,255,.11);--border:rgba(255,255,255,.1);
+  --bg:#080808;--surface:rgba(255,255,255,.06);--surface2:rgba(255,255,255,.11);--border:rgba(255,255,255,.1);
   --text:#ede8ff;--muted:#9d8ec0;
   --blue:#a78bfa;--green:#38bdf8;--yellow:#fbbf24;--orange:#f97316;--red:#f87171;
   --r:18px;--nh:68px;
@@ -307,6 +307,34 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .sauce-btl-body{width:16px;height:34px;border-radius:3px 3px 5px 5px;box-shadow:inset 3px 0 0 rgba(255,255,255,.18),0 1px 4px rgba(0,0,0,.25);}
 .door-bin-frozen{cursor:pointer;transition:background .15s;}
 .door-bin-frozen:active{transform:scale(.97);}
+/* ── Dashboard ── */
+.dash-header{padding:24px 20px 4px;}
+.dash-greeting{font-size:1.6rem;font-weight:900;color:var(--text);margin-bottom:5px;letter-spacing:-.01em;}
+.dash-date{font-size:.78rem;color:var(--muted);font-weight:500;}
+.dash-pills{display:flex;gap:7px;padding:14px 20px 6px;flex-wrap:wrap;}
+.dash-pill{padding:6px 14px;border-radius:20px;font-size:.74rem;font-weight:700;display:flex;align-items:center;gap:5px;}
+.dp-all{background:rgba(135,206,235,.14);color:#87ceeb;}
+.dp-wrn{background:rgba(251,191,36,.14);color:#fbbf24;}
+.dp-exp{background:rgba(248,113,113,.14);color:#f87171;}
+.dash-cards{display:flex;flex-direction:column;gap:14px;padding:10px 20px 16px;}
+.dash-card{border-radius:24px;padding:26px 22px;cursor:pointer;
+  display:flex;align-items:center;gap:18px;position:relative;overflow:hidden;
+  transition:transform .14s;}
+.dash-card:active{transform:scale(.97);}
+.dash-card-icon{font-size:2.6rem;line-height:1;flex-shrink:0;}
+.dash-card-title{font-size:1.15rem;font-weight:900;color:#000;margin-bottom:4px;}
+.dash-card-sub{font-size:.78rem;color:rgba(0,0,0,.5);font-weight:500;}
+.dash-card-arr{position:absolute;right:22px;font-size:1.3rem;color:rgba(0,0,0,.35);font-weight:700;}
+.dc-fridge{background:#00E5FF;}
+.dc-news{background:#FF2D7C;}
+.dc-receipt{background:#C8FF00;}
+.dash-quick{display:flex;gap:10px;padding:0 20px 24px;}
+.dash-quick-btn{flex:1;padding:14px 10px;border-radius:18px;border:2px dashed rgba(255,255,255,.18);
+  background:rgba(255,255,255,.04);text-align:center;cursor:pointer;font-size:.82rem;
+  color:var(--muted);font-weight:700;transition:all .15s;}
+.dash-quick-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3);}
+.dash-back{background:none;border:none;color:var(--blue);font-size:.85rem;cursor:pointer;
+  padding:10px 20px 4px;font-weight:700;display:flex;align-items:center;gap:4px;letter-spacing:.01em;}
 /* ── Stats ── */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;}
 .stat{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
@@ -679,7 +707,7 @@ body.light .mascot-bubble::after{border-bottom-color:#f5faff;}
 <main id="main"></main>
 
 <nav class="bnav">
-  <button class="nb on" id="nb-home"     onclick="go('home')">    <span class="ni">&#x1F9CA;</span>냉장고</button>
+  <button class="nb on" id="nb-home"     onclick="go('home')">    <span class="ni">&#x1F3E0;</span>홈</button>
   <button class="nb"    id="nb-add"      onclick="go('add')">     <span class="ni">&#x2795;</span>추가</button>
   <button class="nb"    id="nb-scan"     onclick="go('scan')">    <span class="ni">&#x1F4F7;</span>영수증</button>
   <button class="nb"    id="nb-news"     onclick="go('news')">    <span class="ni">&#x1F4F0;</span>뉴스</button>
@@ -737,7 +765,7 @@ var BANNER_TEMPLATES = [
 
 var _n = new Date();
 var S = {
-  view:'home', tab:'fridge', filter:'all',
+  view:'home', tab:'dashboard', filter:'all',
   items:[], cfg:{notifyDays:3, notifOn:false},
   editId:null, form:null,
   scan:{img:null, items:[], loading:false},
@@ -1326,6 +1354,7 @@ function fbErr(code) {
 function go(v) {
   if (v === 'add' && !S.editId) S.form = emptyForm();
   if (v !== 'add') S.editId = null;
+  if (v === 'home') S.tab = 'dashboard';
   S.view = v;
   document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('on'); });
   var nb = document.getElementById('nb-'+v);
@@ -1441,14 +1470,50 @@ function renderBanner() {
 function vHome() {
   var exp = S.items.filter(function(i){ return dLeft(i.exp) < 0; }).length;
   var wrn = S.items.filter(function(i){ var d=dLeft(i.exp); return d>=0 && d<=S.cfg.notifyDays; }).length;
+  var t = new Date();
+  var dateStr = t.getFullYear()+'년 '+(t.getMonth()+1)+'월 '+t.getDate()+'일 '+['일','월','화','수','목','금','토'][t.getDay()]+'요일';
+
+  if (!S.tab || S.tab === 'dashboard') {
+    return '<div class="view">'
+      + renderBanner()
+      + '<div class="dash-header">'
+      + '<div class="dash-greeting">안녕하세요 👋</div>'
+      + '<div class="dash-date">'+dateStr+'</div>'
+      + '</div>'
+      + '<div class="dash-pills">'
+      + '<span class="dash-pill dp-all">🧊 전체 '+S.items.length+'개</span>'
+      + '<span class="dash-pill dp-wrn">⚠️ 임박 '+wrn+'개</span>'
+      + (exp ? '<span class="dash-pill dp-exp">🚨 만료 '+exp+'개</span>' : '')
+      + '</div>'
+      + '<div class="dash-cards">'
+      + '<div class="dash-card dc-fridge" onclick="setTab(\'fridge\')">'
+      + '<span class="dash-card-icon">🧊</span>'
+      + '<div><div class="dash-card-title">냉장고</div><div class="dash-card-sub">식재료 '+S.items.length+'개 보관 중</div></div>'
+      + '<span class="dash-card-arr">›</span>'
+      + '</div>'
+      + '<div class="dash-card dc-news" onclick="go(\'news\')">'
+      + '<span class="dash-card-icon">📰</span>'
+      + '<div><div class="dash-card-title">뉴스</div><div class="dash-card-sub">오늘의 식품 안전 정보</div></div>'
+      + '<span class="dash-card-arr">›</span>'
+      + '</div>'
+      + '<div class="dash-card dc-receipt" onclick="go(\'scan\')">'
+      + '<span class="dash-card-icon">🧾</span>'
+      + '<div><div class="dash-card-title">영수증</div><div class="dash-card-sub">영수증 촬영으로 자동 추가</div></div>'
+      + '<span class="dash-card-arr">›</span>'
+      + '</div>'
+      + '</div>'
+      + '<div class="dash-quick">'
+      + '<div class="dash-quick-btn" onclick="go(\'add\')">＋ 식재료 추가</div>'
+      + '<div class="dash-quick-btn" onclick="setTab(\'list\')">📋 목록 보기</div>'
+      + '<div class="dash-quick-btn" onclick="setTab(\'cal\')">📅 캘린더</div>'
+      + '</div>'
+      + '</div>';
+  }
+
   var body = S.tab==='fridge' ? vFridge() : S.tab==='list' ? vList() : vCal();
   return '<div class="view">'
     + renderBanner()
-    + '<div class="stats">'
-    + '<div class="stat"><div class="stat-n" style="color:#87ceeb">'+S.items.length+'</div><div class="stat-l">전체</div></div>'
-    + '<div class="stat"><div class="stat-n" style="color:var(--yellow)">'+wrn+'</div><div class="stat-l">임박</div></div>'
-    + '<div class="stat"><div class="stat-n" style="color:var(--red)">'+exp+'</div><div class="stat-l">만료됨</div></div>'
-    + '</div>'
+    + '<button class="dash-back" onclick="setTab(\'dashboard\')">← 홈으로</button>'
     + '<div class="vtabs">'
     + '<button class="vtab '+(S.tab==='fridge'?'on':'')+'" onclick="setTab(\'fridge\')">🧊 냉장고</button>'
     + '<button class="vtab '+(S.tab==='list'?'on':'')+'" onclick="setTab(\'list\')">📋 목록</button>'
