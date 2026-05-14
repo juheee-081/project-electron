@@ -188,6 +188,7 @@ body.light .ai-fridge-tip{color:#16a34a;background:rgba(22,163,74,.06);border-co
   border:2px solid #87ceeb;
   min-height:380px;
   overflow:hidden;
+  display:flex;flex-direction:column;
   box-shadow:0 8px 32px rgba(135,206,235,.3),0 0 0 4px rgba(135,206,235,.15),inset 0 1px 0 rgba(255,255,255,.9);
 }
 .fridge-led{height:4px;background:linear-gradient(90deg,transparent,rgba(100,180,255,.5),rgba(150,210,255,.9),rgba(100,180,255,.5),transparent);}
@@ -301,12 +302,11 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .fridge-nav-prev{left:0;}
 .fridge-nav-next{right:0;}
 .fridge-close-btn{
-  display:block;width:100%;border:none;border-radius:12px;
-  background:rgba(46,153,144,.12);
-  color:#4ade80;font-size:.76rem;font-weight:700;padding:9px 16px;cursor:pointer;
-  border:1px solid rgba(46,153,144,.3);transition:background .15s;margin-top:8px;
+  height:30px;padding:0 12px;border:1.5px solid rgba(46,153,144,.45);border-radius:8px;
+  background:rgba(46,153,144,.12);color:#4ade80;font-size:.72rem;font-weight:700;
+  cursor:pointer;white-space:nowrap;transition:background .15s;
 }
-.fridge-close-btn:active{background:rgba(46,153,144,.28);}
+.fridge-close-btn:active{background:rgba(46,153,144,.3);}
 .fridge-page-dots{display:flex;gap:6px;justify-content:center;margin-top:10px;}
 .fridge-page-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:all .2s;}
 .fridge-page-dot.on{background:#4ade80;box-shadow:0 0 6px rgba(74,222,128,.5);}
@@ -342,7 +342,7 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .sauce-btl-body{width:16px;height:34px;border-radius:3px 3px 5px 5px;box-shadow:inset 3px 0 0 rgba(255,255,255,.18),0 1px 4px rgba(0,0,0,.25);}
 .door-bin-frozen{cursor:pointer;transition:background .15s;}
 .door-bin-frozen:active{transform:scale(.97);}
-.fridge-door-shelf{display:flex;flex-direction:column;gap:8px;padding:8px 10px 12px;flex:1;}
+.fridge-door-shelf{display:flex;flex-direction:column;gap:8px;padding:8px 10px 12px;flex:1;min-height:0;}
 .fridge-door-shelf .door-bin{flex:1;min-height:80px;}
 /* ── Dashboard ── */
 .dash-header{padding:24px 20px 4px;}
@@ -1626,8 +1626,8 @@ function vFridge() {
     ? ''
     : '<button class="fridge-nav-arrow fridge-nav-next" onclick="ev();setFridgeTab(\'door\')">›</button>';
 
-  var closeBtn = (!isDoor && S.door)
-    ? '<button class="fridge-close-btn" onclick="ev();toggleDoor()">✕ 문 닫기</button>'
+  var closeBtnEl = (!isDoor && S.door)
+    ? '<button class="fridge-close-btn" onclick="ev();toggleDoor()">✕ 닫기</button>'
     : '';
 
   var dots = '<div class="fridge-page-dots">'
@@ -1639,10 +1639,11 @@ function vFridge() {
     ? '<div class="empty" onclick="ev()"><div class="ei">🛒</div><div class="et">냉장고가 비어있어요!<br><span class="link" onclick="go(\'add\')">+ 식재료 추가하기</span></div></div>'
     : '';
 
-  return '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px">'
+  return '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">'
     + '<button onclick="setFridgeScale(-0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>'
     + '<span style="font-size:.72rem;color:var(--muted);min-width:38px;text-align:center">'+Math.round(sc*100)+'%</span>'
     + '<button onclick="setFridgeScale(0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>'
+    + closeBtnEl
     + '</div>'
     + '<div class="fridge-carousel">'
     + prevArrow + nextArrow
@@ -1656,7 +1657,6 @@ function vFridge() {
     + doorEl
     + '</div></div>'
     + dots
-    + closeBtn
     + '</div>'
     + empty;
 }
@@ -2647,7 +2647,7 @@ function dismissLanding() {
 }
 setTimeout(dismissLanding, 3000);
 setInterval(checkExp, 30*60*1000);
-requestAnimationFrame(function(){ requestAnimationFrame(openDoor); });
+/* door no longer auto-opens */
 setTimeout(function(){ fetchNews(); }, 2000);
 </script>
 </body>
