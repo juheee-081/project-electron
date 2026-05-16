@@ -2403,7 +2403,7 @@ function parseReceipt(txt) {
       .replace(/\s{2,}/g, ' ')
       .trim();
     name = name.replace(/^[A-Z0-9\-_]{4,}\s*/, '').trim();
-    if (name.length >= 2 && (name.match(/[가-힣]/g)||[]).length >= 1) {
+    if (name.length >= 2 && (name.match(/[가-힣]/g)||[]).length >= 1 && price) {
       items.push({name: name, qty: qty, price: price, cat: guessReceiptCat(name)});
     }
   }
