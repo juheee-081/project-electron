@@ -1641,13 +1641,17 @@ function vFridge() {
     ? '<div class="empty" onclick="ev()"><div class="ei">🛒</div><div class="et">냉장고가 비어있어요!<br><span class="link" onclick="go(\'add\')">+ 식재료 추가하기</span></div></div>'
     : '';
 
-  var leftArrow = isDoor
-    ? '<button class="fridge-nav-arrow" onclick="ev();setFridgeTab(\'interior\')">‹</button>'
-    : '<button class="fridge-nav-arrow hidden">‹</button>';
-  var rightArrow = isDoor
-    ? '<button class="fridge-nav-arrow hidden">›</button>'
-    : '<button class="fridge-nav-arrow" onclick="ev();setFridgeTab(\'door\')">›</button>';
-  var dotsRow = '<div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 0 0">'+dots+'</div>';
+  var navRow = '<div class="fridge-nav-row">'
+    + (isDoor
+        ? '<button class="fridge-nav-arrow" onclick="ev();setFridgeTab(\'interior\')">‹</button>'
+        : '<button class="fridge-nav-arrow hidden">‹</button>')
+    + '<div style="display:flex;align-items:center;gap:6px">'
+    + dots
+    + '</div>'
+    + (isDoor
+        ? '<button class="fridge-nav-arrow hidden">›</button>'
+        : '<button class="fridge-nav-arrow" onclick="ev();setFridgeTab(\'door\')">›</button>')
+    + '</div>';
 
   return '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">'
     + '<button onclick="setFridgeScale(-0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>'
@@ -1655,8 +1659,6 @@ function vFridge() {
     + '<button onclick="setFridgeScale(0.1)" style="width:30px;height:30px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>'
     + closeBtnEl
     + '</div>'
-    + '<div style="display:flex;align-items:center;justify-content:center;gap:6px">'
-    + leftArrow
     + '<div class="fridge-wrap" style="'+wrapStyle+'">'
     + '<div class="fridge-scene">'
     + '<div class="fridge-body"'+(isDoor && S.fridgeBodyHeight ? ' style="height:'+S.fridgeBodyHeight+'px"' : '')+'>'
@@ -1666,9 +1668,7 @@ function vFridge() {
     + '</div>'
     + doorEl
     + '</div></div>'
-    + rightArrow
-    + '</div>'
-    + dotsRow
+    + navRow
     + empty;
 }
 function ev() { event && event.stopPropagation && event.stopPropagation(); }
