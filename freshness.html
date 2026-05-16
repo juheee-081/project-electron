@@ -2338,11 +2338,12 @@ function onRecFile(input) {
 }
 function clearScan() { S.scan={img:null,items:[],loading:false}; render(); }
 async function parseReceiptAI(txt) {
-  var prompt = '다음은 한국 마트 영수증 OCR 텍스트야.\n'
-    + '식재료(음식 재료, 식품)만 골라서 아래 JSON 배열로 반환해줘.\n'
-    + '가격이 있는 항목만 포함하고, 합계/부가세/카드/포인트/가맹점명/주소/전화번호/날짜 등 식재료가 아닌 것은 절대 포함하지 마.\n'
-    + '반드시 JSON 배열만 반환해. 설명 텍스트 없이.\n'
-    + '형식: [{"name":"상품명","price":"숫자만","qty":""},...]\n\n'
+  var prompt = '다음은 한국 마트/슈퍼 영수증 OCR 텍스트야.\n'
+    + '구매한 상품 중 먹을 수 있는 것(식품, 음료, 과자, 가공식품, 신선식품, 반찬 등 식품류)을 모두 골라줘.\n'
+    + '제외할 것: 합계, 소계, 부가세, 카드, 현금, 할인, 포인트, 적립, 가맹점명, 주소, 전화번호, 날짜, 시간, 영수증번호, 비식품(생활용품/화장품 등).\n'
+    + '가격이 없는 항목도 상품명이 명확하면 포함해도 돼.\n'
+    + '반드시 JSON 배열만 반환해. 설명 없이.\n'
+    + '형식: [{"name":"상품명","price":"숫자만(없으면 빈문자열)","qty":""},...]\n\n'
     + '영수증:\n' + txt;
   var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method:'POST',
