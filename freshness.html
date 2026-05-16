@@ -2230,34 +2230,74 @@ async function analyzeReceipt() {
   S.scan.loading=false; render();
 }
 function parseReceipt(txt) {
-  var SKIP=['합계','소계','부가세','vat','카드','현금','거스름','영수증','가맹점','사업자','전화','주소','tel','승인','할인','포인트','적립','잔액','결제','매출','점포','면세','과세','봉사료','총액','수량','단가','금액','이용','고객','점장','날짜','시간','번호','receipt','store','total','cash'];
-  var lines=txt.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return !!l; });
-  var items=[];
-  for (var i=0;i<lines.length;i++) {
-    var line=lines[i], low=line.toLowerCase(), skip=false;
-    for (var j=0;j<SKIP.length;j++) { if(low.indexOf(SKIP[j])>=0){skip=true;break;} }
+  var SKIP = [
+    '합계','소계','부가세','vat','현금','거스름','할인','포인트','적립','잔액','결제','매출',
+    '면세','과세','봉사료','총액','단가','금액','공급가','세액','영수','합산',
+    '카드','승인','할부','무이자','일시불','신용','체크','앱카드',
+    '가맹점','사업자','전화','주소','tel','fax','점포','점장','대표','등록','상호',
+    '날짜','시간','번호','영업시간',
+    'receipt','store','total','cash','change','subtotal','tax','item','qty','price',
+    '이용','고객','안내','감사','문의','교환','환불','반품','쿠폰','상품권','마일리지',
+    '수량','품목','바코드','서비스','사은품','주차','회원'
+  ];
+  var lines = txt.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return !!l; });
+  var items = [];
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i], low = line.toLowerCase(), skip = false;
+    for (var j = 0; j < SKIP.length; j++) { if (low.indexOf(SKIP[j]) >= 0) { skip = true; break; } }
     if (skip) continue;
-    var kor=(line.match(/[가-힣]/g)||[]).length;
-    if (kor<1||line.length>60) continue;
-    var qm=line.match(/(\d+)\s*(개|팩|봉|병|캔|g|kg|ml|l|묶음|ea)/i);
-    var qty=qm?qm[1]+qm[2]:'';
-    var price='';
-    var pm=line.match(/([\d,]{3,})\s*원?\s*$/);
+    if (/\d{2,3}[-\s]\d{3,4}[-\s]\d{4}/.test(line)) continue;
+    if (/^[\d\s,.\-*=_\/\\|]+$/.test(line)) continue;
+    if (/^[-=*_~#]{2,}/.test(line)) continue;
+    var kor = (line.match(/[가-힣]/g) || []).length;
+    if (kor < 2 || line.length > 60) continue;
+    var nonSpace = line.replace(/\s/g, '').length;
+    if (nonSpace > 0 && kor / nonSpace < 0.15) continue;
+    var qm = line.match(/(\d+(?:\.\d+)?)\s*(개|팩|봉|병|캔|g|kg|ml|L|묶음|ea|입|장|통)/i);
+    var qty = qm ? qm[1] + qm[2] : '';
+    var price = '';
+    var pm = line.match(/([\d,]{3,})\s*원?\s*$/);
     if (pm) {
-      price=pm[1].replace(/,/g,'');
+      var p = parseInt(pm[1].replace(/,/g, ''));
+      if (p >= 100 && p <= 2000000) price = String(p);
     } else {
-      for (var j2=i+1;j2<=Math.min(i+2,lines.length-1);j2++) {
-        var next=lines[j2];
-        if ((next.match(/[가-힣]/g)||[]).length>=1) break;
-        var nums=(next.match(/([\d,]{3,})/g)||[]).map(function(p){ return parseInt(p.replace(/,/g,'')); });
-        if (nums.length) { price=String(Math.max.apply(null,nums)); break; }
+      for (var j2 = i+1; j2 <= Math.min(i+2, lines.length-1); j2++) {
+        var next = lines[j2];
+        if ((next.match(/[가-힣]/g) || []).length >= 1) break;
+        var nums = (next.match(/([\d,]{3,})/g) || []).map(function(p){ return parseInt(p.replace(/,/g,'')); });
+        if (nums.length) { var mx = Math.max.apply(null,nums); if (mx>=100&&mx<=2000000) price=String(mx); break; }
       }
     }
-    var name=line.replace(/[\d,]+\s*원?\s*$/,'').replace(/^\s*[\d,]+\s*/,'').replace(/\s{2,}/g,' ').trim();
-    name=name.replace(/^[A-Z0-9\-_]{4,}\s*/,'').trim();
-    if (name.length>=2) items.push({name:name, qty:qty, price:price, cat:'기타'});
+    var name = line
+      .replace(/[\d,]+\s*원?\s*$/, '')
+      .replace(/^\s*[\d,]+\s*/, '')
+      .replace(/\([^)]*\)/g, '')
+      .replace(/[*★☆◆■□▲△@#]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+    name = name.replace(/^[A-Z0-9\-_]{4,}\s*/, '').trim();
+    if (name.length >= 2 && (name.match(/[가-힣]/g)||[]).length >= 1) {
+      items.push({name: name, qty: qty, price: price, cat: guessReceiptCat(name)});
+    }
   }
   return items;
+}
+function guessReceiptCat(name) {
+  var rules = [
+    {cat:'육류/수산', words:['소고기','돼지','닭','오리','삼겹','목살','갈비','안심','등심','베이컨','햄','소시지','런천','생선','고등어','연어','새우','오징어','낙지','문어','꽃게','참치','멸치','갈치','명태','어묵','황태','북어','조개','굴']},
+    {cat:'채소/과일', words:['배추','무','당근','대파','양파','마늘','시금치','상추','깻잎','고추','감자','고구마','브로콜리','양배추','오이','호박','가지','버섯','토마토','옥수수','콩나물','숙주','두부','사과','배','귤','오렌지','포도','딸기','수박','멜론','복숭아','바나나','망고','키위','레몬']},
+    {cat:'유제품', words:['우유','치즈','요거트','요구르트','버터','크림','두유','계란','달걀']},
+    {cat:'음료', words:['물','주스','음료','커피','녹차','홍차','콜라','사이다','맥주','소주','막걸리','와인','이온음료','탄산']},
+    {cat:'조미료', words:['소금','설탕','간장','된장','고추장','식초','참기름','들기름','올리브유','후추','마요네즈','케첩','국간장','미림','굴소스']},
+    {cat:'냉동식품', words:['냉동','만두','피자','돈까스','너겟','탕수육','어묵볼','핫도그','냉동밥']},
+    {cat:'가공식품', words:['라면','햇반','즉석','통조림','스팸','김','과자','빵','떡','국수','파스타','시리얼','잼']},
+  ];
+  for (var i = 0; i < rules.length; i++) {
+    for (var j = 0; j < rules[i].words.length; j++) {
+      if (name.indexOf(rules[i].words[j]) >= 0) return rules[i].cat;
+    }
+  }
+  return '기타';
 }
 function toggleRI(i,v) { if(S.scan.items[i]) S.scan.items[i].sel=v; }
 function editRI(i,k,v) { if(S.scan.items[i]) S.scan.items[i][k]=v; }
