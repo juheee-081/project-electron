@@ -350,25 +350,25 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .dp-wrn{background:rgba(251,191,36,.14);color:#fbbf24;}
 .dp-exp{background:rgba(248,113,113,.14);color:#f87171;}
 .dash-bento{display:flex;flex-direction:column;gap:12px;padding:10px 20px 20px;}
-.dash-card{border-radius:24px;cursor:pointer;position:relative;overflow:hidden;transition:transform .14s;}
-.dash-card:active{transform:scale(.97);}
+.dash-card{border-radius:24px;cursor:pointer;position:relative;overflow:hidden;transition:transform .12s,box-shadow .12s;}
+.dash-card:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.18),0 2px 8px rgba(0,0,0,.15) !important;}
 .dash-card-inner{display:flex;align-items:flex-end;justify-content:space-between;padding:18px 18px;height:100%;position:relative;z-index:1;}
 .dash-card-icon{position:absolute;bottom:-14px;right:-8px;font-size:6rem;line-height:1;
   opacity:.18;pointer-events:none;z-index:0;user-select:none;}
 .dash-card-title{font-size:1.15rem;font-weight:900;color:#000;margin-bottom:2px;}
 .dash-card-sub{font-size:.74rem;color:rgba(0,0,0,.48);font-weight:500;}
 .dash-card-arr{font-size:1.4rem;color:rgba(0,0,0,.28);font-weight:700;line-height:1;flex-shrink:0;}
-.dc-fridge{background:#00C896;height:120px;}
+.dc-fridge{background:#00C896;height:120px;box-shadow:0 5px 0 #007a5c,0 8px 18px rgba(0,180,130,.35);}
 .dc-fridge .dash-card-title{font-size:1.3rem;}
 .dc-fridge .dash-card-icon{font-size:7rem;bottom:-16px;right:-10px;}
 .dash-bento-row{display:flex;gap:12px;height:200px;}
-.dc-news{background:#1DE9B6;flex:1.15;}
+.dc-news{background:#1DE9B6;flex:1.15;box-shadow:0 5px 0 #0fa07a,0 8px 18px rgba(29,233,182,.35);}
 .dc-news .dash-card-title{color:#fff;}
 .dc-news .dash-card-sub{color:rgba(255,255,255,.6);}
 .dc-news .dash-card-arr{color:rgba(255,255,255,.35);}
 .dc-news .dash-card-icon{font-size:7rem;bottom:-16px;right:-10px;}
 .dash-bento-col{display:flex;flex-direction:column;gap:12px;flex:1;}
-.dc-receipt{background:#29B6F6;flex:1;}
+.dc-receipt{background:#29B6F6;flex:1;box-shadow:0 5px 0 #1a7ab0,0 8px 18px rgba(41,182,246,.35);}
 .dc-receipt .dash-card-icon{font-size:4.5rem;bottom:-10px;right:-6px;}
 .dc-add{background:rgba(255,255,255,.07);border:2px dashed rgba(255,255,255,.18);flex:1;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
