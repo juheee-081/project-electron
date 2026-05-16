@@ -2337,12 +2337,44 @@ function onRecFile(input) {
   rd.readAsDataURL(file); input.value='';
 }
 function clearScan() { S.scan={img:null,items:[],loading:false}; render(); }
+async function parseReceiptAI(txt) {
+  var prompt = '다음은 한국 마트 영수증 OCR 텍스트야.\n'
+    + '식재료(음식 재료, 식품)만 골라서 아래 JSON 배열로 반환해줘.\n'
+    + '가격이 있는 항목만 포함하고, 합계/부가세/카드/포인트/가맹점명/주소/전화번호/날짜 등 식재료가 아닌 것은 절대 포함하지 마.\n'
+    + '반드시 JSON 배열만 반환해. 설명 텍스트 없이.\n'
+    + '형식: [{"name":"상품명","price":"숫자만","qty":""},...]\n\n'
+    + '영수증:\n' + txt;
+  var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
+    body:JSON.stringify({
+      model:'llama-3.3-70b-versatile',
+      messages:[{role:'user',content:prompt}],
+      temperature:0.1,
+      max_tokens:1024
+    })
+  });
+  if (!res.ok) throw new Error('AI 분석 실패');
+  var data = await res.json();
+  var content = data.choices[0].message.content.trim();
+  var match = content.match(/\[[\s\S]*\]/);
+  if (!match) return [];
+  var arr = JSON.parse(match[0]);
+  return arr.map(function(it) {
+    return {
+      name: (it.name||'').trim(),
+      price: String(it.price||'').replace(/[^0-9]/g,''),
+      qty: it.qty||'',
+      cat: guessReceiptCat(it.name||'')
+    };
+  }).filter(function(it){ return it.name.length >= 2; });
+}
 async function analyzeReceipt() {
   S.scan.loading=true; render();
   try {
     var txt=await gVision(S.scan.img);
     S.scan._rawTxt = txt;
-    var parsed=parseReceipt(txt);
+    var parsed = await parseReceiptAI(txt);
     S.scan.items=parsed.map(function(i){ return Object.assign({},i,{sel:true}); });
     if(!S.scan.items.length) {
       showModal('<div class="mhandle"></div>'
