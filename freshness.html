@@ -166,12 +166,13 @@ body.light .ai-fridge-tip{color:#16a34a;background:rgba(22,163,74,.06);border-co
 .news-section{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 8px;}
 .nb{flex:1;border:none;background:transparent;color:var(--muted);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;font-size:.7rem;transition:color .15s,filter .15s;cursor:pointer;font-weight:600;}
+  gap:4px;font-size:.7rem;transition:color .15s,filter .15s,box-shadow .15s,background .15s;cursor:pointer;font-weight:600;border-radius:12px;}
+.nb:hover{background:rgba(255,255,255,0.07);box-shadow:0 0 0 1.5px rgba(255,255,255,0.18);}
 .nb .ni{font-size:1.45rem;}
-#nb-home.on{color:#00E5FF;filter:drop-shadow(0 0 6px rgba(0,229,255,.55));}
+#nb-home.on{color:#00E676;filter:drop-shadow(0 0 6px rgba(0,230,118,.6));}
 #nb-add.on{color:#C8FF00;filter:drop-shadow(0 0 6px rgba(200,255,0,.55));}
-#nb-scan.on{color:#C8FF00;filter:drop-shadow(0 0 6px rgba(200,255,0,.55));}
-#nb-news.on{color:#FF2D7C;filter:drop-shadow(0 0 6px rgba(255,45,124,.55));}
+#nb-scan.on{color:#29B6F6;filter:drop-shadow(0 0 6px rgba(41,182,246,.6));}
+#nb-news.on{color:#1DE9B6;filter:drop-shadow(0 0 6px rgba(29,233,182,.6));}
 #nb-settings.on{color:#b77fff;filter:drop-shadow(0 0 6px rgba(183,127,255,.55));}
 
 /* ── Fridge scene ── */
