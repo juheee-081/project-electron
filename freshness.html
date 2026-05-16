@@ -1694,7 +1694,7 @@ function vFridge() {
       var urg = catUrg(cid);
       var uc  = urg ? urg.replace('c-','u-') : '';
       shelves += '<div class="cat-slot'+(cnt===0?' empty':'')+'" style="cursor:pointer"'
-        + ' onclick="ev();'+(cnt ? 'openCat(\''+cid+'\')' : 'quickAddCat(\''+cid+'\'')+')' + '">';
+        + ' onclick="ev();'+(cnt ? 'openCat(\''+cid+'\')' : 'quickAddCat(\''+cid+'\')')+'">';
       if (urg) shelves += '<span class="udot '+uc+'"></span>';
       shelves += '<span class="cs-emo">'+cat.e+'</span>';
       shelves += '<span class="cs-lbl">'+cat.l+'</span>';
