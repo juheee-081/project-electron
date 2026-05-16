@@ -817,6 +817,7 @@ var S = {
   sauces:[],
   auth:{loggedIn:false, uid:null, name:null, avatar:null},
   frozen:[],
+  banchan:[],
   bannerDismissed:false,
   fridgeScale:1.0,
   fridgeTab:'interior',
@@ -855,6 +856,7 @@ function load() {
   try { var eg = parseInt(ls('eggs') || '6', 10); S.eggs = isNaN(eg) ? 6 : eg; } catch(e) {}
   try { var sc = JSON.parse(ls('sauces3') || 'null'); S.sauces = Array.isArray(sc) ? sc : []; } catch(e) { S.sauces = []; }
   try { S.frozen = JSON.parse(ls('frozen') || '[]'); } catch(e) { S.frozen = []; }
+  try { S.banchan = JSON.parse(ls('banchan') || '[]'); } catch(e) { S.banchan = []; }
   try { S.receipts = JSON.parse(ls('receipts') || '[]'); } catch(e) { S.receipts = []; }
   try { var fs = parseFloat(ls('fridgeScale') || '1'); S.fridgeScale = isNaN(fs) ? 1 : Math.max(0.4, Math.min(1.3, fs)); } catch(e) { S.fridgeScale = 1; }
 }
@@ -1180,6 +1182,102 @@ function saveFrozenItem() {
   saveF(); render(); closeModal(); openFrozenModal();
 }
 
+/* ══ 반찬 ══ */
+var BANCHAN_CATS = [
+  {id:'김치류',   e:'🥬'},
+  {id:'나물/무침', e:'🌿'},
+  {id:'볶음',     e:'🍳'},
+  {id:'찌개/국',  e:'🍲'},
+  {id:'구이/조림', e:'🍖'},
+  {id:'기타',     e:'📦'}
+];
+function saveB() { lset('banchan', JSON.stringify(S.banchan)); cloudSave(); }
+function banchanEmoji(catId) {
+  for (var i = 0; i < BANCHAN_CATS.length; i++) { if (BANCHAN_CATS[i].id === catId) return BANCHAN_CATS[i].e; }
+  return '🍱';
+}
+function banchanBinHtml() {
+  var cnt = S.banchan.length;
+  var icons = '';
+  var show = Math.min(cnt, 6);
+  for (var i = 0; i < show; i++) icons += '<span style="font-size:1.3rem;line-height:1">'+banchanEmoji(S.banchan[i].cat)+'</span>';
+  return '<div class="etd-wrap">'
+    + '<div class="etd-lbl">반찬 &middot; '+cnt+'개</div>'
+    + '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:3px;padding:2px">'
+    + (icons || '<span style="font-size:.58rem;color:rgba(100,150,190,.5)">비어있음</span>')
+    + '</div></div>';
+}
+function openBanchanModal() {
+  var sorted = S.banchan.slice().sort(function(a,b){ return new Date(a.madeAt) - new Date(b.madeAt); });
+  var list = '';
+  for (var i = 0; i < sorted.length; i++) {
+    var it = sorted[i];
+    var dPlus = it.madeAt ? Math.round((new Date() - new Date(it.madeAt)) / 86400000) : null;
+    list += '<div id="ban-'+it.id+'" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:6px">'
+      + '<span style="font-size:1.8rem;line-height:1;flex-shrink:0">'+banchanEmoji(it.cat)+'</span>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(it.name)+'</div>'
+      + '<div style="font-size:.72rem;color:var(--muted);margin-top:1px">'+esc(it.cat)+(it.qty?' · '+esc(it.qty)+(it.unit||''):'')+'</div>'
+      + '</div>'
+      + (dPlus !== null ? '<div style="font-size:.68rem;color:#4ade80;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:6px;padding:2px 7px;white-space:nowrap">🍱 D+'+dPlus+'</div>' : '')
+      + '<button onclick="deleteBanchan(\''+it.id+'\')" style="border:none;background:var(--red);color:#fff;border-radius:7px;padding:3px 8px;font-size:.75rem;cursor:pointer;flex-shrink:0">삭제</button>'
+      + '</div>';
+  }
+  var h = '<div class="mhandle"></div>'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'
+    + '<div style="font-size:1rem;font-weight:700">🍱 반찬</div>'
+    + '<button onclick="closeModal();openAddBanchan()" style="border:none;background:var(--blue);color:#fff;border-radius:8px;padding:6px 14px;font-size:.82rem;cursor:pointer;font-weight:600">+ 추가</button>'
+    + '</div>'
+    + '<div style="max-height:340px;overflow-y:auto;margin-bottom:10px">'
+    + (list || '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:24px">반찬이 없어요</div>')
+    + '</div>'
+    + '<button class="btn-s" onclick="closeModal()">닫기</button>';
+  showModal(h);
+}
+function deleteBanchan(id) {
+  S.banchan = S.banchan.filter(function(i){ return i.id !== id; });
+  saveB();
+  var el = document.getElementById('ban-'+id);
+  if (el) el.remove();
+  var wrap = document.querySelector('.door-bin-banchan .etd-wrap');
+  if (wrap) wrap.parentElement.innerHTML = banchanBinHtml();
+}
+function openAddBanchan() {
+  var catBtns = '';
+  for (var i = 0; i < BANCHAN_CATS.length; i++) {
+    catBtns += '<button class="cat-btn'+(i===0?' on':'')+'" '
+      + 'onclick="this.closest(\'.ban-cat-grid\').querySelectorAll(\'.cat-btn\').forEach(function(b){b.classList.remove(\'on\')});this.classList.add(\'on\');S._bcat=\''+BANCHAN_CATS[i].id+'\'">'
+      + '<span class="ce">'+BANCHAN_CATS[i].e+'</span>'+BANCHAN_CATS[i].id+'</button>';
+  }
+  S._bcat = BANCHAN_CATS[0].id;
+  var units = ['개','인분','통','봉','팩','기타'];
+  var uopts = '';
+  for (var i = 0; i < units.length; i++) uopts += '<option value="'+units[i]+'">'+units[i]+'</option>';
+  var h = '<div class="mhandle"></div>'
+    + '<div style="font-size:1rem;font-weight:700;margin-bottom:14px">🍱 반찬 추가</div>'
+    + '<div class="sect"><label class="lbl">이름</label>'
+    + '<input class="inp" id="bi-name" type="text" placeholder="예: 김치, 시금치나물..."></div>'
+    + '<div class="sect"><label class="lbl">카테고리</label>'
+    + '<div class="cat-grid ban-cat-grid" style="grid-template-columns:repeat(3,1fr)">'+catBtns+'</div></div>'
+    + '<div class="sect"><label class="lbl">만든 날짜</label>'
+    + '<input class="inp" id="bi-made" type="date" value="'+today()+'"></div>'
+    + '<div class="sect"><label class="lbl">수량</label>'
+    + '<div class="rowq"><input class="inp" id="bi-qty" type="text" placeholder="1">'
+    + '<select class="inp" id="bi-unit">'+uopts+'</select></div></div>'
+    + '<div class="stack"><button class="btn-p" onclick="saveBanchanItem()">추가하기</button>'
+    + '<button class="btn-s" onclick="closeModal();openBanchanModal()">뒤로</button></div>';
+  showModal(h);
+}
+function saveBanchanItem() {
+  var name   = (document.getElementById('bi-name').value||'').trim();
+  var madeAt = document.getElementById('bi-made').value;
+  var qty    = document.getElementById('bi-qty').value || '1';
+  var unit   = document.getElementById('bi-unit').value || '개';
+  if (!name) { document.getElementById('bi-name').focus(); return; }
+  S.banchan.push({id:uid(), name:name, cat:S._bcat||'기타', madeAt:madeAt, qty:qty, unit:unit});
+  saveB(); render(); closeModal(); openBanchanModal();
+}
+
 /* ══ Firebase Auth & Firestore ══ */
 function fsEnc(v) {
   if (v === null || v === undefined) return {nullValue: null};
@@ -1260,6 +1358,7 @@ async function cloudSave() {
     eggs: fsEnc(S.eggs),
     sauces: fsEnc(S.sauces),
     frozen: fsEnc(S.frozen),
+    banchan: fsEnc(S.banchan),
     receipts: fsEnc(S.receipts),
     fridgeScale: fsEnc(S.fridgeScale)
   }};
@@ -1272,10 +1371,10 @@ async function cloudSave() {
   } catch(e) {}
 }
 function resetLocalData() {
-  S.items = []; S.eggs = 6; S.sauces = []; S.frozen = []; S.receipts = [];
+  S.items = []; S.eggs = 6; S.sauces = []; S.frozen = []; S.banchan = []; S.receipts = [];
   S.cfg = {notifyDays: 3, notifOn: false}; S.fridgeScale = 1.0;
   lset('items','[]'); lset('cfg','{}'); lset('eggs','6');
-  lset('sauces3','[]'); lset('frozen','[]'); lset('receipts','[]'); lset('fridgeScale','1');
+  lset('sauces3','[]'); lset('frozen','[]'); lset('banchan','[]'); lset('receipts','[]'); lset('fridgeScale','1');
 }
 async function loadFromCloud() {
   if (!_fbToken || !_fbUid) return;
@@ -1292,6 +1391,7 @@ async function loadFromCloud() {
       if (data.fields.eggs !== undefined) S.eggs = fsDec(data.fields.eggs) || 6;
       if (data.fields.sauces) S.sauces = fsDec(data.fields.sauces) || [];
       if (data.fields.frozen) S.frozen = fsDec(data.fields.frozen) || [];
+      if (data.fields.banchan) S.banchan = fsDec(data.fields.banchan) || [];
       if (data.fields.receipts) S.receipts = fsDec(data.fields.receipts) || [];
       if (data.fields.fridgeScale !== undefined) { var fs = fsDec(data.fields.fridgeScale); S.fridgeScale = isNaN(fs)?1:Math.max(0.4,Math.min(1.3,fs)); }
     }
@@ -1612,6 +1712,9 @@ function vFridge() {
     + '</div>'
     + '<div class="fridge-shelf">'
     + '<div class="door-bin door-bin-sauce" style="flex:1;min-height:96px" onclick="ev();openSauceModal()">'+sauceBinHtml()+'</div>'
+    + '</div>'
+    + '<div class="fridge-shelf">'
+    + '<div class="door-bin door-bin-banchan" style="flex:1;min-height:96px;cursor:pointer;transition:background .15s" onclick="ev();openBanchanModal()">'+banchanBinHtml()+'</div>'
     + '</div>';
 
   var da = S.door ? 'class="fridge-door open" style="transition:none"' : 'class="fridge-door"';
