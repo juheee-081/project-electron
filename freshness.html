@@ -940,7 +940,7 @@ function openEggModal() {
     + '<div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:24px">'
     + '<button class="cal-nav" style="width:48px;height:48px;font-size:1.6rem;border-radius:50%" onclick="adjEggs(-1)">−</button>'
     + '<div style="text-align:center;min-width:64px">'
-    + '<div id="egg-cnt" style="font-size:3.4rem;font-weight:800;color:var(--blue);line-height:1">'+S.eggs+'</div>'
+    + '<input id="egg-cnt" type="number" min="0" max="60" value="'+S.eggs+'" oninput="adjEggsInput(this.value)" style="font-size:3rem;font-weight:800;color:var(--blue);line-height:1;width:80px;text-align:center;background:none;border:none;outline:none;-moz-appearance:textfield">'
     + '<div style="font-size:.78rem;color:var(--muted)">개</div>'
     + '</div>'
     + '<button class="cal-nav" style="width:48px;height:48px;font-size:1.6rem;border-radius:50%" onclick="adjEggs(1)">+</button>'
@@ -951,7 +951,11 @@ function openEggModal() {
 function adjEggs(d) {
   S.eggs = Math.max(0, Math.min(60, S.eggs + d));
   var el = document.getElementById('egg-cnt');
-  if (el) el.textContent = S.eggs;
+  if (el) el.value = S.eggs;
+}
+function adjEggsInput(v) {
+  var n = parseInt(v, 10);
+  if (!isNaN(n)) S.eggs = Math.max(0, Math.min(60, n));
 }
 
 /* ══ Sauces ══ */
