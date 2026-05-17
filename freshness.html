@@ -173,6 +173,7 @@ body.light .ai-fridge-tip{color:#14532d;background:rgba(220,252,231,.95);border-
 #nb-scan.on{color:#29B6F6;filter:drop-shadow(0 0 6px rgba(41,182,246,.6));}
 #nb-news.on{color:#1DE9B6;filter:drop-shadow(0 0 6px rgba(29,233,182,.6));}
 #nb-settings.on{color:#b77fff;filter:drop-shadow(0 0 6px rgba(183,127,255,.55));}
+#nb-fridge.on{color:#00D999;filter:drop-shadow(0 0 6px rgba(0,217,153,.6));}
 
 /* ── Fridge scene ── */
 .fridge-wrap{max-width:320px;margin:0 auto 20px;cursor:pointer;transition:transform .65s cubic-bezier(.4,0,.2,1);}
@@ -747,9 +748,9 @@ body.light .mascot-bubble::after{border-bottom-color:#f5faff;}
 
 <main id="main"></main>
 
-<nav class="bnav">
-  <button class="nb"    id="nb-add"      onclick="go('add')">     <span class="ni">&#x2795;</span>추가</button>
+<nav class="bnav" id="bnav">
   <button class="nb"    id="nb-scan"     onclick="go('scan')">    <span class="ni">&#x1F4F7;</span>영수증</button>
+  <button class="nb"    id="nb-fridge"   onclick="goFridge()">    <span class="ni">&#x1F9CA;</span>냉장고</button>
   <button class="nb on" id="nb-home"     onclick="go('home')">    <span class="ni">&#x1F3E0;</span>홈</button>
   <button class="nb"    id="nb-news"     onclick="go('news')">    <span class="ni">&#x1F4F0;</span>뉴스</button>
   <button class="nb"    id="nb-settings" onclick="go('settings')"><span class="ni">&#x2699;&#xFE0F;</span>설정</button>
@@ -1486,14 +1487,40 @@ function fbErr(code) {
 }
 
 /* ══ Navigation ══ */
+function renderNav() {
+  var nav = document.getElementById('bnav');
+  if (!nav) return;
+  var isFridge = (S.view === 'home' && S.tab === 'fridge');
+  if (isFridge) {
+    nav.innerHTML =
+      '<button class="nb" id="nb-add"      onclick="go(\'add\')">     <span class="ni">&#x2795;</span>추가</button>'+
+      '<button class="nb" id="nb-scan"     onclick="go(\'scan\')">    <span class="ni">&#x1F4F7;</span>영수증</button>'+
+      '<button class="nb" id="nb-home"     onclick="go(\'home\')">    <span class="ni">&#x1F3E0;</span>홈</button>'+
+      '<button class="nb" id="nb-news"     onclick="go(\'news\')">    <span class="ni">&#x1F4F0;</span>뉴스</button>'+
+      '<button class="nb" id="nb-settings" onclick="go(\'settings\')"><span class="ni">&#x2699;&#xFE0F;</span>설정</button>';
+  } else {
+    nav.innerHTML =
+      '<button class="nb" id="nb-scan"     onclick="go(\'scan\')">    <span class="ni">&#x1F4F7;</span>영수증</button>'+
+      '<button class="nb" id="nb-fridge"   onclick="goFridge()">      <span class="ni">&#x1F9CA;</span>냉장고</button>'+
+      '<button class="nb" id="nb-home"     onclick="go(\'home\')">    <span class="ni">&#x1F3E0;</span>홈</button>'+
+      '<button class="nb" id="nb-news"     onclick="go(\'news\')">    <span class="ni">&#x1F4F0;</span>뉴스</button>'+
+      '<button class="nb" id="nb-settings" onclick="go(\'settings\')"><span class="ni">&#x2699;&#xFE0F;</span>설정</button>';
+  }
+  /* highlight active button */
+  var activeId = isFridge ? 'nb-fridge' : ('nb-' + S.view);
+  if (S.view === 'home' && !isFridge) activeId = 'nb-home';
+  var btn = document.getElementById(activeId);
+  if (btn) btn.classList.add('on');
+}
+function goFridge() {
+  S.editId = null; S.view = 'home'; S.tab = 'fridge';
+  render(); window.scrollTo(0,0);
+}
 function go(v) {
   if (v === 'add' && !S.editId) { var _pc = S._presetCat; S._presetCat = null; S.form = emptyForm(); if (_pc) S.form.cat = _pc; }
   if (v !== 'add') S.editId = null;
   if (v === 'home') S.tab = 'dashboard';
   S.view = v;
-  document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('on'); });
-  var nb = document.getElementById('nb-'+v);
-  if (nb) nb.classList.add('on');
   render();
   window.scrollTo(0, 0);
   if (v === 'news') fetchNews();
@@ -1506,6 +1533,7 @@ function render() {
   else if (S.view === 'scan')m.innerHTML = vScan();
   else if (S.view === 'news')m.innerHTML = vNews();
   else                       m.innerHTML = vSettings();
+  renderNav();
   badge();
   startBannerCycle();
 }
