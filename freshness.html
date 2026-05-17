@@ -359,18 +359,18 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .dash-card-title{font-size:1.15rem;font-weight:800;color:#fff;margin-bottom:2px;letter-spacing:-.01em;}
 .dash-card-sub{font-size:.74rem;color:rgba(255,255,255,.7);font-weight:500;}
 .dash-card-arr{font-size:1.4rem;color:rgba(255,255,255,.5);font-weight:700;line-height:1;flex-shrink:0;}
-.dash-bento-row{display:flex;gap:12px;height:150px;}
-.dc-fridge{background:linear-gradient(135deg,#00D999 0%,#00A876 50%,#007A58 100%);flex:1;
+.dc-fridge{background:linear-gradient(135deg,#00D999 0%,#00A876 50%,#007A58 100%);height:120px;
   box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 16px 40px -6px rgba(0,190,130,.5),0 4px 12px rgba(0,0,0,.2);}
-.dc-fridge .dash-card-title{font-size:1.1rem;}
-.dc-fridge .dash-card-icon{font-size:5rem;bottom:-12px;right:-8px;opacity:.2;}
-.dc-news{background:linear-gradient(135deg,#00E5C8 0%,#00B89A 50%,#008572 100%);flex:1;
+.dc-fridge .dash-card-title{font-size:1.3rem;}
+.dc-fridge .dash-card-icon{font-size:7rem;bottom:-16px;right:-10px;opacity:.2;}
+.dash-bento-row{display:flex;gap:12px;height:200px;}
+.dc-news{background:linear-gradient(135deg,#00E5C8 0%,#00B89A 50%,#008572 100%);flex:1.15;
   box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 16px 40px -6px rgba(0,200,180,.5),0 4px 12px rgba(0,0,0,.2);}
-.dc-news .dash-card-icon{font-size:5rem;bottom:-12px;right:-8px;opacity:.2;}
+.dc-news .dash-card-icon{font-size:7rem;bottom:-16px;right:-10px;opacity:.2;}
 .dash-bento-col{display:flex;flex-direction:column;gap:12px;flex:1;}
 .dc-receipt{background:linear-gradient(135deg,#38BEFF 0%,#0EA5E9 50%,#0270A8 100%);flex:1;
   box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 16px 40px -6px rgba(14,165,233,.5),0 4px 12px rgba(0,0,0,.2);}
-.dc-receipt .dash-card-icon{font-size:4rem;bottom:-10px;right:-6px;opacity:.2;}
+.dc-receipt .dash-card-icon{font-size:4.5rem;bottom:-10px;right:-6px;opacity:.2;}
 .dc-add{background:rgba(255,255,255,.07);border:2px dashed rgba(255,255,255,.18);flex:1;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
 .dc-add .dash-card-icon{position:static;font-size:1.5rem;opacity:.6;bottom:auto;right:auto;}
@@ -1622,24 +1622,25 @@ function vHome() {
       + (exp ? '<span class="dash-pill dp-exp">🚨 만료 '+exp+'개</span>' : '')
       + '</div>'
       + '<div class="dash-bento">'
-      + '<div class="dash-bento-row">'
       + '<div class="dash-card dc-fridge" onclick="setTab(\'fridge\')">'
       + '<span class="dash-card-icon">🧊</span>'
-      + '<div class="dash-card-inner"><div><div class="dash-card-title">냉장고</div><div class="dash-card-sub">'+S.items.length+'개 보관</div></div><span class="dash-card-arr">›</span></div>'
+      + '<div class="dash-card-inner"><div><div class="dash-card-title">냉장고</div><div class="dash-card-sub">식재료 '+S.items.length+'개 보관 중</div></div><span class="dash-card-arr">›</span></div>'
       + '</div>'
+      + '<div class="dash-bento-row">'
       + '<div class="dash-card dc-news" onclick="go(\'news\')">'
       + '<span class="dash-card-icon">📰</span>'
-      + '<div class="dash-card-inner"><div><div class="dash-card-title">뉴스</div><div class="dash-card-sub">식품 정보</div></div><span class="dash-card-arr">›</span></div>'
+      + '<div class="dash-card-inner"><div><div class="dash-card-title">뉴스</div><div class="dash-card-sub">식품 안전 정보</div></div><span class="dash-card-arr">›</span></div>'
       + '</div>'
       + '<div class="dash-bento-col">'
       + '<div class="dash-card dc-receipt" onclick="go(\'scan\')">'
       + '<span class="dash-card-icon">🧾</span>'
-      + '<div class="dash-card-inner"><div><div class="dash-card-title">영수증</div></div><span class="dash-card-arr">›</span></div>'
-      + '</div>'
+      + '<div class="dash-card-inner"><div><div class="dash-card-title" style="font-size:.95rem">영수증</div></div><span class="dash-card-arr" style="font-size:1.1rem">›</span></div>'
       + '</div>'
       + '<div class="dash-card dc-add" onclick="go(\'add\')">'
       + '<span class="dash-card-icon">＋</span>'
       + '<div class="dash-card-title">식재료 추가</div>'
+      + '</div>'
+      + '</div>'
       + '</div>'
       + '</div>'
       + '</div>';
