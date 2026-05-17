@@ -2070,7 +2070,11 @@ function vNews() {
   if (S.news.aiLoading) {
     h += '<div style="text-align:center;padding:16px 0;color:var(--muted);font-size:.85rem">뉴스를 읽고 구매 가이드를 작성하는 중이에요...</div>';
   } else if (S.news.aiError) {
-    h += '<div style="text-align:center;color:var(--red);font-size:.82rem;margin-bottom:12px">'+esc(S.news.aiError)+'</div>';
+    h += '<div style="text-align:center;padding:18px 0 8px">'
+      +'<div style="font-size:2rem;margin-bottom:8px">😢</div>'
+      +'<div style="color:var(--muted);font-size:.85rem;margin-bottom:14px">AI 분석을 가져오지 못했어요<br>잠시 후 다시 시도해주세요</div>'
+      +'<button class="btn-s" onclick="S.news.aiError=null;analyzeNews()">다시 시도</button>'
+      +'</div>';
   } else if (S.news.aiResult) {
     h += renderAiResult();
   }
@@ -2093,70 +2097,85 @@ function vNews() {
   }
   return h + '</div>';
 }
+function fixJson(raw) {
+  var s = raw.replace(/```json\n?|\n?```/g,'').trim();
+  s = s.replace(/,\s*([\]\}])/g,'$1');
+  if (!s.endsWith('}')) {
+    var opens = (s.match(/\{/g)||[]).length - (s.match(/\}/g)||[]).length;
+    var arrOpens = (s.match(/\[/g)||[]).length - (s.match(/\]/g)||[]).length;
+    var last = s.lastIndexOf('"');
+    if (last > 0 && s.slice(last+1).trim() === '') s = s.slice(0,last+1);
+    for (var ai=0;ai<arrOpens;ai++) s += ']';
+    for (var oi=0;oi<opens;oi++) s += '}';
+  }
+  return s;
+}
 async function analyzeNews() {
   if (S.news.aiLoading) return;
   var cur = S.news.cache[S.news.tab] || {items:[]};
   if (!cur.items.length) { alert('먼저 뉴스를 불러와주세요'); return; }
   S.news.aiLoading = true; S.news.aiResult = null; S.news.aiError = null;
   if (S.view === 'news') render();
-  var newsText = cur.items.slice(0, 10).map(function(it, i) {
+  var newsText = cur.items.slice(0, 8).map(function(it, i) {
     return (i+1)+'. '+it.title;
   }).join('\n');
   var fridgeItems = S.items.slice().sort(function(a,b){ return dLeft(a.exp)-dLeft(b.exp); })
-    .slice(0, 15).map(function(it) {
+    .slice(0, 10).map(function(it) {
       var d = dLeft(it.exp);
       return it.name+'(D'+(d>=0?'-':'+')+Math.abs(d)+')';
     }).join(', ');
-  var prompt = '너는 스마트 식재료 관리 서비스 \'신선해\'의 핵심 AI 어시스턴트야.\n'
-    +'반드시 한국어로만 답해줘. 한자, 영어, 일본어 등 다른 언어는 절대 사용하지 마.\n'
-    +'너의 임무는 복잡한 농산물 물가 뉴스를 분석해서 사용자가 한눈에 이해할 수 있게 요약하고, 실질적인 구매 팁을 제공하는 거야.\n\n'
-    +'[말투 가이드]\n- 친절하고 다정한 말투 (~해요, ~입니다)\n- 전문 용어보다는 \'장바구니\', \'식탁\' 같은 쉬운 단어 사용\n- 이모지를 적절히 섞어서 가독성 높이기\n\n'
-    +'[분석 가이드]\n1. 뉴스에서 가격이 오른 품목과 내린 품목을 명확히 구분해.\n2. 가격 변동의 원인(날씨, 수입량 등)을 짧게 언급해.\n3. 지금 사면 좋을지, 기다려야 할지 구매 의견을 포함해.\n\n'
-    +'최근 식재료 뉴스:\n'+newsText
-    +'\n\n내 냉장고 현황: '+(fridgeItems||'없음')
-    +'\n\n아래 JSON 형식으로만 답해줘 (설명 없이 JSON만):\n'
-    +'{"summary":"핵심 뉴스 3줄 요약, 이모지 포함, 줄바꿈으로 구분","buy_now":[{"name":"재료명","reason":"구매 추천 이유 (가격 변동 원인 포함)"}],"buy_later":[{"name":"재료명","reason":"구매 미루는 이유 (가격 변동 원인 포함)"}],"fridge_tip":"내 냉장고 재료와 연결된 실용적인 팁"}';
-  try {
-    var ctrl = new AbortController();
-    var t = setTimeout(function(){ ctrl.abort(); }, 25000);
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization':'Bearer '+GROQ_KEY
-      },
-      body:JSON.stringify({
-        model:'llama-3.3-70b-versatile',
-        max_tokens:900,
-        messages:[
-          {role:'system', content:'당신은 한국어 전용 AI입니다. 반드시 순수한 한국어로만 답하세요. 단어 중간에 한자, 영어, 일본어를 절대 섞지 마세요. 예를 들어 유통기한을 유통기han처럼 쓰면 안 됩니다. JSON 값 안의 모든 텍스트는 완전한 한국어 단어와 이모지로만 작성하세요.'},
-          {role:'user', content:prompt}
-        ]
-      }),
-      signal:ctrl.signal
-    });
-    clearTimeout(t);
-    var data = await res.json();
-    if (!res.ok) throw new Error('HTTP '+res.status+': '+(data.error&&data.error.message||JSON.stringify(data)));
-    var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-    if (!text) throw new Error('응답없음: '+JSON.stringify(data));
-    var json = text.replace(/```json\n?|\n?```/g,'').trim();
-    var parsed = JSON.parse(json);
-    function stripForeign(s) {
-      if (!s) return s;
-      return s.replace(/[぀-ヿ㐀-䶿一-鿿豈-﫿]/g, '').replace(/\s{2,}/g,' ').trim();
-    }
-    function cleanItem(obj) {
-      return {name: stripForeign(obj.name), reason: stripForeign(obj.reason)};
-    }
-    parsed.summary = stripForeign(parsed.summary);
-    parsed.fridge_tip = stripForeign(parsed.fridge_tip);
-    if (parsed.buy_now) parsed.buy_now = parsed.buy_now.map(cleanItem);
-    if (parsed.buy_later) parsed.buy_later = parsed.buy_later.map(cleanItem);
-    S.news.aiResult = parsed;
-  } catch(e) {
-    S.news.aiError = '오류: '+e.message;
+  var sysMsg = '한국어 전용 AI입니다. 반드시 한국어로만 답하세요. JSON 형식으로만 출력하세요. 영어나 한자를 섞지 마세요.';
+  var prompt = '[한국어로만 답할 것]\n'
+    +'식재료 관리 서비스 AI입니다. 뉴스를 분석해 구매 가이드를 JSON으로만 작성해.\n\n'
+    +'뉴스:\n'+newsText
+    +'\n\n냉장고: '+(fridgeItems||'없음')
+    +'\n\nJSON만 출력 (다른 텍스트 없이):\n'
+    +'{"summary":"3줄 요약(이모지포함,\\n으로 구분)","buy_now":[{"name":"재료","reason":"이유"}],"buy_later":[{"name":"재료","reason":"이유"}],"fridge_tip":"냉장고 팁"}';
+  function stripForeign(s) {
+    if (!s) return s;
+    return s.replace(/[぀-ヿ㐀-䶿一-鿿豈-﫿]/g,'').replace(/\s{2,}/g,' ').trim();
   }
+  function cleanItem(obj) {
+    return {name: stripForeign(obj.name||''), reason: stripForeign(obj.reason||'')};
+  }
+  var lastErr = null;
+  for (var attempt = 0; attempt < 2; attempt++) {
+    try {
+      var ctrl = new AbortController();
+      var tt = setTimeout(function(){ ctrl.abort(); }, 28000);
+      var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
+        body:JSON.stringify({
+          model:'llama-3.3-70b-versatile',
+          max_tokens:1400,
+          temperature:0.2,
+          messages:[
+            {role:'system', content:sysMsg},
+            {role:'user', content:prompt}
+          ]
+        }),
+        signal:ctrl.signal
+      });
+      clearTimeout(tt);
+      var data = await res.json();
+      if (!res.ok) throw new Error('API 오류');
+      var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      if (!text) throw new Error('빈 응답');
+      var parsed = JSON.parse(fixJson(text));
+      parsed.summary = stripForeign(parsed.summary||'');
+      parsed.fridge_tip = stripForeign(parsed.fridge_tip||'');
+      if (parsed.buy_now) parsed.buy_now = parsed.buy_now.map(cleanItem);
+      if (parsed.buy_later) parsed.buy_later = parsed.buy_later.map(cleanItem);
+      if (!parsed.summary && !(parsed.buy_now&&parsed.buy_now.length) && !(parsed.buy_later&&parsed.buy_later.length)) throw new Error('빈 결과');
+      S.news.aiResult = parsed;
+      lastErr = null;
+      break;
+    } catch(e) {
+      lastErr = e;
+    }
+  }
+  if (lastErr) S.news.aiError = 'fail';
   S.news.aiLoading = false;
   if (S.view === 'news') render();
 }
