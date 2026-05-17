@@ -157,10 +157,10 @@ main{padding:20px 18px calc(var(--nh) + 28px);}
 .ai-guide-item:last-child{border-bottom:none;padding-bottom:0;}
 .ai-guide-name{font-size:.82rem;font-weight:700;}
 .ai-guide-reason{font-size:.72rem;color:var(--muted);line-height:1.4;}
-.ai-fridge-tip{font-size:.8rem;line-height:1.6;color:rgba(74,222,128,.9);background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:10px;padding:10px 14px;margin-top:4px;}
+.ai-fridge-tip{font-size:.8rem;line-height:1.6;color:#d4fde8;background:rgba(20,60,35,.85);border:1px solid rgba(74,222,128,.3);border-radius:10px;padding:10px 14px;margin-top:4px;}
 body.light .ai-card{background:linear-gradient(135deg,rgba(22,163,74,.06),rgba(14,165,233,.04));border-color:rgba(22,163,74,.2);}
 body.light .ai-btn{background:linear-gradient(135deg,#dcfce7,#d1fae5);color:#16a34a;border-color:rgba(22,163,74,.3);}
-body.light .ai-fridge-tip{color:#16a34a;background:rgba(22,163,74,.06);border-color:rgba(22,163,74,.2);}
+body.light .ai-fridge-tip{color:#14532d;background:rgba(220,252,231,.95);border-color:rgba(22,163,74,.3);}
 .news-meta{font-size:.74rem;color:var(--muted);display:flex;gap:8px;align-items:center;}
 .news-src{color:var(--blue);font-weight:600;}
 .news-section{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 8px;}
@@ -359,30 +359,18 @@ body.light .cat-slot:hover{background:rgba(175,215,245,.55);}
 .dash-card-title{font-size:1.15rem;font-weight:800;color:#fff;margin-bottom:2px;letter-spacing:-.01em;}
 .dash-card-sub{font-size:.74rem;color:rgba(255,255,255,.7);font-weight:500;}
 .dash-card-arr{font-size:1.4rem;color:rgba(255,255,255,.5);font-weight:700;line-height:1;flex-shrink:0;}
-.dc-fridge{
-  background:rgba(10,30,20,.5);
-  border:1px solid rgba(0,220,150,.2);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  height:120px;
-  box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(0,220,150,.1);}
-.dc-fridge .dash-card-title{font-size:1.3rem;}
-.dc-fridge .dash-card-icon{font-size:7rem;bottom:-16px;right:-10px;opacity:.25;}
-.dash-bento-row{display:flex;gap:12px;height:200px;}
-.dc-news{
-  background:rgba(5,25,20,.5);
-  border:1px solid rgba(29,233,182,.2);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  flex:1.15;
-  box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(29,233,182,.1);}
-.dc-news .dash-card-icon{font-size:7rem;bottom:-16px;right:-10px;opacity:.25;}
+.dash-bento-row{display:flex;gap:12px;height:150px;}
+.dc-fridge{background:linear-gradient(135deg,#00D999 0%,#00A876 50%,#007A58 100%);flex:1;
+  box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 16px 40px -6px rgba(0,190,130,.5),0 4px 12px rgba(0,0,0,.2);}
+.dc-fridge .dash-card-title{font-size:1.1rem;}
+.dc-fridge .dash-card-icon{font-size:5rem;bottom:-12px;right:-8px;opacity:.2;}
+.dc-news{background:linear-gradient(135deg,#00E5C8 0%,#00B89A 50%,#008572 100%);flex:1;
+  box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 16px 40px -6px rgba(0,200,180,.5),0 4px 12px rgba(0,0,0,.2);}
+.dc-news .dash-card-icon{font-size:5rem;bottom:-12px;right:-8px;opacity:.2;}
 .dash-bento-col{display:flex;flex-direction:column;gap:12px;flex:1;}
-.dc-receipt{
-  background:rgba(5,15,30,.5);
-  border:1px solid rgba(41,182,246,.2);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  flex:1;
-  box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(41,182,246,.1);}
-.dc-receipt .dash-card-icon{font-size:4.5rem;bottom:-10px;right:-6px;opacity:.25;}
+.dc-receipt{background:linear-gradient(135deg,#38BEFF 0%,#0EA5E9 50%,#0270A8 100%);flex:1;
+  box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 16px 40px -6px rgba(14,165,233,.5),0 4px 12px rgba(0,0,0,.2);}
+.dc-receipt .dash-card-icon{font-size:4rem;bottom:-10px;right:-6px;opacity:.2;}
 .dc-add{background:rgba(255,255,255,.07);border:2px dashed rgba(255,255,255,.18);flex:1;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
 .dc-add .dash-card-icon{position:static;font-size:1.5rem;opacity:.6;bottom:auto;right:auto;}
@@ -1634,24 +1622,24 @@ function vHome() {
       + (exp ? '<span class="dash-pill dp-exp">🚨 만료 '+exp+'개</span>' : '')
       + '</div>'
       + '<div class="dash-bento">'
+      + '<div class="dash-bento-row">'
       + '<div class="dash-card dc-fridge" onclick="setTab(\'fridge\')">'
       + '<span class="dash-card-icon">🧊</span>'
-      + '<div class="dash-card-inner"><div><div class="dash-card-title">냉장고</div><div class="dash-card-sub">식재료 '+S.items.length+'개 보관 중</div></div><span class="dash-card-arr">›</span></div>'
+      + '<div class="dash-card-inner"><div><div class="dash-card-title">냉장고</div><div class="dash-card-sub">'+S.items.length+'개 보관</div></div><span class="dash-card-arr">›</span></div>'
       + '</div>'
-      + '<div class="dash-bento-row">'
       + '<div class="dash-card dc-news" onclick="go(\'news\')">'
       + '<span class="dash-card-icon">📰</span>'
-      + '<div class="dash-card-inner"><div><div class="dash-card-title">뉴스</div><div class="dash-card-sub">식품 안전 정보</div></div><span class="dash-card-arr">›</span></div>'
+      + '<div class="dash-card-inner"><div><div class="dash-card-title">뉴스</div><div class="dash-card-sub">식품 정보</div></div><span class="dash-card-arr">›</span></div>'
       + '</div>'
       + '<div class="dash-bento-col">'
       + '<div class="dash-card dc-receipt" onclick="go(\'scan\')">'
       + '<span class="dash-card-icon">🧾</span>'
-      + '<div class="dash-card-inner"><div><div class="dash-card-title" style="font-size:.95rem">영수증</div></div><span class="dash-card-arr" style="font-size:1.1rem">›</span></div>'
+      + '<div class="dash-card-inner"><div><div class="dash-card-title">영수증</div></div><span class="dash-card-arr">›</span></div>'
+      + '</div>'
       + '</div>'
       + '<div class="dash-card dc-add" onclick="go(\'add\')">'
       + '<span class="dash-card-icon">＋</span>'
       + '<div class="dash-card-title">식재료 추가</div>'
-      + '</div>'
       + '</div>'
       + '</div>'
       + '</div>';
