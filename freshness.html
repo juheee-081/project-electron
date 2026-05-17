@@ -2167,6 +2167,11 @@ async function analyzeNews() {
       parsed.fridge_tip = stripForeign(parsed.fridge_tip||'');
       if (parsed.buy_now) parsed.buy_now = parsed.buy_now.map(cleanItem);
       if (parsed.buy_later) parsed.buy_later = parsed.buy_later.map(cleanItem);
+      var allText = (parsed.summary||'')+(parsed.fridge_tip||'')
+        +((parsed.buy_now||[]).map(function(x){return x.name+x.reason;}).join(''))
+        +((parsed.buy_later||[]).map(function(x){return x.name+x.reason;}).join(''));
+      var koreanCount = (allText.match(/[가-힣]/g)||[]).length;
+      if (koreanCount < 5) throw new Error('한국어 응답 아님');
       if (!parsed.summary && !(parsed.buy_now&&parsed.buy_now.length) && !(parsed.buy_later&&parsed.buy_later.length)) throw new Error('빈 결과');
       S.news.aiResult = parsed;
       lastErr = null;
