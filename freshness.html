@@ -2140,7 +2140,7 @@ async function analyzeNews() {
   function cleanItem(obj) {
     return {name: stripForeign(obj.name||''), reason: stripForeign(obj.reason||'')};
   }
-  var MODELS = ['llama-3.3-70b-versatile','gemma2-9b-it'];
+  var MODELS = ['llama-3.3-70b-versatile','llama-3.1-8b-instant'];
   var lastErr = null;
   for (var attempt = 0; attempt < 2; attempt++) {
     try {
