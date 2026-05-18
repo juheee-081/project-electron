@@ -2140,7 +2140,6 @@ async function analyzeNews() {
   function cleanItem(obj) {
     return {name: stripForeign(obj.name||''), reason: stripForeign(obj.reason||'')};
   }
-  var MODELS = ['llama-3.3-70b-versatile','llama-3.1-8b-instant'];
   var lastErr = null;
   for (var attempt = 0; attempt < 2; attempt++) {
     try {
@@ -2150,7 +2149,7 @@ async function analyzeNews() {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
         body:JSON.stringify({
-          model:MODELS[attempt] || MODELS[0],
+          model:'llama-3.3-70b-versatile',
           max_tokens:1400,
           temperature:0.2,
           messages:[
