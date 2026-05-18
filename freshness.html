@@ -2162,7 +2162,7 @@ async function analyzeNews() {
       });
       clearTimeout(tt);
       var data = await res.json();
-      if (!res.ok) throw new Error('API 오류');
+      if (!res.ok) throw new Error('API '+res.status+' '+(data.error&&data.error.message||''));
       var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
       if (!text) throw new Error('빈 응답');
       var parsed = JSON.parse(fixJson(text));
